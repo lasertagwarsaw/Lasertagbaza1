@@ -1,9 +1,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { hasKvStorage, readJson, writeJson } = require("./_kv-storage");
 
 const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const feedPath = path.join(dataDir, "telegram-feed.json");
+const feedStorageKey = "baza:telegram-feed:v1";
 const maxItems = 25;
 
 const feedMeta = {
@@ -46,7 +48,7 @@ const normalizeFeed = (feed) => {
   return normalized;
 };
 
-const readFeed = () => {
+const readLocalFeed = () => {
   try {
     return normalizeFeed(JSON.parse(fs.readFileSync(feedPath, "utf8")));
   } catch (error) {
@@ -54,17 +56,39 @@ const readFeed = () => {
   }
 };
 
-const writeFeed = (feed) => {
+const writeLocalFeed = (feed) => {
   ensureDataDir();
   fs.writeFileSync(feedPath, JSON.stringify(feed, null, 2));
 };
 
-const tryWriteFeed = (feed) => {
+const readFeed = async () => {
+  if (hasKvStorage()) {
+    try {
+      return normalizeFeed(await readJson(feedStorageKey, { feeds: {} }));
+    } catch (error) {
+      console.warn("[telegram-feed] KV read failed, using local file:", error.message);
+      return readLocalFeed();
+    }
+  }
+
+  return readLocalFeed();
+};
+
+const writeFeed = async (feed) => {
+  if (hasKvStorage()) {
+    await writeJson(feedStorageKey, normalizeFeed(feed));
+    return { ok: true, type: "kv" };
+  }
+
+  writeLocalFeed(feed);
+  return { ok: true, type: "file" };
+};
+
+const tryWriteFeed = async (feed) => {
   try {
-    writeFeed(feed);
-    return { ok: true };
+    return await writeFeed(feed);
   } catch (error) {
-    console.warn("[telegram-feed] file storage skipped:", error.message);
+    console.warn("[telegram-feed] storage skipped:", error.message);
     return { ok: false, reason: error.message };
   }
 };
@@ -143,7 +167,7 @@ const telegramRequest = async (token, method, payload) => {
 };
 
 async function appendTelegramFeed({ token, chatId, item }) {
-  const feed = readFeed();
+  const feed = await readFeed();
   const feedKey = getFeedKey(item);
   feed.feeds[feedKey] ||= { messageId: null, items: [] };
 
@@ -182,7 +206,7 @@ async function appendTelegramFeed({ token, chatId, item }) {
     currentFeed.messageId = result.message_id;
   }
 
-  const storage = tryWriteFeed(feed);
+  const storage = await tryWriteFeed(feed);
   return {
     feedKey,
     messageId: result.message_id,
@@ -195,7 +219,7 @@ async function appendTelegramFeed({ token, chatId, item }) {
 }
 
 async function clearSignupFeeds({ token, chatId }) {
-  const feed = readFeed();
+  const feed = await readFeed();
   const cleared = [];
 
   for (const feedKey of ["signup-wednesday", "signup-sunday"]) {
@@ -221,7 +245,7 @@ async function clearSignupFeeds({ token, chatId }) {
     });
   }
 
-  writeFeed(feed);
+  await writeFeed(feed);
   return cleared;
 }
 
