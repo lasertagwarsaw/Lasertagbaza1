@@ -3,7 +3,16 @@ const { readSiteSignups, addSiteSignup } = require("./_site-signups");
 
 module.exports = async function handler(request, response) {
   if (request.method === "GET") {
-    response.status(200).json({ ok: true, ...readSiteSignups() });
+    try {
+      response.status(200).json({ ok: true, ...readSiteSignups() });
+    } catch (error) {
+      response.status(200).json({
+        ok: true,
+        storage: { ok: false, reason: error.message },
+        cycleStart: null,
+        signups: [],
+      });
+    }
     return;
   }
 
@@ -27,7 +36,14 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  const siteState = addSiteSignup({ id, game, nickname, note, createdAt });
+  let siteState = { signups: [], cycleStart: null };
+  let storageResult = { ok: true };
+  try {
+    siteState = addSiteSignup({ id, game, nickname, note, createdAt });
+  } catch (error) {
+    storageResult = { ok: false, reason: error.message };
+    console.warn("[telegram-signup] site signup storage failed:", error.message);
+  }
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   let telegramResult = { ok: false, skipped: true, reason: "Telegram env vars are missing" };
@@ -59,6 +75,7 @@ module.exports = async function handler(request, response) {
 
   response.status(200).json({
     ok: true,
+    storage: storageResult,
     telegram: telegramResult,
     signups: siteState.signups,
     cycleStart: siteState.cycleStart,

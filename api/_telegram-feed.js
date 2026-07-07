@@ -59,6 +59,16 @@ const writeFeed = (feed) => {
   fs.writeFileSync(feedPath, JSON.stringify(feed, null, 2));
 };
 
+const tryWriteFeed = (feed) => {
+  try {
+    writeFeed(feed);
+    return { ok: true };
+  } catch (error) {
+    console.warn("[telegram-feed] file storage skipped:", error.message);
+    return { ok: false, reason: error.message };
+  }
+};
+
 const escapeHtml = (value) =>
   String(value || "")
     .replace(/&/g, "&amp;")
@@ -172,13 +182,14 @@ async function appendTelegramFeed({ token, chatId, item }) {
     currentFeed.messageId = result.message_id;
   }
 
-  writeFeed(feed);
+  const storage = tryWriteFeed(feed);
   return {
     feedKey,
     messageId: result.message_id,
     chatId: result.chat?.id,
     chatTitle: result.chat?.title,
     chatType: result.chat?.type,
+    storage,
     items: currentFeed.items.length,
   };
 }
