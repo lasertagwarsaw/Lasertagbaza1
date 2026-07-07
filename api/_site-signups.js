@@ -1,9 +1,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { hasKvStorage, readJson, writeJson } = require("./_kv-storage");
 
 const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const signupsPath = path.join(dataDir, "site-signups.json");
+const signupsStorageKey = "baza:site-signups:v1";
 
 const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
@@ -32,22 +34,53 @@ const normalizeState = (state) => {
   return state;
 };
 
-const readSiteSignups = () => {
-  let state;
+const readLocalSignups = () => {
   try {
-    state = JSON.parse(fs.readFileSync(signupsPath, "utf8"));
+    return JSON.parse(fs.readFileSync(signupsPath, "utf8"));
   } catch (error) {
-    state = emptyState();
+    return emptyState();
+  }
+};
+
+const writeLocalSignups = (state) => {
+  ensureDataDir();
+  fs.writeFileSync(signupsPath, JSON.stringify(state, null, 2));
+};
+
+const readSiteSignups = async () => {
+  let state;
+  let storage = { ok: true, type: "file" };
+
+  if (hasKvStorage()) {
+    try {
+      state = await readJson(signupsStorageKey, emptyState());
+      storage = { ok: true, type: "kv" };
+    } catch (error) {
+      storage = { ok: false, type: "kv", reason: error.message };
+      state = readLocalSignups();
+    }
+  } else {
+    state = readLocalSignups();
   }
 
   const normalized = normalizeState(state);
-  if (JSON.stringify(normalized) !== JSON.stringify(state)) writeSiteSignups(normalized);
-  return normalized;
+  if (JSON.stringify(normalized) !== JSON.stringify(state)) await writeSiteSignups(normalized);
+  return { ...normalized, storage };
 };
 
-const writeSiteSignups = (state) => {
-  ensureDataDir();
-  fs.writeFileSync(signupsPath, JSON.stringify(state, null, 2));
+const writeSiteSignups = async (state) => {
+  const cleanState = {
+    cycleStart: state.cycleStart,
+    signups: Array.isArray(state.signups) ? state.signups : [],
+  };
+
+  if (hasKvStorage()) {
+    await writeJson(signupsStorageKey, cleanState);
+    return { ok: true, type: "kv" };
+  }
+
+  writeLocalSignups(cleanState);
+  return { ok: true, type: "file" };
 };
 
 const cleanText = (value, maxLength = 80) =>
@@ -56,8 +89,8 @@ const cleanText = (value, maxLength = 80) =>
     .replace(/\s+/g, " ")
     .slice(0, maxLength);
 
-const addSiteSignup = (signup) => {
-  const state = readSiteSignups();
+const addSiteSignup = async (signup) => {
+  const state = await readSiteSignups();
   const id = cleanText(signup.id || String(Date.now()), 80);
 
   if (state.signups.some((item) => item.id === id)) return state;
@@ -69,8 +102,8 @@ const addSiteSignup = (signup) => {
     note: cleanText(signup.note, 120),
     createdAt: signup.createdAt || new Date().toISOString(),
   });
-  writeSiteSignups(state);
-  return state;
+  const storage = await writeSiteSignups(state);
+  return { ...state, storage };
 };
 
 module.exports = { readSiteSignups, addSiteSignup, getCurrentSignupCycleStart };
