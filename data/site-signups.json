@@ -1,0 +1,40 @@
+{
+  "cycleStart": "2026-07-06T08:00:00.000Z",
+  "signups": [
+    {
+      "id": "bcf489b3-4626-4854-942d-7822f47d5368",
+      "game": "wednesday",
+      "nickname": "1",
+      "note": "1",
+      "createdAt": "2026-07-06T18:28:25.187Z"
+    },
+    {
+      "id": "16f69a4e-76fe-4aad-91d3-e0b53fac190d",
+      "game": "sunday",
+      "nickname": "1",
+      "note": "1",
+      "createdAt": "2026-07-06T18:28:32.228Z"
+    },
+    {
+      "id": "39c0fa44-734a-4f54-9207-2bf731135b5f",
+      "game": "wednesday",
+      "nickname": "1",
+      "note": "1",
+      "createdAt": "2026-07-06T18:29:21.634Z"
+    },
+    {
+      "id": "63860d60-90d9-4d9b-a29c-991129e22f1b",
+      "game": "wednesday",
+      "nickname": "1",
+      "note": "1",
+      "createdAt": "2026-07-06T18:49:02.701Z"
+    },
+    {
+      "id": "1d92fac3-a242-4998-93fd-6dd834e3e594",
+      "game": "sunday",
+      "nickname": "2",
+      "note": "2",
+      "createdAt": "2026-07-06T18:49:12.022Z"
+    }
+  ]
+}

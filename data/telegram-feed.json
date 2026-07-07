@@ -1,0 +1,106 @@
+{
+  "feeds": {
+    "signup-wednesday": {
+      "messageId": 184,
+      "items": [
+        {
+          "type": "signup",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "см",
+          "phone": "мм",
+          "note": "ммм",
+          "createdAt": "2026-07-06T16:43:05.033Z"
+        },
+        {
+          "type": "signup",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "ии",
+          "phone": "ии",
+          "note": "ии",
+          "createdAt": "2026-07-06T16:43:36.920Z"
+        },
+        {
+          "type": "signup",
+          "game": "wednesday",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "FIX_TEST",
+          "phone": "+48000000000",
+          "note": "test po naprawie game",
+          "createdAt": "2026-07-06T16:51:59.485Z"
+        },
+        {
+          "type": "signup",
+          "game": "wednesday",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "1",
+          "phone": "1",
+          "note": "1",
+          "createdAt": "2026-07-06T17:39:08.622Z"
+        },
+        {
+          "type": "signup",
+          "game": "wednesday",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "1",
+          "phone": "1",
+          "note": "1",
+          "createdAt": "2026-07-06T18:28:25.187Z"
+        },
+        {
+          "type": "signup",
+          "game": "wednesday",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "1",
+          "phone": "1",
+          "note": "1",
+          "createdAt": "2026-07-06T18:29:21.634Z"
+        },
+        {
+          "type": "signup",
+          "game": "wednesday",
+          "gameLabel": "Środa 18:30 / Counter-Strike 6v6",
+          "nickname": "1",
+          "phone": "1",
+          "note": "1",
+          "createdAt": "2026-07-06T18:49:02.701Z"
+        }
+      ]
+    },
+    "signup-sunday": {
+      "messageId": 185,
+      "items": [
+        {
+          "type": "signup",
+          "game": "sunday",
+          "gameLabel": "Niedziela 18:00 / otwarta gra",
+          "nickname": "test",
+          "phone": "test",
+          "note": "test",
+          "createdAt": "2026-07-06T17:35:04.866Z"
+        },
+        {
+          "type": "signup",
+          "game": "sunday",
+          "gameLabel": "Niedziela 18:00 / otwarta gra",
+          "nickname": "1",
+          "phone": "1",
+          "note": "1",
+          "createdAt": "2026-07-06T18:28:32.228Z"
+        },
+        {
+          "type": "signup",
+          "game": "sunday",
+          "gameLabel": "Niedziela 18:00 / otwarta gra",
+          "nickname": "2",
+          "phone": "2",
+          "note": "2",
+          "createdAt": "2026-07-06T18:49:12.022Z"
+        }
+      ]
+    },
+    "messages": {
+      "messageId": null,
+      "items": []
+    }
+  }
+}
