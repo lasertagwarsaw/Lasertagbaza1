@@ -4,7 +4,7 @@ const { readSiteSignups, addSiteSignup } = require("./_site-signups");
 module.exports = async function handler(request, response) {
   if (request.method === "GET") {
     try {
-      response.status(200).json({ ok: true, ...readSiteSignups() });
+      response.status(200).json({ ok: true, ...(await readSiteSignups()) });
     } catch (error) {
       response.status(200).json({
         ok: true,
@@ -39,7 +39,8 @@ module.exports = async function handler(request, response) {
   let siteState = { signups: [], cycleStart: null };
   let storageResult = { ok: true };
   try {
-    siteState = addSiteSignup({ id, game, nickname, note, createdAt });
+    siteState = await addSiteSignup({ id, game, nickname, note, createdAt });
+    storageResult = siteState.storage || storageResult;
   } catch (error) {
     storageResult = { ok: false, reason: error.message };
     console.warn("[telegram-signup] site signup storage failed:", error.message);
