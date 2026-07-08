@@ -18,7 +18,7 @@ const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
 const signupStorageKey = "bazaGameSignups";
 const signupCycleStorageKey = "bazaSignupCycleStart";
 const deviceSignupStorageKey = "bazaDeviceSignupCycle";
-const supportedSiteLanguages = ["pl", "be", "en", "uk"];
+const supportedSiteLanguages = ["pl", "be", "en", "uk", "ru"];
 let currentSiteLanguage = supportedSiteLanguages.includes(localStorage.getItem("bazaSiteLanguage"))
   ? localStorage.getItem("bazaSiteLanguage")
   : "pl";
@@ -29,6 +29,7 @@ const monthLabels = {
   be: ["сту", "лют", "сак", "кра", "май", "чэр", "ліп", "жні", "вер", "кас", "ліс", "сне"],
   en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"],
+  ru: ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"],
 };
 
 const weekdayLabels = {
@@ -36,6 +37,7 @@ const weekdayLabels = {
   be: ["Нд", "Пн", "Аў", "Ср", "Чц", "Пт", "Сб"],
   en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   uk: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+  ru: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
 };
 
 const nextDateLabels = {
@@ -43,6 +45,7 @@ const nextDateLabels = {
   be: "Бліжэйшая гульня",
   en: "Next game",
   uk: "Найближча гра",
+  ru: "Ближайшая игра",
 };
 
 const pointLabels = {
@@ -50,6 +53,7 @@ const pointLabels = {
   be: "ач.",
   en: "pts",
   uk: "оч.",
+  ru: "оч.",
 };
 
 const siteCopy = {
@@ -824,14 +828,49 @@ Object.entries(updateArticleCopy).forEach(([language, copy]) => {
   Object.assign(siteCopy[language], copy);
 });
 
+const copyById = {};
+
+const mergeCopyById = (incomingCopyById = {}) => {
+  Object.entries(incomingCopyById).forEach(([copyId, translations]) => {
+    copyById[copyId] = {
+      ...(copyById[copyId] || {}),
+      ...translations,
+    };
+  });
+};
+
+const mergeSiteCopy = (incomingSiteCopy = {}) => {
+  Object.entries(incomingSiteCopy).forEach(([language, copy]) => {
+    siteCopy[language] = {
+      ...(siteCopy[language] || {}),
+      ...copy,
+    };
+  });
+};
+
+const loadExternalCopy = async () => {
+  try {
+    const response = await fetch("data/tort-review-translations.json");
+    if (!response.ok) return;
+    const data = await response.json();
+    mergeCopyById(data.copyById);
+    mergeSiteCopy(data.siteCopy);
+  } catch (error) {
+    console.warn("Translation copy is unavailable", error);
+  }
+};
+
 const normalizeCopy = (value) => value.replace(/\s+/g, " ").trim();
-const translateCopy = (source, language = currentSiteLanguage) => {
+const translateCopy = (source, language = currentSiteLanguage, copyId = "") => {
   const normalized = normalizeCopy(source);
-  if (language === "pl" || !normalized) return normalized;
+  if (!normalized) return normalized;
+  if (copyId && copyById[copyId]?.[language]) return copyById[copyId][language];
+  if (siteCopy[language]?.[normalized]) return siteCopy[language][normalized];
+  if (language === "pl") return normalized;
   const pointsMatch = normalized.match(/^(\d+) pkt$/);
   if (pointsMatch) return `${pointsMatch[1]} ${pointLabels[language]}`;
 
-  return siteCopy[language]?.[normalized] || normalized;
+  return normalized;
 };
 
 const textRecords = [];
@@ -854,9 +893,12 @@ const collectTranslatableText = () => {
   });
 
   while (walker.nextNode()) {
+    const copyElement = walker.currentNode.parentElement?.closest("[data-copy-id]");
+
     textRecords.push({
       node: walker.currentNode,
       source: normalizeCopy(walker.currentNode.textContent),
+      copyId: copyElement?.dataset.copyId || "",
     });
   }
 };
@@ -892,7 +934,9 @@ const collectTranslatableAttributes = () => {
 
 const setLanguageButtons = () => {
   siteLanguageButtons.forEach((button) => {
-    const isActive = button.dataset.siteLang === currentSiteLanguage;
+    const isActive =
+      button.dataset.siteLang === currentSiteLanguage ||
+      (currentSiteLanguage === "ru" && button.dataset.siteLang === "be");
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
@@ -903,8 +947,8 @@ const applySiteLanguage = (language) => {
   document.documentElement.lang = currentSiteLanguage;
   localStorage.setItem("bazaSiteLanguage", currentSiteLanguage);
 
-  textRecords.forEach(({ node, source }) => {
-    node.textContent = translateCopy(source, currentSiteLanguage);
+  textRecords.forEach(({ node, source, copyId }) => {
+    node.textContent = translateCopy(source, currentSiteLanguage, copyId);
   });
 
   attributeRecords.forEach(({ element, attribute, source }) => {
@@ -1161,13 +1205,18 @@ const sendSignupToTelegram = async (signup) => {
   return response.json();
 };
 
-collectTranslatableText();
-collectTranslatableAttributes();
-ensureCurrentSignupCycle();
-applySiteLanguage(currentSiteLanguage);
-setupPlayerCarousel();
-renderSignupLists();
-fetchSharedSignups();
+const initializeSite = async () => {
+  await loadExternalCopy();
+  collectTranslatableText();
+  collectTranslatableAttributes();
+  ensureCurrentSignupCycle();
+  applySiteLanguage(currentSiteLanguage);
+  setupPlayerCarousel();
+  renderSignupLists();
+  fetchSharedSignups();
+};
+
+initializeSite();
 
 window.setInterval(() => {
   const beforeCycle = localStorage.getItem(signupCycleStorageKey);
@@ -1227,14 +1276,36 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePriceModal();
 });
 
-siteLanguageButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    applySiteLanguage(button.dataset.siteLang);
+let belarusianLanguageClickTimer = null;
 
-    if (!document.body.classList.contains("menu-open")) return;
-    document.body.classList.remove("menu-open");
-    menuButton?.setAttribute("aria-expanded", "false");
-    menuButton?.setAttribute("aria-label", translateCopy("Otwórz menu"));
+const selectSiteLanguage = (language) => {
+  applySiteLanguage(language);
+
+  if (!document.body.classList.contains("menu-open")) return;
+  document.body.classList.remove("menu-open");
+  menuButton?.setAttribute("aria-expanded", "false");
+  menuButton?.setAttribute("aria-label", translateCopy("Otwórz menu"));
+};
+
+siteLanguageButtons.forEach((button) => {
+  button.addEventListener("click", (event) => {
+    if (button.dataset.siteLang !== "be") {
+      selectSiteLanguage(button.dataset.siteLang);
+      return;
+    }
+
+    if (event.detail >= 2) {
+      window.clearTimeout(belarusianLanguageClickTimer);
+      belarusianLanguageClickTimer = null;
+      selectSiteLanguage("ru");
+      return;
+    }
+
+    window.clearTimeout(belarusianLanguageClickTimer);
+    belarusianLanguageClickTimer = window.setTimeout(() => {
+      selectSiteLanguage("be");
+      belarusianLanguageClickTimer = null;
+    }, 260);
   });
 });
 
