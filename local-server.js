@@ -137,6 +137,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (request.url.startsWith("/api/news-comments")) {
+      await callApi(request, response, path.join(root, "api", "news-comments.js"));
+      return;
+    }
+
     serveStatic(request, response);
   } catch (error) {
     console.error(error);

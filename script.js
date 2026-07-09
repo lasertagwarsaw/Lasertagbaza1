@@ -3,6 +3,11 @@ const mobileLinks = document.querySelectorAll(".mobile-nav a");
 const bookingForm = document.querySelector(".booking-form");
 const signupLists = document.querySelectorAll("[data-signup-list]");
 const signupCounters = document.querySelectorAll("[data-signup-count]");
+const nextGamePanel = document.querySelector("[data-next-game-panel]");
+const nextGameToggle = document.querySelector("[data-next-game-toggle]");
+const nextGameRegister = document.querySelector("[data-next-game-register]");
+const nextGameList = document.querySelector("[data-next-game-list]");
+const nextGameCount = document.querySelector("[data-next-game-count]");
 const toast = document.querySelector(".toast");
 const filterButtons = document.querySelectorAll(".filter-button");
 const gameRows = document.querySelectorAll(".game-row");
@@ -12,17 +17,22 @@ const playerCarousel = document.querySelector("[data-player-carousel]");
 const priceOpenButtons = document.querySelectorAll("[data-price-open]");
 const priceCloseButtons = document.querySelectorAll("[data-price-close]");
 const priceModal = document.querySelector(".price-modal");
+const newsArticles = document.querySelectorAll(".update-article");
 
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
+const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
 const signupStorageKey = "bazaGameSignups";
 const signupCycleStorageKey = "bazaSignupCycleStart";
 const deviceSignupStorageKey = "bazaDeviceSignupCycle";
+const newsCommentsStorageKey = "bazaNewsComments";
 const supportedSiteLanguages = ["pl", "be", "en", "uk", "ru"];
 let currentSiteLanguage = supportedSiteLanguages.includes(localStorage.getItem("bazaSiteLanguage"))
   ? localStorage.getItem("bazaSiteLanguage")
   : "pl";
 let sharedSignups = [];
+let newsComments = {};
+let activeNextGame = "wednesday";
 
 const monthLabels = {
   pl: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
@@ -828,6 +838,114 @@ Object.entries(updateArticleCopy).forEach(([language, copy]) => {
   Object.assign(siteCopy[language], copy);
 });
 
+const interfaceCopy = {
+  be: {
+    "RU": "RU",
+    "Lista graczy": "Спіс гульцоў",
+    "Ceny": "Цэны",
+    "Cennik": "Цэннік",
+    "Ceny gier": "Цэны гульняў",
+    "Dodaj do listy": "Дадаць у спіс",
+    "Sprawdź koszt gry": "Праверыць кошт гульні",
+    "Komentarze": "Каментары",
+    "Dodaj komentarz": "Дадаць каментар",
+    "Nick albo imię": "Нік або імя",
+    "Twój komentarz": "Твой каментар",
+    "Wyślij komentarz": "Адправіць каментар",
+    "Brak komentarzy": "Каментароў пакуль няма",
+    "Komentarz dodany.": "Каментар дададзены.",
+    "Dziękujemy za opinię.": "Дзякуй за меркаванне.",
+    "Czytaj dalej": "Чытаць далей",
+    "Zwiń tekst": "Згарнуць тэкст",
+    "Najbliższa gra otwarta": "Бліжэйшая адкрытая гульня",
+    "Niedziela 18:00": "Нядзеля 18:00",
+    "Dla wszystkich chętnych": "Для ўсіх ахвотных",
+    "10+ lat": "10+ гадоў",
+    "Błąd komentarza.": "Памылка каментара.",
+    "Spróbuj ponownie za chwilę.": "Паспрабуй яшчэ раз праз хвіліну.",
+  },
+  en: {
+    "RU": "RU",
+    "Lista graczy": "Player list",
+    "Ceny": "Prices",
+    "Cennik": "Pricing",
+    "Ceny gier": "Game prices",
+    "Dodaj do listy": "Add to list",
+    "Sprawdź koszt gry": "Check game price",
+    "Komentarze": "Comments",
+    "Dodaj komentarz": "Add comment",
+    "Nick albo imię": "Nickname or name",
+    "Twój komentarz": "Your comment",
+    "Wyślij komentarz": "Send comment",
+    "Brak komentarzy": "No comments yet",
+    "Komentarz dodany.": "Comment added.",
+    "Dziękujemy za opinię.": "Thanks for the feedback.",
+    "Czytaj dalej": "Read more",
+    "Zwiń tekst": "Collapse text",
+    "Najbliższa gra otwarta": "Next open game",
+    "Niedziela 18:00": "Sunday 18:00",
+    "Dla wszystkich chętnych": "For everyone",
+    "10+ lat": "10+ years",
+    "Błąd komentarza.": "Comment error.",
+    "Spróbuj ponownie za chwilę.": "Try again in a moment.",
+  },
+  uk: {
+    "RU": "RU",
+    "Lista graczy": "Список гравців",
+    "Ceny": "Ціни",
+    "Cennik": "Ціни",
+    "Ceny gier": "Ціни ігор",
+    "Dodaj do listy": "Додати до списку",
+    "Sprawdź koszt gry": "Перевірити ціну гри",
+    "Komentarze": "Коментарі",
+    "Dodaj komentarz": "Додати коментар",
+    "Nick albo imię": "Нік або ім'я",
+    "Twój komentarz": "Твій коментар",
+    "Wyślij komentarz": "Надіслати коментар",
+    "Brak komentarzy": "Коментарів поки немає",
+    "Komentarz dodany.": "Коментар додано.",
+    "Dziękujemy za opinię.": "Дякуємо за думку.",
+    "Czytaj dalej": "Читати далі",
+    "Zwiń tekst": "Згорнути текст",
+    "Najbliższa gra otwarta": "Найближча відкрита гра",
+    "Niedziela 18:00": "Неділя 18:00",
+    "Dla wszystkich chętnych": "Для всіх охочих",
+    "10+ lat": "10+ років",
+    "Błąd komentarza.": "Помилка коментаря.",
+    "Spróbuj ponownie za chwilę.": "Спробуй ще раз за хвилину.",
+  },
+  ru: {
+    "RU": "RU",
+    "Lista graczy": "Список игроков",
+    "Ceny": "Цены",
+    "Cennik": "Цены",
+    "Ceny gier": "Цены игр",
+    "Dodaj do listy": "Добавить в список",
+    "Sprawdź koszt gry": "Посмотреть стоимость игры",
+    "Komentarze": "Комментарии",
+    "Dodaj komentarz": "Добавить комментарий",
+    "Nick albo imię": "Ник или имя",
+    "Twój komentarz": "Ваш комментарий",
+    "Wyślij komentarz": "Отправить комментарий",
+    "Brak komentarzy": "Комментариев пока нет",
+    "Komentarz dodany.": "Комментарий добавлен.",
+    "Dziękujemy za opinię.": "Спасибо за мнение.",
+    "Czytaj dalej": "Читать дальше",
+    "Zwiń tekst": "Свернуть текст",
+    "Najbliższa gra otwarta": "Ближайшая открытая игра",
+    "Niedziela 18:00": "Воскресенье 18:00",
+    "Dla wszystkich chętnych": "Для всех желающих",
+    "10+ lat": "10+ лет",
+    "Błąd komentarza.": "Ошибка комментария.",
+    "Spróbuj ponownie za chwilę.": "Попробуйте еще раз через минуту.",
+  },
+};
+
+Object.entries(interfaceCopy).forEach(([language, copy]) => {
+  siteCopy[language] = siteCopy[language] || {};
+  Object.assign(siteCopy[language], copy);
+});
+
 const copyById = {};
 
 const mergeCopyById = (incomingCopyById = {}) => {
@@ -934,9 +1052,10 @@ const collectTranslatableAttributes = () => {
 
 const setLanguageButtons = () => {
   siteLanguageButtons.forEach((button) => {
+    const switcherHasRussian = Boolean(button.closest(".language-switcher")?.querySelector('[data-site-lang="ru"]'));
     const isActive =
       button.dataset.siteLang === currentSiteLanguage ||
-      (currentSiteLanguage === "ru" && button.dataset.siteLang === "be");
+      (currentSiteLanguage === "ru" && button.dataset.siteLang === "be" && !switcherHasRussian);
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
@@ -958,6 +1077,9 @@ const applySiteLanguage = (language) => {
   document.title = translateCopy(documentTitleSource, currentSiteLanguage);
   setLanguageButtons();
   updateRecurringGameDates();
+  updateHeroNextGame();
+  renderTortReviewSections();
+  renderNewsComments();
   renderSignupLists();
 };
 
@@ -998,6 +1120,97 @@ const updateRecurringGameDates = () => {
       }, ${weekdayLabels[currentSiteLanguage][nextDate.getDay()]}, ${time}`,
     );
   });
+};
+
+const getHeroGameConfig = (now = new Date()) => {
+  const day = now.getDay();
+  const wednesdayGame = getNextGameDate(3, "18:30", now);
+  const sundayGame = getNextGameDate(0, "18:00", now);
+
+  if (day === 1 || day === 2 || (day === 3 && wednesdayGame > now)) {
+    return {
+      game: "wednesday",
+      date: wednesdayGame,
+      title: "Środa 18:30",
+      scenario: "Counter-Strike 6v6",
+      age: "14+ lat",
+      meter: "50%",
+    };
+  }
+
+  return {
+    game: "sunday",
+    date: sundayGame,
+    title: "Niedziela 18:00",
+    scenario: "Dla wszystkich chętnych",
+    age: "10+ lat",
+    meter: "32%",
+  };
+};
+
+const formatGameDateLabel = (date) =>
+  `${String(date.getDate()).padStart(2, "0")} ${monthLabels[currentSiteLanguage][date.getMonth()]} / ${
+    weekdayLabels[currentSiteLanguage][date.getDay()]
+  }`;
+
+const updateHeroNextGame = () => {
+  if (!nextGamePanel) return;
+
+  const config = getHeroGameConfig();
+  activeNextGame = config.game;
+
+  const title = nextGamePanel.querySelector("[data-next-game-title]");
+  const date = nextGamePanel.querySelector("[data-next-game-date]");
+  const scenario = nextGamePanel.querySelector("[data-next-game-scenario]");
+  const age = nextGamePanel.querySelector("[data-next-game-age]");
+  const meter = nextGamePanel.querySelector("[data-next-game-meter]");
+
+  if (title) title.textContent = translateCopy(config.title);
+  if (date) date.textContent = formatGameDateLabel(config.date);
+  if (scenario) scenario.textContent = translateCopy(config.scenario);
+  if (age) age.textContent = translateCopy(config.age);
+  if (meter) meter.style.width = config.meter;
+
+  nextGamePanel.dataset.nextGame = activeNextGame;
+  renderHeroSignupList();
+};
+
+const renderSignupItems = (list, signups) => {
+  list.innerHTML = "";
+
+  if (!signups.length) {
+    const emptyItem = document.createElement("li");
+    emptyItem.className = "empty-signup";
+    emptyItem.textContent = translateCopy("Lista jest pusta");
+    list.append(emptyItem);
+    return;
+  }
+
+  signups.forEach((signup, index) => {
+    const item = document.createElement("li");
+    const note = signup.note ? signup.note : translateCopy("bez notatki");
+    const number = document.createElement("strong");
+    const content = document.createElement("span");
+    const nickname = document.createElement("b");
+    const noteText = document.createElement("em");
+
+    number.textContent = String(index + 1).padStart(2, "0");
+    nickname.dataset.noTranslate = "";
+    nickname.textContent = signup.nickname;
+    noteText.textContent = note;
+
+    content.append(nickname, noteText);
+    item.append(number, content);
+    list.append(item);
+  });
+};
+
+const renderHeroSignupList = () => {
+  if (!nextGameList) return;
+
+  const signups = getStoredSignups().filter((signup) => signup.game === activeNextGame);
+  renderSignupItems(nextGameList, signups);
+  if (nextGameCount) nextGameCount.textContent = String(signups.length);
 };
 
 const setupPlayerCarousel = () => {
@@ -1155,40 +1368,15 @@ const renderSignupLists = () => {
   signupLists.forEach((list) => {
     const game = list.dataset.signupList;
     const gameSignups = signups.filter((signup) => signup.game === game);
-
-    list.innerHTML = "";
-
-    if (!gameSignups.length) {
-      const emptyItem = document.createElement("li");
-      emptyItem.className = "empty-signup";
-      emptyItem.textContent = translateCopy("Lista jest pusta");
-      list.append(emptyItem);
-      return;
-    }
-
-    gameSignups.forEach((signup, index) => {
-      const item = document.createElement("li");
-      const note = signup.note ? signup.note : translateCopy("bez notatki");
-      const number = document.createElement("strong");
-      const content = document.createElement("span");
-      const nickname = document.createElement("b");
-      const noteText = document.createElement("em");
-
-      number.textContent = String(index + 1).padStart(2, "0");
-      nickname.dataset.noTranslate = "";
-      nickname.textContent = signup.nickname;
-      noteText.textContent = note;
-
-      content.append(nickname, noteText);
-      item.append(number, content);
-      list.append(item);
-    });
+    renderSignupItems(list, gameSignups);
   });
 
   signupCounters.forEach((counter) => {
     const game = counter.dataset.signupCount;
     counter.textContent = String(signups.filter((signup) => signup.game === game).length);
   });
+
+  renderHeroSignupList();
 };
 
 const sendSignupToTelegram = async (signup) => {
@@ -1205,15 +1393,271 @@ const sendSignupToTelegram = async (signup) => {
   return response.json();
 };
 
+const getArticleId = (article, index = 0) => {
+  if (article.dataset.newsId) return article.dataset.newsId;
+
+  const copyId = article.querySelector("[data-copy-id]")?.dataset.copyId;
+  const title = article.querySelector("h3")?.textContent || "";
+  const base = copyId || title || `news-${index + 1}`;
+  const articleId = base
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+
+  article.dataset.newsId = articleId || `news-${index + 1}`;
+  return article.dataset.newsId;
+};
+
+const setupNewsCommentWidgets = () => {
+  newsArticles.forEach((article, index) => {
+    const body = article.querySelector(".update-article-body");
+    if (!body || body.querySelector(".news-comments")) return;
+
+    const articleId = getArticleId(article, index);
+    const widget = document.createElement("div");
+    widget.className = "news-comments";
+    widget.dataset.commentsFor = articleId;
+    widget.innerHTML = `
+      <div class="news-comments-head">
+        <h4 data-comments-title></h4>
+        <span data-comments-count></span>
+      </div>
+      <ol class="news-comment-list" data-comment-list></ol>
+      <form class="news-comment-form" data-comment-form>
+        <input name="name" type="text" maxlength="40" autocomplete="nickname" required />
+        <textarea name="text" maxlength="500" rows="3" required></textarea>
+        <button type="submit"></button>
+      </form>
+    `;
+    body.append(widget);
+
+    widget.querySelector("[data-comment-form]")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const name = formData.get("name")?.trim();
+      const text = formData.get("text")?.trim();
+      if (!name || !text) return;
+
+      const button = form.querySelector("button");
+      if (button) button.disabled = true;
+
+      try {
+        const response = await fetch(newsCommentsEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            articleId,
+            name,
+            text,
+            createdAt: new Date().toISOString(),
+          }),
+        });
+        if (!response.ok) throw new Error("Comment endpoint error");
+        const data = await response.json();
+        setNewsComments(data.comments);
+        form.reset();
+        showToast(translateCopy("Komentarz dodany."), translateCopy("Dziękujemy za opinię."));
+      } catch (error) {
+        const fallbackComment = {
+          id: `${Date.now()}`,
+          name,
+          text,
+          createdAt: new Date().toISOString(),
+        };
+        setNewsComments({
+          ...newsComments,
+          [articleId]: [...(newsComments[articleId] || []), fallbackComment].slice(-80),
+        });
+        form.reset();
+        showToast(translateCopy("Błąd komentarza."), translateCopy("Spróbuj ponownie za chwilę."));
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  });
+};
+
+const setNewsComments = (comments) => {
+  newsComments = comments && typeof comments === "object" ? comments : {};
+  localStorage.setItem(newsCommentsStorageKey, JSON.stringify(newsComments));
+  renderNewsComments();
+};
+
+const fetchNewsComments = async () => {
+  try {
+    const cached = JSON.parse(localStorage.getItem(newsCommentsStorageKey) || "{}");
+    if (cached && typeof cached === "object") newsComments = cached;
+  } catch (error) {
+    newsComments = {};
+  }
+
+  renderNewsComments();
+
+  try {
+    const response = await fetch(newsCommentsEndpoint, { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    setNewsComments(data.comments);
+  } catch (error) {
+    // Keep local comments visible when the API is not available.
+  }
+};
+
+const renderNewsComments = () => {
+  document.querySelectorAll(".news-comments").forEach((widget) => {
+    const articleId = widget.dataset.commentsFor;
+    const comments = newsComments[articleId] || [];
+    const title = widget.querySelector("[data-comments-title]");
+    const count = widget.querySelector("[data-comments-count]");
+    const list = widget.querySelector("[data-comment-list]");
+    const form = widget.querySelector("[data-comment-form]");
+
+    if (title) title.textContent = translateCopy("Komentarze");
+    if (count) count.textContent = comments.length ? String(comments.length) : translateCopy("Brak komentarzy");
+    form?.querySelector('input[name="name"]')?.setAttribute("placeholder", translateCopy("Nick albo imię"));
+    form?.querySelector('textarea[name="text"]')?.setAttribute("placeholder", translateCopy("Twój komentarz"));
+    if (form?.querySelector("button")) form.querySelector("button").textContent = translateCopy("Wyślij komentarz");
+
+    if (!list) return;
+    list.innerHTML = "";
+
+    comments.forEach((comment) => {
+      const item = document.createElement("li");
+      const name = document.createElement("b");
+      const text = document.createElement("p");
+      const date = document.createElement("time");
+
+      name.dataset.noTranslate = "";
+      name.textContent = comment.name;
+      text.textContent = comment.text;
+      date.dateTime = comment.createdAt;
+      date.textContent = new Date(comment.createdAt).toLocaleDateString(document.documentElement.lang || "pl", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+
+      item.append(name, text, date);
+      list.append(item);
+    });
+  });
+};
+
+const tortReviewImages = [
+  "assets/update-open-turniej-2026-07-05.jpg",
+  "assets/photo_2026-07-06_22-53-43.jpg",
+  "assets/photo_2026-07-06_22-53-07.jpg",
+  "assets/tournament-icon.jpeg",
+];
+
+const splitReviewIntoSections = (text) => {
+  const lines = text
+    .replace(/\u00a0/g, " ")
+    .split("\n")
+    .map((line) => line.trimEnd());
+  const sections = [];
+  let current = { title: "", lines: [] };
+
+  lines.forEach((line, index) => {
+    const isNumberedHeading = /^\d+\.\s+/.test(line.trim());
+    if ((isNumberedHeading || index === 0) && (current.title || current.lines.length)) {
+      sections.push(current);
+      current = { title: "", lines: [] };
+    }
+
+    if (!current.title && line.trim()) {
+      current.title = line.trim();
+      return;
+    }
+
+    current.lines.push(line);
+  });
+
+  if (current.title || current.lines.length) sections.push(current);
+  return sections.filter((section) => section.title || section.lines.some((line) => line.trim()));
+};
+
+const renderTortReviewSections = () => {
+  const source = document.querySelector('[data-copy-id="tort-review-body"]');
+  if (!source) return;
+
+  const parent = source.parentElement;
+  const oldReader = parent?.querySelector(".tort-review-reader");
+  oldReader?.remove();
+
+  const text = source.textContent.trim();
+  if (!text || !parent) return;
+
+  source.hidden = true;
+  source.setAttribute("aria-hidden", "true");
+
+  const sections = splitReviewIntoSections(text);
+  const reader = document.createElement("div");
+  reader.className = "tort-review-reader";
+  reader.dataset.expanded = "false";
+
+  sections.forEach((section, index) => {
+    const block = document.createElement("section");
+    block.className = "tort-review-section";
+    if (index > 1) block.hidden = true;
+
+    const title = document.createElement(index === 0 ? "h4" : "h5");
+    title.textContent = section.title;
+    block.append(title);
+
+    section.lines
+      .join("\n")
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+      .forEach((paragraph) => {
+        const p = document.createElement("p");
+        p.textContent = paragraph;
+        block.append(p);
+      });
+
+    if (index > 0 && index % 2 === 0) {
+      const image = document.createElement("img");
+      image.className = "tort-review-image";
+      image.src = tortReviewImages[(index / 2 - 1) % tortReviewImages.length];
+      image.alt = "Turniej Open Lasertag";
+      block.append(image);
+    }
+
+    reader.append(block);
+  });
+
+  if (sections.length > 2) {
+    const button = document.createElement("button");
+    button.className = "tort-read-more";
+    button.type = "button";
+    button.textContent = translateCopy("Czytaj dalej");
+    button.addEventListener("click", () => {
+      const expanded = reader.dataset.expanded === "true";
+      reader.dataset.expanded = String(!expanded);
+      reader.querySelectorAll(".tort-review-section").forEach((section, index) => {
+        if (index > 1) section.hidden = expanded;
+      });
+      button.textContent = translateCopy(expanded ? "Czytaj dalej" : "Zwiń tekst");
+    });
+    reader.append(button);
+  }
+
+  parent.insertBefore(reader, source.nextSibling);
+};
+
 const initializeSite = async () => {
   await loadExternalCopy();
   collectTranslatableText();
   collectTranslatableAttributes();
+  setupNewsCommentWidgets();
   ensureCurrentSignupCycle();
   applySiteLanguage(currentSiteLanguage);
   setupPlayerCarousel();
   renderSignupLists();
   fetchSharedSignups();
+  fetchNewsComments();
 };
 
 initializeSite();
@@ -1222,6 +1666,7 @@ window.setInterval(() => {
   const beforeCycle = localStorage.getItem(signupCycleStorageKey);
   const currentCycle = ensureCurrentSignupCycle();
   if (beforeCycle !== currentCycle) renderSignupLists();
+  updateHeroNextGame();
   fetchSharedSignups();
 }, 60 * 1000);
 
@@ -1274,6 +1719,21 @@ priceCloseButtons.forEach((button) => {
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePriceModal();
+});
+
+nextGameToggle?.addEventListener("click", () => {
+  if (!nextGamePanel) return;
+  const signups = nextGamePanel.querySelector(".next-game-signups");
+  const isOpen = nextGamePanel.classList.toggle("show-signups");
+  if (signups) signups.hidden = !isOpen;
+  renderHeroSignupList();
+});
+
+nextGameRegister?.addEventListener("click", () => {
+  const select = bookingForm?.querySelector('select[name="game"]');
+  if (select) select.value = activeNextGame;
+  document.querySelector("#join")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => bookingForm?.querySelector('input[name="nickname"]')?.focus(), 450);
 });
 
 let belarusianLanguageClickTimer = null;

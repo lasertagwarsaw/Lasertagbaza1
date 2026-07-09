@@ -43,7 +43,6 @@
           <button type="button" data-site-lang="uk">UK</button>
         </div>
         <a class="header-phone" href="tel:+48501229099">+48 501 229 099</a>
-        <button class="price-button" type="button" data-price-open>Ceny</button>
         <a class="button button-small" href="#join">Dołącz</a>
         <button class="menu-toggle" type="button" aria-label="Otwórz menu" aria-expanded="false">
           <span></span><span></span>
@@ -56,13 +55,13 @@
       <a href="#aktualnosci">Aktualności</a>
       <a href="https://t.me/+9lyXtbEsZ5FlZTky" target="_blank" rel="noopener">Telegram</a>
       <a href="#join">Dołącz</a>
-      <button class="mobile-price-button" type="button" data-price-open>Ceny</button>
       <a href="tel:+48501229099">+48 501 229 099</a>
       <div class="language-switcher mobile-language-switcher" aria-label="Język strony">
         <button class="active" type="button" data-site-lang="pl">PL</button>
         <button type="button" data-site-lang="be">BE</button>
         <button type="button" data-site-lang="en">EN</button>
         <button type="button" data-site-lang="uk">UK</button>
+        <button type="button" data-site-lang="ru">RU</button>
       </div>
     </nav>
 
@@ -96,21 +95,34 @@
           </div>
         </div>
 
-        <aside class="next-game-panel" aria-label="Najbliższa gra otwarta">
+        <aside class="next-game-panel" aria-label="Najbliższa gra otwarta" data-next-game-panel>
           <p>Najbliższa gra otwarta</p>
-          <h2>Środa 18:30</h2>
+          <h2 data-next-game-title>Środa 18:30</h2>
+          <span class="next-game-date" data-next-game-date>08 Lip / Śr</span>
           <div class="panel-row">
             <span>Scenariusz</span>
-            <strong>Counter-Strike 6v6</strong>
+            <strong data-next-game-scenario>Counter-Strike 6v6</strong>
           </div>
           <div class="panel-row">
             <span>Wiek</span>
-            <strong>14+ lat</strong>
+            <strong data-next-game-age>14+ lat</strong>
           </div>
           <div class="panel-meter" aria-label="Gra 6 na 6">
-            <span style="width: 50%"></span>
+            <span data-next-game-meter style="width: 50%"></span>
           </div>
-          <a class="button button-main" href="#join">Zapisz się</a>
+          <button class="button button-main next-game-toggle" type="button" data-next-game-toggle>Zapisz się</button>
+          <div class="next-game-signups" aria-live="polite" hidden>
+            <div class="next-game-signups-head">
+              <span>Lista graczy</span>
+              <strong><b data-next-game-count>0</b> graczy</strong>
+            </div>
+            <ol class="signup-list next-game-list" data-next-game-list>
+              <li class="empty-signup">Lista jest pusta</li>
+            </ol>
+            <button class="button button-main next-game-register" type="button" data-next-game-register>
+              Dodaj do listy
+            </button>
+          </div>
         </aside>
 
         <div class="hero-meta">
@@ -1055,6 +1067,13 @@ Noka - замечательная игра, очень сильная. Ты ум
           </div>
         </div>
       </section>
+
+      <section class="bottom-price section" aria-label="Cennik">
+        <button class="bottom-price-button" type="button" data-price-open>
+          Ceny
+          <span>Sprawdź koszt gry</span>
+        </button>
+      </section>
     </main>
 
     <footer id="kontakt">
@@ -1125,6 +1144,6 @@ Noka - замечательная игра, очень сильная. Ты ум
       <span>Wyślemy termin i link do Telegrama.</span>
     </div>
 
-    <script src="script.js?v=tort-translate-ru-1"></script>
+    <script src="script.js?v=site-fixes-comments-1"></script>
   </body>
 </html>
