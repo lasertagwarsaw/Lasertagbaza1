@@ -1056,18 +1056,18 @@ h2 em {
 
 .points-bonus-badge {
   position: absolute;
-  right: 5px;
-  bottom: 6px;
+  right: 6px;
+  bottom: 7px;
   z-index: 4;
-  min-width: 36px;
-  padding: 4px 7px 3px;
+  min-width: 28px;
+  padding: 3px 5px 2px;
   border: 1px solid rgba(10, 18, 8, 0.55);
   border-radius: 999px;
   color: #071006;
   background: #59ff79;
-  box-shadow: 0 6px 14px rgba(89, 255, 121, 0.3);
+  box-shadow: 0 5px 11px rgba(89, 255, 121, 0.28);
   font-family: var(--display);
-  font-size: 11px;
+  font-size: 9px;
   line-height: 1;
   text-align: center;
 }
@@ -1314,6 +1314,10 @@ h2 em {
     var(--panel);
 }
 
+.update-card[hidden] {
+  display: none;
+}
+
 .update-article {
   height: 100%;
 }
@@ -1481,6 +1485,34 @@ h2 em {
   line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.updates-more-button {
+  margin: 22px auto 0;
+  min-height: 44px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 212, 0, 0.42);
+  border-radius: 999px;
+  color: var(--acid);
+  background: rgba(255, 212, 0, 0.06);
+  font-family: var(--display);
+  font-size: 13px;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+
+.updates-more-button:hover {
+  transform: translateY(-2px);
+  color: var(--ink);
+  background: var(--acid);
+}
+
+.updates-more-button[hidden] {
+  display: none;
 }
 
 .tort-review-reader {

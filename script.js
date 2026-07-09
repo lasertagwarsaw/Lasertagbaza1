@@ -18,6 +18,8 @@ const priceOpenButtons = document.querySelectorAll("[data-price-open]");
 const priceCloseButtons = document.querySelectorAll("[data-price-close]");
 const priceModal = document.querySelector(".price-modal");
 const newsArticles = document.querySelectorAll(".update-article");
+const updatesGrid = document.querySelector(".update-grid");
+const newsMoreButton = document.querySelector("[data-news-more]");
 
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
@@ -33,6 +35,7 @@ let currentSiteLanguage = supportedSiteLanguages.includes(localStorage.getItem("
 let sharedSignups = [];
 let newsComments = {};
 let activeNextGame = "wednesday";
+let visibleNewsCount = 3;
 
 const monthLabels = {
   pl: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
@@ -168,6 +171,7 @@ const siteCopy = {
     "Counter-Strike 6 na 6 dla graczy 14+": "Counter-Strike 6 на 6 для гульцоў 14+",
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Пастаянны сцэнар па серадах: дзве каманды, тактычныя мэты і запіс сольна або складам.",
     "Czytaj artykuł": "Чытаць артыкул",
+    "Pokaż więcej aktualności": "Паказаць яшчэ навіны",
     "Niedziela / 18:00": "Нядзеля / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Адкрытая гульня для ўсіх ахвотных 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "Самы просты фармат уваходу для новых гульцоў, сем'яў і людзей без сваёй каманды.",
@@ -341,6 +345,7 @@ const siteCopy = {
     "Counter-Strike 6 na 6 dla graczy 14+": "Counter-Strike 6v6 for players 14+",
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Regular Wednesday scenario: two teams, tactical objectives and registration solo or as a squad.",
     "Czytaj artykuł": "Read article",
+    "Pokaż więcej aktualności": "Show more updates",
     "Niedziela / 18:00": "Sunday / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Open game for everyone 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "The easiest entry format for new players, families and people without their own team.",
@@ -514,6 +519,7 @@ const siteCopy = {
     "Counter-Strike 6 na 6 dla graczy 14+": "Counter-Strike 6 на 6 для гравців 14+",
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Постійний сценарій щосереди: дві команди, тактичні цілі та запис соло або складом.",
     "Czytaj artykuł": "Читати статтю",
+    "Pokaż więcej aktualności": "Показати ще новини",
     "Niedziela / 18:00": "Неділя / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Відкрита гра для всіх охочих 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "Найпростіший формат входу для нових гравців, сімей і людей без власної команди.",
@@ -938,6 +944,7 @@ const interfaceCopy = {
     "Dziękujemy za opinię.": "Спасибо за мнение.",
     "Czytaj dalej": "Читать дальше",
     "Zwiń tekst": "Свернуть текст",
+    "Pokaż więcej aktualności": "Показать ещё новости",
     "Informacja o zdobywaniu punktów": "Информация о получении баллов",
     "Punkty można zdobyć, wysyłając swój artykuł na lasertagwarsaw@gmail.com albo zdobywając je podczas gry.": "Баллы можно получить, отправив свою статью на lasertagwarsaw@gmail.com или добрав их на игре.",
     "Najbliższa gra otwarta": "Ближайшая открытая игра",
@@ -1086,6 +1093,7 @@ const applySiteLanguage = (language) => {
   setLanguageButtons();
   updateRecurringGameDates();
   updateHeroNextGame();
+  updateNewsMoreButtonLabel();
   renderTortReviewSections();
   renderNewsComments();
   renderSignupLists();
@@ -1672,8 +1680,46 @@ const renderTortReviewSections = () => {
   parent.insertBefore(reader, source.nextSibling);
 };
 
+let updateNewsMoreButtonLabel = () => {};
+
+const setupNewsPagination = () => {
+  if (!updatesGrid) return;
+
+  const cards = [...updatesGrid.querySelectorAll(":scope > .update-card")];
+  if (!cards.length) return;
+
+  const orderedCards = [...cards].reverse();
+  orderedCards.forEach((card) => updatesGrid.append(card));
+
+  visibleNewsCount = Math.min(3, orderedCards.length);
+
+  const render = () => {
+    orderedCards.forEach((card, index) => {
+      card.hidden = index >= visibleNewsCount;
+    });
+
+    if (!newsMoreButton) return;
+    newsMoreButton.hidden = visibleNewsCount >= orderedCards.length;
+    newsMoreButton.textContent = translateCopy("Pokaż więcej aktualności");
+  };
+
+  updateNewsMoreButtonLabel = () => {
+    if (newsMoreButton && !newsMoreButton.hidden) {
+      newsMoreButton.textContent = translateCopy("Pokaż więcej aktualności");
+    }
+  };
+
+  newsMoreButton?.addEventListener("click", () => {
+    visibleNewsCount = Math.min(visibleNewsCount + 3, orderedCards.length);
+    render();
+  });
+
+  render();
+};
+
 const initializeSite = async () => {
   await loadExternalCopy();
+  setupNewsPagination();
   collectTranslatableText();
   collectTranslatableAttributes();
   setupNewsCommentWidgets();
