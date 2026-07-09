@@ -910,10 +910,11 @@ h2 em {
   grid-column: 2;
   grid-row: 1;
   width: 93px;
+  height: 93px;
   justify-self: end;
-  aspect-ratio: 1;
   display: grid;
   place-items: center;
+  isolation: isolate;
   overflow: hidden;
   border: 1px solid rgba(255, 212, 0, 0.34);
   border-radius: 50%;
@@ -927,7 +928,10 @@ h2 em {
 }
 
 .points-card:nth-child(-n + 3) .points-avatar img {
+  position: relative;
+  z-index: 1;
   border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
 }
 
 .points-card:nth-child(-n + 3) .points-avatar::before {
@@ -946,6 +950,7 @@ h2 em {
   bottom: -4px;
   width: 38px;
   height: 38px;
+  z-index: 2;
   background-color: var(--rank-color);
   filter: drop-shadow(0 8px 14px var(--rank-glow));
   -webkit-mask:
@@ -1005,7 +1010,9 @@ h2 em {
 .points-avatar img {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
+  object-position: center;
 }
 
 .points-card strong {
@@ -2701,6 +2708,7 @@ footer > span {
 
   .points-avatar {
     width: 81px;
+    height: 81px;
   }
 
   .game-row {
