@@ -1545,10 +1545,20 @@ const renderNewsComments = () => {
 };
 
 const tortReviewImages = [
-  "assets/update-open-turniej-2026-07-05.jpg",
-  "assets/photo_2026-07-06_22-53-43.jpg",
-  "assets/photo_2026-07-06_22-53-07.jpg",
-  "assets/tournament-icon.jpeg",
+  "assets/tort-review-01.jpg",
+  "assets/tort-review-02.jpg",
+  "assets/tort-review-03.jpg",
+  "assets/tort-review-04.jpg",
+  "assets/tort-review-05.jpg",
+  "assets/tort-review-06.jpg",
+  "assets/tort-review-07.jpg",
+  "assets/tort-review-08.jpg",
+  "assets/tort-review-09.jpg",
+  "assets/tort-review-10.jpg",
+  "assets/tort-review-11.jpg",
+  "assets/tort-review-12.jpg",
+  "assets/tort-review-13.jpg",
+  "assets/tort-review-14.jpg",
 ];
 
 const splitReviewIntoSections = (text) => {
@@ -1617,12 +1627,19 @@ const renderTortReviewSections = () => {
         block.append(p);
       });
 
-    if (index > 0 && index % 2 === 0) {
-      const image = document.createElement("img");
-      image.className = "tort-review-image";
-      image.src = tortReviewImages[(index / 2 - 1) % tortReviewImages.length];
-      image.alt = "Turniej Open Lasertag";
-      block.append(image);
+    const galleryImages = tortReviewImages.slice(index * 2, index * 2 + 2);
+    if (galleryImages.length) {
+      const gallery = document.createElement("div");
+      gallery.className = "tort-review-gallery";
+      galleryImages.forEach((src, imageIndex) => {
+        const image = document.createElement("img");
+        image.className = "tort-review-image";
+        image.loading = "lazy";
+        image.src = src;
+        image.alt = `Turniej Open Lasertag - zdjęcie ${index * 2 + imageIndex + 1}`;
+        gallery.append(image);
+      });
+      block.append(gallery);
     }
 
     reader.append(block);
@@ -1749,6 +1766,11 @@ const selectSiteLanguage = (language) => {
 
 siteLanguageButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
+    if (button.dataset.siteLang === "pl" && event.detail >= 2) {
+      openPriceModal();
+      return;
+    }
+
     if (button.dataset.siteLang !== "be") {
       selectSiteLanguage(button.dataset.siteLang);
       return;

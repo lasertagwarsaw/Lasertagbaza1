@@ -906,6 +906,7 @@ h2 em {
 }
 
 .points-avatar {
+  position: relative;
   grid-column: 2;
   grid-row: 1;
   width: 93px;
@@ -919,6 +920,80 @@ h2 em {
   background:
     radial-gradient(circle at 50% 35%, rgba(255, 212, 0, 0.24), transparent 45%),
     #090907;
+}
+
+.points-card:nth-child(-n + 3) .points-avatar {
+  overflow: visible;
+}
+
+.points-card:nth-child(-n + 3) .points-avatar img {
+  border-radius: 50%;
+}
+
+.points-card:nth-child(-n + 3) .points-avatar::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  z-index: -1;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.points-card:nth-child(-n + 3) .points-avatar::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  bottom: -4px;
+  width: 38px;
+  height: 38px;
+  background-color: var(--rank-color);
+  filter: drop-shadow(0 8px 14px var(--rank-glow));
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2024%2024%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20fill%3D%27black%27%20d%3D%27M7%203h10v3h3v3a5%205%200%200%201-4.2%204.93A4.8%204.8%200%200%201%2013%2016.7V19h3v2H8v-2h3v-2.3a4.8%204.8%200%200%201-2.8-2.77A5%205%200%200%201%204%209V6h3V3Zm0%205H6v1a3%203%200%200%200%201.5%202.6A11.9%2011.9%200%200%201%207%208Zm10%200c0%201.25-.17%202.46-.5%203.6A3%203%200%200%200%2018%209V8h-1Zm-8-3v3c0%204.05%201.36%207%203%207s3-2.95%203-7V5H9Z%27/%3E%3C/svg%3E")
+      center / 34px 34px no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2024%2024%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20fill%3D%27black%27%20d%3D%27M7%203h10v3h3v3a5%205%200%200%201-4.2%204.93A4.8%204.8%200%200%201%2013%2016.7V19h3v2H8v-2h3v-2.3a4.8%204.8%200%200%201-2.8-2.77A5%205%200%200%201%204%209V6h3V3Zm0%205H6v1a3%203%200%200%200%201.5%202.6A11.9%2011.9%200%200%201%207%208Zm10%200c0%201.25-.17%202.46-.5%203.6A3%203%200%200%200%2018%209V8h-1Zm-8-3v3c0%204.05%201.36%207%203%207s3-2.95%203-7V5H9Z%27/%3E%3C/svg%3E")
+      center / 34px 34px no-repeat;
+}
+
+.points-card:nth-child(1) .points-avatar {
+  --rank-color: #ffd400;
+  --rank-glow: rgba(255, 212, 0, 0.5);
+}
+
+.points-card:nth-child(1) .points-avatar::before {
+  background: radial-gradient(circle, rgba(255, 212, 0, 0.45), transparent 68%);
+  animation: trophyPulse 1.8s ease-in-out infinite;
+}
+
+.points-card:nth-child(2) .points-avatar {
+  --rank-color: #d9dde4;
+  --rank-glow: rgba(218, 226, 235, 0.42);
+}
+
+.points-card:nth-child(2) .points-avatar::before {
+  background: radial-gradient(circle, rgba(218, 226, 235, 0.35), transparent 68%);
+}
+
+.points-card:nth-child(3) .points-avatar {
+  --rank-color: #c98642;
+  --rank-glow: rgba(201, 134, 66, 0.44);
+}
+
+.points-card:nth-child(3) .points-avatar::before {
+  background: radial-gradient(circle, rgba(201, 134, 66, 0.35), transparent 68%);
+}
+
+@keyframes trophyPulse {
+  0%,
+  100% {
+    transform: scale(0.98);
+    opacity: 0.58;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.96;
+  }
 }
 
 .points-avatar span {
@@ -1350,9 +1425,15 @@ h2 em {
   margin-top: 14px;
 }
 
+.tort-review-gallery {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .tort-review-image {
   width: 100%;
-  margin-top: 18px;
   aspect-ratio: 16 / 9;
   display: block;
   border: 1px solid rgba(255, 212, 0, 0.2);
@@ -1802,38 +1883,6 @@ h2 em {
   color: #737873;
   font-size: 10px;
   text-align: center;
-}
-
-.bottom-price {
-  padding-top: 34px;
-  padding-bottom: 90px;
-  background: #080907;
-}
-
-.bottom-price-button {
-  width: min(480px, 100%);
-  min-height: 82px;
-  margin: 0 auto;
-  padding: 18px 22px;
-  display: grid;
-  gap: 4px;
-  place-items: center;
-  border: 1px solid rgba(255, 212, 0, 0.4);
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--acid);
-  cursor: pointer;
-  font-family: var(--display);
-  font-size: clamp(26px, 4vw, 42px);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.bottom-price-button span {
-  font-family: var(--body);
-  font-size: 10px;
-  font-weight: 900;
-  opacity: 0.78;
 }
 
 .tournaments-page {
@@ -2497,6 +2546,10 @@ footer > span {
   .tort-review-section p {
     font-size: 16px;
     line-height: 1.72;
+  }
+
+  .tort-review-gallery {
+    grid-template-columns: 1fr;
   }
 
   .points-carousel-header {
