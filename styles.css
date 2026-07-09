@@ -1032,6 +1032,78 @@ h2 em {
   object-position: 38% 26%;
 }
 
+.points-card.is-bonus {
+  border-color: rgba(89, 255, 121, 0.46);
+  background:
+    linear-gradient(180deg, rgba(89, 255, 121, 0.13), rgba(255, 255, 255, 0)),
+    #171612;
+}
+
+.points-card.is-bonus .points-avatar {
+  border-color: rgba(89, 255, 121, 0.78);
+  box-shadow: 0 0 0 2px rgba(89, 255, 121, 0.2), 0 0 22px rgba(89, 255, 121, 0.38);
+}
+
+.points-card.is-bonus .points-avatar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 58%, rgba(89, 255, 121, 0.5) 74%, transparent 75%);
+  pointer-events: none;
+}
+
+.points-bonus-badge {
+  position: absolute;
+  right: 5px;
+  bottom: 6px;
+  z-index: 4;
+  min-width: 36px;
+  padding: 4px 7px 3px;
+  border: 1px solid rgba(10, 18, 8, 0.55);
+  border-radius: 999px;
+  color: #071006;
+  background: #59ff79;
+  box-shadow: 0 6px 14px rgba(89, 255, 121, 0.3);
+  font-family: var(--display);
+  font-size: 11px;
+  line-height: 1;
+  text-align: center;
+}
+
+.points-marquee {
+  margin: 8px 10px 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 212, 0, 0.24);
+  border-radius: 8px;
+  color: rgba(255, 252, 224, 0.88);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.points-marquee div {
+  width: max-content;
+  display: flex;
+  gap: 34px;
+  padding: 8px 0;
+  animation: pointsMarquee 22s linear infinite;
+}
+
+.points-marquee span {
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1;
+}
+
+@keyframes pointsMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 17px));
+  }
+}
+
 .points-card strong {
   grid-column: 1 / -1;
   min-width: 0;
