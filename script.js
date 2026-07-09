@@ -873,6 +873,7 @@ const interfaceCopy = {
     "Dziękujemy za opinię.": "Дзякуй за меркаванне.",
     "Czytaj dalej": "Чытаць далей",
     "Zwiń tekst": "Згарнуць тэкст",
+    "Otwórz artykuł AGENT": "Адкрыць артыкул AGENT",
     "Najbliższa gra otwarta": "Бліжэйшая адкрытая гульня",
     "Niedziela 18:00": "Нядзеля 18:00",
     "Dla wszystkich chętnych": "Для ўсіх ахвотных",
@@ -898,6 +899,7 @@ const interfaceCopy = {
     "Dziękujemy za opinię.": "Thanks for the feedback.",
     "Czytaj dalej": "Read more",
     "Zwiń tekst": "Collapse text",
+    "Otwórz artykuł AGENT": "Open AGENT article",
     "Najbliższa gra otwarta": "Next open game",
     "Niedziela 18:00": "Sunday 18:00",
     "Dla wszystkich chętnych": "For everyone",
@@ -923,6 +925,7 @@ const interfaceCopy = {
     "Dziękujemy za opinię.": "Дякуємо за думку.",
     "Czytaj dalej": "Читати далі",
     "Zwiń tekst": "Згорнути текст",
+    "Otwórz artykuł AGENT": "Відкрити статтю AGENT",
     "Najbliższa gra otwarta": "Найближча відкрита гра",
     "Niedziela 18:00": "Неділя 18:00",
     "Dla wszystkich chętnych": "Для всіх охочих",
@@ -951,6 +954,7 @@ const interfaceCopy = {
     "Pokaż więcej aktualności": "Показать ещё новости",
     "Otwórz artykuł TORT": "Открыть статью TORT",
     "Otwórz artykuł JAK": "Открыть статью JAK",
+    "Otwórz artykuł AGENT": "Открыть статью AGENT",
     "Informacja o zdobywaniu punktów": "Информация о получении баллов",
     "Punkty można zdobyć, wysyłając swój artykuł na lasertagwarsaw@gmail.com albo zdobywając je podczas gry.": "Баллы можно получить, отправив свою статью на lasertagwarsaw@gmail.com или добрав их на игре.",
     "Najbliższa gra otwarta": "Ближайшая открытая игра",
@@ -967,7 +971,99 @@ Object.entries(interfaceCopy).forEach(([language, copy]) => {
   Object.assign(siteCopy[language], copy);
 });
 
-const copyById = {};
+const copyById = {
+  "agent-card-kicker": {
+    pl: "Opinia gracza / AGENT",
+    be: "Водгук гульца / AGENT",
+    en: "Player review / AGENT",
+    uk: "Відгук гравця / AGENT",
+    ru: "Отзыв игрока / AGENT",
+  },
+  "agent-card-title": {
+    pl: "Turniej 5 lipca oczami gracza Old Skufs",
+    be: "Турнір 5 ліпеня вачыма гульца Old Skufs",
+    en: "The July 5 tournament through the eyes of an Old Skufs player",
+    uk: "Турнір 5 липня очима гравця Old Skufs",
+    ru: "Турнир 5 июля глазами игрока Old Skufs",
+  },
+  "agent-card-summary": {
+    pl: "AGENT opowiada o organizacji, grze Old Skufs, najmocniejszych rywalach i sportowej atmosferze turnieju.",
+    be: "AGENT распавядае пра арганізацыю, гульню Old Skufs, наймацнейшых сапернікаў і спартыўную атмасферу турніру.",
+    en: "AGENT talks about the organization, Old Skufs' performance, the strongest rivals and the tournament's sporting atmosphere.",
+    uk: "AGENT розповідає про організацію, гру Old Skufs, найсильніших суперників і спортивну атмосферу турніру.",
+    ru: "AGENT рассказывает об организации, игре Old Skufs, сильнейших соперниках и спортивной атмосфере турнира.",
+  },
+  "agent-intro": {
+    pl: "Chcę podzielić się wrażeniami z turnieju laser tag, który odbył się 5 lipca, z perspektywy gracza drużyny Old Skufs.",
+    be: "Хачу падзяліцца ўражаннямі ад турніру па лазертагу 5 ліпеня ад імя гульца каманды Old Skufs.",
+    en: "I want to share my impressions of the July 5 laser tag tournament from the perspective of an Old Skufs player.",
+    uk: "Хочу поділитися враженнями від турніру з лазертагу 5 липня від імені гравця команди Old Skufs.",
+    ru: "Хочу поделиться впечатлениями о прошедшем турнире по лазертагу 5 июля от лица игрока команды Old Skufs.",
+  },
+  "agent-heading-organization": {
+    pl: "Organizacja na najwyższym poziomie",
+    be: "Арганізацыя на найвышэйшым узроўні",
+    en: "Top-level organization",
+    uk: "Організація на найвищому рівні",
+    ru: "Организация на высшем уровне",
+  },
+  "agent-organization": {
+    pl: "Po pierwsze, ogromne podziękowania dla Aleksa, Shveda i wszystkich, którzy byli zaangażowani w organizację - poziom turnieju był topowy! Nowy sprzęt, statystyki online, precyzyjne ramy czasowe, a nawet pizza dla wszystkich - było widać, ile sił i serca włożono w przygotowania. Dziękuję!",
+    be: "Па-першае, вялізная падзяка Лёшу, Shved і ўсім, хто меў дачыненне да арганізацыі - узровень турніру быў топавы! Новае абсталяванне, анлайн-статыстыка, дакладны таймінг і нават піца для ўсіх - было відаць, колькі сіл і душы ўклалі ў падрыхтоўку. Дзякуй!",
+    en: "First of all, huge thanks to Alex, Shved and everyone involved in the organization - the tournament was top level! New equipment, live statistics, precise timing and even pizza for everyone made it clear how much effort and heart went into the preparation. Thank you!",
+    uk: "По-перше, величезна подяка Льоші, Shved і всім, хто був причетний до організації - рівень турніру був топовий! Нове обладнання, онлайн-статистика, чіткий таймінг і навіть піца для всіх - було видно, скільки сил і душі вклали в підготовку. Дякую!",
+    ru: "Во-первых, огромная благодарность Лёше, Шведу и всем, кто был причастен к организации - уровень турнира топовый! Новое оборудование, статистика онлайн, чёткие тайминги, и даже пиццей всех накормили - видно, сколько сил и души вложили в подготовку. Спасибо!",
+  },
+  "agent-heading-team": {
+    pl: "Old Skufs: walka mimo wyzwań",
+    be: "Old Skufs: барацьба нягледзячы на складанасці",
+    en: "Old Skufs: fighting through the challenges",
+    uk: "Old Skufs: боротьба попри труднощі",
+    ru: "Old Skufs: борьба несмотря на сложности",
+  },
+  "agent-team-challenges": {
+    pl: "Jeśli chodzi o naszą drużynę Old Skufs, wiedzieliśmy, że nie będzie łatwo: brakowało nam zgrania, forma fizyczna stała pod znakiem zapytania, a sprzęt i scenariusz były nowe. Mentalnie byliśmy jednak gotowi walczyć.",
+    be: "Што да нашай каманды Old Skufs, мы разумелі, што будзе няпроста: не хапала згулянасці, фізічная форма была пад пытаннем, абсталяванне і сцэнар былі новымі. Але маральна мы былі гатовыя змагацца.",
+    en: "As for our Old Skufs team, we knew it would not be easy: we lacked coordination, our physical condition was uncertain, and both the equipment and scenario were new. Mentally, however, we were ready to fight.",
+    uk: "Щодо нашої команди Old Skufs, ми розуміли, що буде непросто: бракувало зіграності, фізична форма була під питанням, а обладнання і сценарій були новими. Але морально ми були готові боротися.",
+    ru: "Что касается нашей команды Old Skufs - мы понимали, что будет непросто: не хватает сыгранности, физическая форма под вопросом, новое оборудование/сценарий. Но морально были готовы бороться.",
+  },
+  "agent-team-games": {
+    pl: "Udało nam się rozegrać kilka naprawdę świetnych spotkań. Szczególnie zapamiętałem pierwszą grę w scenariuszu \"Punkty\" przeciwko Sztormowi, a także mecze CS przeciwko Lepkim Bandytom i Sztormowi. Zdarzyły się również wyraźnie słabsze gry. Potencjał drużyny na pewno jednak jest i będziemy dalej się rozwijać.",
+    be: "Нам удалося правесці некалькі сапраўды выдатных гульняў. Асабліва запомнілася першая гульня ў сцэнары \"Кропкі\" супраць Sztorm, а таксама CS супраць \"Ліпкіх бандытаў\" і Sztorm. Былі і адкрыта слабыя гульні. Але патэнцыял у каманды дакладна ёсць, будзем расці далей.",
+    en: "We managed to play several genuinely great matches. The first Points game against Sztorm stood out, as did the CS matches against the Sticky Bandits and Sztorm. There were also some clearly weak games. The team definitely has potential, and we will keep improving.",
+    uk: "Нам вдалося провести кілька справді чудових ігор. Особливо запам'яталася перша гра у сценарії \"Точки\" проти Sztorm, а також CS проти \"Липких бандитів\" і Sztorm. Були й відверто слабкі ігри. Але потенціал у команди точно є, будемо розвиватися далі.",
+    ru: "И нам удалось провести несколько по-настоящему классных игр - особенно запомнились первая игра “Точки” с командой Шторм, а также CS против Липких Бандитов и Шторма. Были и откровенно слабые игры. Но потенциал у команды точно есть, будем расти дальше.",
+  },
+  "agent-heading-rivals": {
+    pl: "Mocni rywale",
+    be: "Моцныя сапернікі",
+    en: "Strong opponents",
+    uk: "Сильні суперники",
+    ru: "Сильные соперники",
+  },
+  "agent-rivals": {
+    pl: "Osobno chcę wyróżnić pozostałe drużyny - poziom gry był bardzo wysoki. Sztorm i Lepcy Bandyci to moi osobiści faworyci pod względem stylu gry. Z kolei Kometa Team pozytywnie rozminęła się z moimi oczekiwaniami: myślałem, że będzie łatwiej, a w praktyce było nawet trudniej. Niemal jednostronnie przegrany mecz CS 1:5 najlepiej to potwierdza.",
+    be: "Асобна хочацца адзначыць астатнія каманды - узровень гульні быў вельмі высокі. Sztorm і \"Ліпкія бандыты\" - мае асабістыя фаварыты па стылі гульні. А вось Kometa Team прыемна не апраўдала чаканняў: думаў, будзе лягчэй, а на справе аказалася нават цяжэй. Амаль усухую прайграны CS 1:5 гэта пацвярджае.",
+    en: "The other teams also deserve special mention - the level of play was very high. Sztorm and the Sticky Bandits were my personal favorites in terms of style. Kometa Team pleasantly defied my expectations: I thought it would be easier, but in practice it was even harder. The nearly one-sided 1:5 CS loss proves it.",
+    uk: "Окремо хочеться відзначити інші команди - рівень гри був дуже високий. Sztorm і \"Липкі бандити\" - мої особисті фаворити за стилем гри. А от Kometa Team приємно не виправдала очікувань: думав, буде легше, а на практиці виявилося навіть складніше. Майже всуху програний CS 1:5 це підтверджує.",
+    ru: "Отдельно хочется отметить остальные команды - уровень игры был очень высокий. Шторм и Липкие Бандиты - мои личные фавориты по стилю игры. А вот с Комета Тим ожидания не оправдались в хорошем смысле: думал, будет легче, а по факту оказалось даже сложнее - почти всухую проигранный CS 1:5 тому подтверждение.",
+  },
+  "agent-heading-atmosphere": {
+    pl: "Sportowa atmosfera",
+    be: "Спартыўная атмасфера",
+    en: "A sporting atmosphere",
+    uk: "Спортивна атмосфера",
+    ru: "Спортивная атмосфера",
+  },
+  "agent-atmosphere": {
+    pl: "Co szczególnie ważne, turniej przebiegł z minimalną liczbą spornych sytuacji i konfliktów. Po rozgrywkach zostały wyłącznie dobre wrażenia. Czekam na kolejny turniej 🙂",
+    be: "І асобна важна адзначыць: турнір прайшоў з мінімумам спрэчных момантаў і канфліктаў, пасля гульняў засталося толькі прыемнае ўражанне. Чакаю наступны турнір 🙂",
+    en: "It is also important to note that the tournament had very few disputed moments or conflicts. After the games, only a pleasant aftertaste remained. I am looking forward to the next tournament 🙂",
+    uk: "І окремо важливо відзначити: турнір пройшов із мінімумом спірних моментів і конфліктів, після ігор залишилося лише приємне враження. Чекаю на наступний турнір 🙂",
+    ru: "И отдельно важно отметить: турнир прошёл с минимумом спорных моментов и конфликтов, после игр осталось только приятное послевкусие. Жду следующий турнир 🙂",
+  },
+};
 
 const mergeCopyById = (incomingCopyById = {}) => {
   Object.entries(incomingCopyById).forEach(([copyId, translations]) => {
