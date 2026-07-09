@@ -1385,6 +1385,10 @@ h2 em {
   object-fit: cover;
 }
 
+.agent-review-image {
+  object-position: center 32%;
+}
+
 .update-card:nth-child(2) {
   background:
     linear-gradient(180deg, rgba(255, 212, 0, 0.1), transparent),
