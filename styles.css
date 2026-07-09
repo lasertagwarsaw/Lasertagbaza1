@@ -376,13 +376,57 @@ h1 .outline {
 }
 
 .next-game-date {
-  margin-bottom: 14px;
   display: block;
   color: var(--acid);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.next-game-date-row {
+  min-height: 27px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.next-game-weather {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #d8dbd2;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.next-game-weather[hidden] {
+  display: none;
+}
+
+.next-game-weather-icon {
+  color: var(--acid);
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.next-game-weather[data-weather="cloud"] .next-game-weather-icon {
+  color: #d8dbd2;
+}
+
+.next-game-weather[data-weather="rain"] .next-game-weather-icon {
+  color: #86cbed;
+}
+
+.next-game-weather strong {
+  color: var(--paper);
+  font-size: 10px;
 }
 
 .panel-row {

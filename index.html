@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=agent-photo-1" />
+    <link rel="stylesheet" href="styles.css?v=weather-1" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -98,7 +98,14 @@
         <aside class="next-game-panel" aria-label="Najbliższa gra otwarta" data-next-game-panel>
           <p>Najbliższa gra otwarta</p>
           <h2 data-next-game-title>Środa 18:30</h2>
-          <span class="next-game-date" data-next-game-date>08 Lip / Śr</span>
+          <div class="next-game-date-row">
+            <span class="next-game-date" data-next-game-date>08 Lip / Śr</span>
+            <div class="next-game-weather" data-next-game-weather data-no-translate hidden>
+              <span class="next-game-weather-icon" data-weather-icon aria-hidden="true">☁</span>
+              <span data-weather-label>Pogoda</span>
+              <strong data-weather-temperature></strong>
+            </div>
+          </div>
           <div class="panel-row">
             <span>Scenariusz</span>
             <strong data-next-game-scenario>Counter-Strike 6v6</strong>
@@ -1224,6 +1231,6 @@ Noka - замечательная игра, очень сильная. Ты ум
       <span>Wyślemy termin i link do Telegrama.</span>
     </div>
 
-    <script src="script.js?v=agent-review-1"></script>
+    <script src="script.js?v=weather-1"></script>
   </body>
 </html>

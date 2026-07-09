@@ -8,6 +8,10 @@ const nextGameToggle = document.querySelector("[data-next-game-toggle]");
 const nextGameRegister = document.querySelector("[data-next-game-register]");
 const nextGameList = document.querySelector("[data-next-game-list]");
 const nextGameCount = document.querySelector("[data-next-game-count]");
+const nextGameWeather = document.querySelector("[data-next-game-weather]");
+const nextGameWeatherIcon = document.querySelector("[data-weather-icon]");
+const nextGameWeatherLabel = document.querySelector("[data-weather-label]");
+const nextGameWeatherTemperature = document.querySelector("[data-weather-temperature]");
 const toast = document.querySelector(".toast");
 const filterButtons = document.querySelectorAll(".filter-button");
 const gameRows = document.querySelectorAll(".game-row");
@@ -34,6 +38,7 @@ let sharedSignups = [];
 let newsComments = {};
 let activeNextGame = "wednesday";
 let visibleNewsCount = 3;
+let weatherForecastPromise = null;
 
 const monthLabels = {
   pl: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
@@ -65,6 +70,21 @@ const pointLabels = {
   en: "pts",
   uk: "оч.",
   ru: "оч.",
+};
+
+const weatherLabels = {
+  pl: { sun: "Słonecznie", cloud: "Pochmurno", rain: "Deszcz", unavailable: "Brak prognozy" },
+  be: { sun: "Сонечна", cloud: "Воблачна", rain: "Дождж", unavailable: "Няма прагнозу" },
+  en: { sun: "Sunny", cloud: "Cloudy", rain: "Rain", unavailable: "No forecast" },
+  uk: { sun: "Сонячно", cloud: "Хмарно", rain: "Дощ", unavailable: "Немає прогнозу" },
+  ru: { sun: "Солнечно", cloud: "Облачно", rain: "Дождь", unavailable: "Нет прогноза" },
+};
+
+const weatherIcons = {
+  sun: "☀",
+  cloud: "☁",
+  rain: "☂",
+  unavailable: "☁",
 };
 
 const siteCopy = {
@@ -1271,6 +1291,75 @@ const formatGameDateLabel = (date) =>
     weekdayLabels[currentSiteLanguage][date.getDay()]
   }`;
 
+const formatWeatherHour = (date) => {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:00`;
+};
+
+const getWeatherKind = (code) => {
+  if (code === 0 || code === 1) return "sun";
+  if ([2, 3, 45, 48].includes(code)) return "cloud";
+  return "rain";
+};
+
+const loadWeatherForecast = () => {
+  if (!weatherForecastPromise) {
+    weatherForecastPromise = fetch(
+      "https://api.open-meteo.com/v1/forecast?latitude=52.2297&longitude=21.0122&hourly=temperature_2m,weather_code&timezone=Europe%2FWarsaw&forecast_days=8",
+      { cache: "no-store" },
+    )
+      .then((response) => {
+        if (!response.ok) throw new Error(`Weather API responded with ${response.status}`);
+        return response.json();
+      })
+      .catch((error) => {
+        weatherForecastPromise = null;
+        throw error;
+      });
+  }
+
+  return weatherForecastPromise;
+};
+
+const renderHeroWeather = (kind, temperature = null) => {
+  if (!nextGameWeather || !nextGameWeatherIcon || !nextGameWeatherLabel || !nextGameWeatherTemperature) return;
+
+  const label = weatherLabels[currentSiteLanguage]?.[kind] || weatherLabels.pl[kind];
+  const temperatureLabel = Number.isFinite(temperature) ? `${Math.round(temperature)}°` : "";
+
+  nextGameWeather.hidden = false;
+  nextGameWeather.dataset.weather = kind;
+  nextGameWeatherIcon.textContent = weatherIcons[kind];
+  nextGameWeatherLabel.textContent = label;
+  nextGameWeatherTemperature.textContent = temperatureLabel;
+  nextGameWeather.setAttribute("aria-label", [label, temperatureLabel].filter(Boolean).join(", "));
+};
+
+const updateHeroWeather = async (gameDate) => {
+  if (!nextGameWeather) return;
+
+  const forecastHour = new Date(gameDate);
+  forecastHour.setMinutes(0, 0, 0);
+  const forecastKey = formatWeatherHour(forecastHour);
+  nextGameWeather.dataset.forecastFor = forecastKey;
+  nextGameWeather.hidden = true;
+
+  try {
+    const forecast = await loadWeatherForecast();
+    if (nextGameWeather.dataset.forecastFor !== forecastKey) return;
+
+    const index = forecast.hourly?.time?.indexOf(forecastKey) ?? -1;
+    if (index < 0) throw new Error(`Forecast is unavailable for ${forecastKey}`);
+
+    const code = Number(forecast.hourly.weather_code?.[index]);
+    const temperature = Number(forecast.hourly.temperature_2m?.[index]);
+    renderHeroWeather(getWeatherKind(code), temperature);
+  } catch (error) {
+    console.warn("Weather forecast is unavailable", error);
+    if (nextGameWeather.dataset.forecastFor === forecastKey) renderHeroWeather("unavailable");
+  }
+};
+
 const updateHeroNextGame = () => {
   if (!nextGamePanel) return;
 
@@ -1290,6 +1379,7 @@ const updateHeroNextGame = () => {
   if (meter) meter.style.width = config.meter;
 
   nextGamePanel.dataset.nextGame = activeNextGame;
+  updateHeroWeather(config.date);
   renderHeroSignupList();
 };
 
