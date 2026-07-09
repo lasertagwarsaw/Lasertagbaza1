@@ -28,6 +28,7 @@ const newsMoreButton = document.querySelector("[data-news-more]");
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
 const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
+const weatherForecastEndpoint = `${localApiBase}/api/weather`;
 const signupStorageKey = "bazaGameSignups";
 const signupCycleStorageKey = "bazaSignupCycleStart";
 const deviceSignupStorageKey = "bazaDeviceSignupCycle";
@@ -1304,10 +1305,7 @@ const getWeatherKind = (code) => {
 
 const loadWeatherForecast = () => {
   if (!weatherForecastPromise) {
-    weatherForecastPromise = fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=52.2297&longitude=21.0122&hourly=temperature_2m,weather_code&timezone=Europe%2FWarsaw&forecast_days=8",
-      { cache: "no-store" },
-    )
+    weatherForecastPromise = fetch(weatherForecastEndpoint, { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error(`Weather API responded with ${response.status}`);
         return response.json();
