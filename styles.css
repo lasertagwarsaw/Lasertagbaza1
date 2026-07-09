@@ -463,6 +463,33 @@ h1 .outline {
   margin-top: 12px;
 }
 
+@media (min-width: 821px) {
+  .next-game-panel.show-signups {
+    max-height: calc(100% - 285px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .next-game-panel.show-signups .next-game-signups {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .next-game-panel.show-signups .next-game-list {
+    min-height: 92px;
+    max-height: 150px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .next-game-panel.show-signups + .hero-meta {
+    right: auto;
+    left: 8.6vw;
+  }
+}
+
 .hero-meta {
   position: absolute;
   z-index: 2;
