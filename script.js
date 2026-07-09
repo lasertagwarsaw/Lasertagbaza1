@@ -29,9 +29,7 @@ const signupCycleStorageKey = "bazaSignupCycleStart";
 const deviceSignupStorageKey = "bazaDeviceSignupCycle";
 const newsCommentsStorageKey = "bazaNewsComments";
 const supportedSiteLanguages = ["pl", "be", "en", "uk", "ru"];
-let currentSiteLanguage = supportedSiteLanguages.includes(localStorage.getItem("bazaSiteLanguage"))
-  ? localStorage.getItem("bazaSiteLanguage")
-  : "pl";
+let currentSiteLanguage = "pl";
 let sharedSignups = [];
 let newsComments = {};
 let activeNextGame = "wednesday";
