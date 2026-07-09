@@ -929,8 +929,9 @@ h2 em {
 }
 
 .points-card:nth-child(-n + 3) .points-avatar img {
-  position: relative;
+  position: absolute;
   z-index: 1;
+  inset: 0;
   border-radius: 50%;
   clip-path: circle(50% at 50% 50%);
 }
@@ -1010,11 +1011,25 @@ h2 em {
 }
 
 .points-avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
   object-position: center;
+}
+
+.points-card:nth-child(1) .points-avatar img {
+  object-position: 54% 32%;
+}
+
+.points-card:nth-child(2) .points-avatar img {
+  object-position: 50% 42%;
+}
+
+.points-card:nth-child(3) .points-avatar img {
+  object-position: 38% 26%;
 }
 
 .points-card strong {
