@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=news-pages-1" />
+    <link rel="stylesheet" href="styles.css?v=bonus-links-1" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -214,7 +214,13 @@
                 <strong data-no-translate>SPICA</strong>
                 <span>191 pkt</span>
               </article>
-              <article class="points-card has-avatar is-bonus">
+              <article
+                class="points-card has-avatar is-bonus"
+                role="button"
+                tabindex="0"
+                data-player-article-target="tort"
+                aria-label="Otwórz artykuł TORT"
+              >
                 <div class="points-avatar"><img src="assets/player-tort.jpg" alt="TORT" /><span class="points-bonus-badge">+30</span></div>
                 <b>08</b>
                 <strong data-no-translate>TORT</strong>
@@ -280,7 +286,13 @@
                 <strong data-no-translate>KATYA</strong>
                 <span>94 pkt</span>
               </article>
-              <article class="points-card has-avatar is-bonus">
+              <article
+                class="points-card has-avatar is-bonus"
+                role="button"
+                tabindex="0"
+                data-player-article-target="jak"
+                aria-label="Otwórz artykuł JAK"
+              >
                 <div class="points-avatar"><img src="assets/player-jak.jpg" alt="JAK" /><span class="points-bonus-badge">+30</span></div>
                 <b>19</b>
                 <strong data-no-translate>JAK</strong>
@@ -626,7 +638,7 @@
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article">
+            <details class="update-article" data-news-key="tort">
               <summary>
                 <img
                   class="update-card-image"
@@ -844,7 +856,7 @@ Noka - замечательная игра, очень сильная. Ты ум
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article">
+            <details class="update-article" data-news-key="jak">
               <summary>
                 <img
                   class="update-card-image"
@@ -1147,6 +1159,6 @@ Noka - замечательная игра, очень сильная. Ты ум
       <span>Wyślemy termin i link do Telegrama.</span>
     </div>
 
-    <script src="script.js?v=news-pages-1"></script>
+    <script src="script.js?v=bonus-links-1"></script>
   </body>
 </html>

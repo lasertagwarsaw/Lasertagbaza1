@@ -1034,9 +1034,19 @@ h2 em {
 
 .points-card.is-bonus {
   border-color: rgba(89, 255, 121, 0.46);
+  cursor: pointer;
   background:
     linear-gradient(180deg, rgba(89, 255, 121, 0.13), rgba(255, 255, 255, 0)),
     #171612;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.points-card.is-bonus:hover,
+.points-card.is-bonus:focus-visible {
+  border-color: rgba(89, 255, 121, 0.78);
+  box-shadow: 0 0 0 1px rgba(89, 255, 121, 0.2), 0 12px 28px rgba(89, 255, 121, 0.12);
+  transform: translateY(-2px);
+  outline: none;
 }
 
 .points-card.is-bonus .points-avatar {
@@ -1056,20 +1066,22 @@ h2 em {
 
 .points-bonus-badge {
   position: absolute;
-  right: 6px;
-  bottom: 7px;
+  right: 3px;
+  bottom: 4px;
   z-index: 4;
-  min-width: 28px;
-  padding: 3px 5px 2px;
+  min-width: 24px;
+  padding: 2px 4px 1px;
   border: 1px solid rgba(10, 18, 8, 0.55);
   border-radius: 999px;
   color: #071006;
   background: #59ff79;
-  box-shadow: 0 5px 11px rgba(89, 255, 121, 0.28);
+  box-shadow: 0 4px 8px rgba(89, 255, 121, 0.24);
   font-family: var(--display);
-  font-size: 9px;
+  font-size: 8px;
   line-height: 1;
   text-align: center;
+  transform: scale(0.55);
+  transform-origin: right bottom;
 }
 
 .points-marquee {

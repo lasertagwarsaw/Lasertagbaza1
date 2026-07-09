@@ -172,6 +172,8 @@ const siteCopy = {
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Пастаянны сцэнар па серадах: дзве каманды, тактычныя мэты і запіс сольна або складам.",
     "Czytaj artykuł": "Чытаць артыкул",
     "Pokaż więcej aktualności": "Паказаць яшчэ навіны",
+    "Otwórz artykuł TORT": "Адкрыць артыкул TORT",
+    "Otwórz artykuł JAK": "Адкрыць артыкул JAK",
     "Niedziela / 18:00": "Нядзеля / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Адкрытая гульня для ўсіх ахвотных 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "Самы просты фармат уваходу для новых гульцоў, сем'яў і людзей без сваёй каманды.",
@@ -346,6 +348,8 @@ const siteCopy = {
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Regular Wednesday scenario: two teams, tactical objectives and registration solo or as a squad.",
     "Czytaj artykuł": "Read article",
     "Pokaż więcej aktualności": "Show more updates",
+    "Otwórz artykuł TORT": "Open TORT article",
+    "Otwórz artykuł JAK": "Open JAK article",
     "Niedziela / 18:00": "Sunday / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Open game for everyone 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "The easiest entry format for new players, families and people without their own team.",
@@ -520,6 +524,8 @@ const siteCopy = {
     "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.": "Постійний сценарій щосереди: дві команди, тактичні цілі та запис соло або складом.",
     "Czytaj artykuł": "Читати статтю",
     "Pokaż więcej aktualności": "Показати ще новини",
+    "Otwórz artykuł TORT": "Відкрити статтю TORT",
+    "Otwórz artykuł JAK": "Відкрити статтю JAK",
     "Niedziela / 18:00": "Неділя / 18:00",
     "Otwarta gra dla wszystkich chętnych 10+": "Відкрита гра для всіх охочих 10+",
     "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.": "Найпростіший формат входу для нових гравців, сімей і людей без власної команди.",
@@ -945,6 +951,8 @@ const interfaceCopy = {
     "Czytaj dalej": "Читать дальше",
     "Zwiń tekst": "Свернуть текст",
     "Pokaż więcej aktualności": "Показать ещё новости",
+    "Otwórz artykuł TORT": "Открыть статью TORT",
+    "Otwórz artykuł JAK": "Открыть статью JAK",
     "Informacja o zdobywaniu punktów": "Информация о получении баллов",
     "Punkty można zdobyć, wysyłając swój artykuł na lasertagwarsaw@gmail.com albo zdobywając je podczas gry.": "Баллы можно получить, отправив свою статью на lasertagwarsaw@gmail.com или добрав их на игре.",
     "Najbliższa gra otwarta": "Ближайшая открытая игра",
@@ -1681,6 +1689,7 @@ const renderTortReviewSections = () => {
 };
 
 let updateNewsMoreButtonLabel = () => {};
+let openNewsArticleByKey = () => false;
 
 const setupNewsPagination = () => {
   if (!updatesGrid) return;
@@ -1714,12 +1723,45 @@ const setupNewsPagination = () => {
     render();
   });
 
+  openNewsArticleByKey = (key) => {
+    const details = updatesGrid.querySelector(`.update-article[data-news-key="${key}"]`);
+    const card = details?.closest(".update-card");
+    if (!details || !card) return false;
+
+    const targetIndex = orderedCards.indexOf(card);
+    if (targetIndex >= visibleNewsCount) {
+      visibleNewsCount = Math.min(targetIndex + 1, orderedCards.length);
+      render();
+    }
+
+    details.open = true;
+    requestAnimationFrame(() => {
+      details.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    return true;
+  };
+
   render();
+};
+
+const setupBonusPlayerArticleLinks = () => {
+  document.querySelectorAll("[data-player-article-target]").forEach((card) => {
+    const openTarget = () => openNewsArticleByKey(card.dataset.playerArticleTarget);
+
+    card.addEventListener("click", openTarget);
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openTarget();
+    });
+  });
 };
 
 const initializeSite = async () => {
   await loadExternalCopy();
   setupNewsPagination();
+  setupBonusPlayerArticleLinks();
   collectTranslatableText();
   collectTranslatableAttributes();
   setupNewsCommentWidgets();
