@@ -1594,6 +1594,42 @@ const updateHeroNextGame = () => {
   renderHeroSignupList();
 };
 
+const normalizePlayerNickname = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[Łł]/g, "l")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase("pl-PL");
+
+let rankedPlayerAvatarIndex;
+
+const buildRankedPlayerAvatarIndex = () => {
+  if (!playerCarousel) return null;
+
+  rankedPlayerAvatarIndex = new Map();
+  playerCarousel.querySelectorAll(".points-card").forEach((card) => {
+    const image = card.querySelector(".points-avatar img");
+    const canonicalNickname = image?.alt || card.querySelector("strong")?.textContent || "";
+    const key = normalizePlayerNickname(canonicalNickname);
+    if (!image || !key) return;
+
+    rankedPlayerAvatarIndex.set(key, {
+      src: image.currentSrc || image.getAttribute("src"),
+      objectPosition: window.getComputedStyle(image).objectPosition || "50% 50%",
+    });
+  });
+
+  return rankedPlayerAvatarIndex;
+};
+
+const getRankedPlayerAvatar = (nickname) => {
+  if (!rankedPlayerAvatarIndex) buildRankedPlayerAvatarIndex();
+
+  return rankedPlayerAvatarIndex?.get(normalizePlayerNickname(nickname)) || null;
+};
+
 const renderSignupItems = (list, signups) => {
   list.innerHTML = "";
 
@@ -1612,6 +1648,7 @@ const renderSignupItems = (list, signups) => {
     const content = document.createElement("span");
     const nickname = document.createElement("b");
     const noteText = document.createElement("em");
+    const playerAvatar = getRankedPlayerAvatar(signup.nickname);
 
     number.textContent = String(index + 1).padStart(2, "0");
     nickname.dataset.noTranslate = "";
@@ -1619,7 +1656,23 @@ const renderSignupItems = (list, signups) => {
     noteText.textContent = note;
 
     content.append(nickname, noteText);
-    item.append(number, content);
+    item.append(number);
+
+    if (playerAvatar) {
+      const avatar = document.createElement("img");
+      avatar.className = "signup-player-avatar";
+      avatar.src = playerAvatar.src;
+      avatar.alt = "";
+      avatar.width = 38;
+      avatar.height = 38;
+      avatar.loading = "lazy";
+      avatar.decoding = "async";
+      avatar.style.objectPosition = playerAvatar.objectPosition;
+      item.classList.add("has-player-avatar");
+      item.append(avatar);
+    }
+
+    item.append(content);
     list.append(item);
   });
 };
@@ -2495,6 +2548,7 @@ const setupBonusPlayerArticleLinks = () => {
 
 const initializeSite = async () => {
   await loadExternalCopy();
+  buildRankedPlayerAvatarIndex();
   setupNewsPagination();
   setupBonusPlayerArticleLinks();
   collectTranslatableText();
