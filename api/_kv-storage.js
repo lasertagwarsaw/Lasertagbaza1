@@ -32,4 +32,4 @@ const writeJson = async (key, value) => {
   await kvRequest("SET", key, JSON.stringify(value));
 };
 
-module.exports = { hasKvStorage, readJson, writeJson };
+module.exports = { hasKvStorage, kvRequest, readJson, writeJson };

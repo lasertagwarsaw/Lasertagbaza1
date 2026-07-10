@@ -27,8 +27,11 @@ const contentTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".png": "image/png",
+  ".webp": "image/webp",
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
+  ".xml": "application/xml; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
 };
 
 const readBody = (request) =>
@@ -72,6 +75,9 @@ const callApi = async (request, response, handlerPath) => {
   await handler(
     { method: request.method, headers: request.headers, body: parsedBody },
     {
+      setHeader(name, value) {
+        response.setHeader(name, value);
+      },
       writeHead(statusCode, headers) {
         response.writeHead(statusCode, headers);
       },
@@ -139,6 +145,16 @@ const server = http.createServer(async (request, response) => {
 
     if (request.url.startsWith("/api/news-comments")) {
       await callApi(request, response, path.join(root, "api", "news-comments.js"));
+      return;
+    }
+
+    if (request.url.startsWith("/api/weather")) {
+      await callApi(request, response, path.join(root, "api", "weather.js"));
+      return;
+    }
+
+    if (request.url.startsWith("/api/analytics")) {
+      await callApi(request, response, path.join(root, "api", "analytics.js"));
       return;
     }
 

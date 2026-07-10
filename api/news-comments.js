@@ -1,4 +1,5 @@
 const { readNewsComments, addNewsComment } = require("./_news-comments");
+const { assertHumanSubmission, enforceRateLimit } = require("./_request-guard");
 
 module.exports = async function handler(request, response) {
   if (request.method === "GET") {
@@ -28,12 +29,21 @@ module.exports = async function handler(request, response) {
   }
 
   try {
+    assertHumanSubmission(body);
+    enforceRateLimit(request, "comment", 6, 10 * 60 * 1000);
+  } catch (error) {
+    response.status(error.statusCode || 400).json({ error: error.message });
+    return;
+  }
+
+  try {
     response.status(200).json({
       ok: true,
       ...(await addNewsComment({
         articleId: body.articleId,
         name: body.name,
         text: body.text,
+        website: body.website,
         createdAt: body.createdAt,
       })),
     });

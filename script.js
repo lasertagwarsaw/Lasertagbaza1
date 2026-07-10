@@ -1,6 +1,7 @@
 const menuButton = document.querySelector(".menu-toggle");
 const mobileLinks = document.querySelectorAll(".mobile-nav a");
-const bookingForm = document.querySelector(".booking-form");
+const bookingForms = document.querySelectorAll(".booking-form");
+const bookingForm = document.querySelector(".signup-form");
 const signupLists = document.querySelectorAll("[data-signup-list]");
 const signupCounters = document.querySelectorAll("[data-signup-count]");
 const nextGamePanel = document.querySelector("[data-next-game-panel]");
@@ -12,6 +13,16 @@ const nextGameWeather = document.querySelector("[data-next-game-weather]");
 const nextGameWeatherIcon = document.querySelector("[data-weather-icon]");
 const nextGameWeatherLabel = document.querySelector("[data-weather-label]");
 const nextGameWeatherTemperature = document.querySelector("[data-weather-temperature]");
+const quickSignupModal = document.querySelector(".quick-signup-modal");
+const quickSignupOpenButtons = document.querySelectorAll("[data-quick-signup-open]");
+const quickSignupCloseButtons = document.querySelectorAll("[data-quick-signup-close]");
+const quickSignupForm = document.querySelector(".quick-signup-form");
+const signupSuccessModal = document.querySelector(".signup-success-modal");
+const signupSuccessCloseButtons = document.querySelectorAll("[data-signup-success-close]");
+const playerProfileModal = document.querySelector(".player-profile-modal");
+const playerProfileCloseButtons = document.querySelectorAll("[data-player-profile-close]");
+const playerSearchInput = document.querySelector("[data-player-search]");
+const playerSearchStatus = document.querySelector("[data-player-search-status]");
 const toast = document.querySelector(".toast");
 const filterButtons = document.querySelectorAll(".filter-button");
 const gameRows = document.querySelectorAll(".game-row");
@@ -29,6 +40,7 @@ const localApiBase = window.location.protocol === "file:" ? "http://localhost:30
 const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
 const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
 const weatherForecastEndpoint = `${localApiBase}/api/weather`;
+const analyticsEndpoint = `${localApiBase}/api/analytics`;
 const signupStorageKey = "bazaGameSignups";
 const signupCycleStorageKey = "bazaSignupCycleStart";
 const deviceSignupStorageKey = "bazaDeviceSignupCycle";
@@ -40,6 +52,8 @@ let newsComments = {};
 let activeNextGame = "wednesday";
 let visibleNewsCount = 3;
 let weatherForecastPromise = null;
+let lastCalendarEvent = null;
+let playerSearchTimer = null;
 
 const monthLabels = {
   pl: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
@@ -86,6 +100,27 @@ const weatherIcons = {
   cloud: "☁",
   rain: "☂",
   unavailable: "☁",
+};
+
+const gameDetails = {
+  wednesday: {
+    capacity: 12,
+    price: "0 / 50 zł",
+    durationHours: 2,
+  },
+  sunday: {
+    capacity: 60,
+    price: "100 zł",
+    durationHours: 2,
+  },
+};
+
+const newsMetaLabels = {
+  pl: { read: "min czytania", comments: "komentarzy" },
+  be: { read: "хв чытання", comments: "каментароў" },
+  en: { read: "min read", comments: "comments" },
+  uk: { read: "хв читання", comments: "коментарів" },
+  ru: { read: "мин чтения", comments: "комментариев" },
 };
 
 const siteCopy = {
@@ -901,6 +936,45 @@ const interfaceCopy = {
     "10+ lat": "10+ гадоў",
     "Błąd komentarza.": "Памылка каментара.",
     "Spróbuj ponownie za chwilę.": "Паспрабуй яшчэ раз праз хвіліну.",
+    "Zobacz listę": "Паглядзець спіс",
+    "Ukryj listę": "Схаваць спіс",
+    "Czas": "Час",
+    "Cena": "Кошт",
+    "Wolne miejsca": "Вольныя месцы",
+    "2 godz.": "2 гадз.",
+    "BAZA Warszawa / mapa": "BAZA Варшава / карта",
+    "Znajdź gracza": "Знайсці гульца",
+    "Znajdź gracza po nicku": "Знайсці гульца па ніку",
+    "Szybki zapis": "Хуткі запіс",
+    "Zapisz się do gry": "Запісацца на гульню",
+    "wolnych miejsc": "вольных месцаў",
+    "Nick będzie publiczny. Telefon otrzyma tylko organizator.": "Нік будзе публічным. Тэлефон атрымае толькі арганізатар.",
+    "Polityka prywatności": "Палітыка прыватнасці",
+    "Gotowe": "Гатова",
+    "Jesteś na liście": "Ты ў спісе",
+    "Organizator otrzymał dane kontaktowe.": "Арганізатар атрымаў кантактныя даныя.",
+    "Dodaj do kalendarza": "Дадаць у каляндар",
+    "Pobierz .ics": "Спампаваць .ics",
+    "Otwórz kanał": "Адкрыць канал",
+    "Profil gracza": "Профіль гульца",
+    "Miejsce": "Месца",
+    "Punkty": "Балы",
+    "Historia punktów": "Гісторыя балаў",
+    "Wyniki z gier": "Вынікі гульняў",
+    "Artykuł dla BAZY": "Артыкул для BAZY",
+    "Lista pełna": "Спіс запоўнены",
+    "Brak wolnych miejsc na tę grę.": "На гэтую гульню няма вольных месцаў.",
+    "Zapis nieudany": "Не ўдалося запісацца",
+    "Sprawdź dane i spróbuj ponownie.": "Правер даныя і паспрабуй яшчэ раз.",
+    "Zbyt wiele prób. Spróbuj ponownie później.": "Занадта шмат спроб. Паспрабуй пазней.",
+    "drużyny": "каманды",
+    "graczy": "гульцоў",
+    "punktów zwycięzcy": "балаў пераможцы",
+    "nowy scenariusz": "новы сцэнар",
+    "Opinie graczy": "Водгукі гульцоў",
+    "Turniej oczami uczestników": "Турнір вачыма ўдзельнікаў",
+    "Przeczytaj relacje AGENT, TORT i JAK albo sprawdź termin kolejnego turnieju.": "Прачытай водгукі AGENT, TORT і JAK або правер дату наступнага турніру.",
+    "Kolejny turniej": "Наступны турнір",
   },
   en: {
     "RU": "RU",
@@ -927,6 +1001,45 @@ const interfaceCopy = {
     "10+ lat": "10+ years",
     "Błąd komentarza.": "Comment error.",
     "Spróbuj ponownie za chwilę.": "Try again in a moment.",
+    "Zobacz listę": "View player list",
+    "Ukryj listę": "Hide player list",
+    "Czas": "Duration",
+    "Cena": "Price",
+    "Wolne miejsca": "Available spots",
+    "2 godz.": "2 hours",
+    "BAZA Warszawa / mapa": "BAZA Warsaw / map",
+    "Znajdź gracza": "Find a player",
+    "Znajdź gracza po nicku": "Find a player by nickname",
+    "Szybki zapis": "Quick signup",
+    "Zapisz się do gry": "Join the game",
+    "wolnych miejsc": "spots available",
+    "Nick będzie publiczny. Telefon otrzyma tylko organizator.": "Your nickname will be public. Only the organizer receives your phone number.",
+    "Polityka prywatności": "Privacy policy",
+    "Gotowe": "Done",
+    "Jesteś na liście": "You are on the list",
+    "Organizator otrzymał dane kontaktowe.": "The organizer received your contact details.",
+    "Dodaj do kalendarza": "Add to calendar",
+    "Pobierz .ics": "Download .ics",
+    "Otwórz kanał": "Open channel",
+    "Profil gracza": "Player profile",
+    "Miejsce": "Rank",
+    "Punkty": "Points",
+    "Historia punktów": "Points history",
+    "Wyniki z gier": "Game results",
+    "Artykuł dla BAZY": "Article for BAZA",
+    "Lista pełna": "The list is full",
+    "Brak wolnych miejsc na tę grę.": "There are no spots left for this game.",
+    "Zapis nieudany": "Signup failed",
+    "Sprawdź dane i spróbuj ponownie.": "Check your details and try again.",
+    "Zbyt wiele prób. Spróbuj ponownie później.": "Too many attempts. Try again later.",
+    "drużyny": "teams",
+    "graczy": "players",
+    "punktów zwycięzcy": "winner points",
+    "nowy scenariusz": "new scenario",
+    "Opinie graczy": "Player reviews",
+    "Turniej oczami uczestników": "The tournament through the players' eyes",
+    "Przeczytaj relacje AGENT, TORT i JAK albo sprawdź termin kolejnego turnieju.": "Read reviews from AGENT, TORT and JAK or check the next tournament date.",
+    "Kolejny turniej": "Next tournament",
   },
   uk: {
     "RU": "RU",
@@ -953,6 +1066,45 @@ const interfaceCopy = {
     "10+ lat": "10+ років",
     "Błąd komentarza.": "Помилка коментаря.",
     "Spróbuj ponownie za chwilę.": "Спробуй ще раз за хвилину.",
+    "Zobacz listę": "Переглянути список",
+    "Ukryj listę": "Сховати список",
+    "Czas": "Тривалість",
+    "Cena": "Ціна",
+    "Wolne miejsca": "Вільні місця",
+    "2 godz.": "2 год.",
+    "BAZA Warszawa / mapa": "BAZA Варшава / мапа",
+    "Znajdź gracza": "Знайти гравця",
+    "Znajdź gracza po nicku": "Знайти гравця за ніком",
+    "Szybki zapis": "Швидкий запис",
+    "Zapisz się do gry": "Записатися на гру",
+    "wolnych miejsc": "вільних місць",
+    "Nick będzie publiczny. Telefon otrzyma tylko organizator.": "Нік буде публічним. Телефон отримає лише організатор.",
+    "Polityka prywatności": "Політика конфіденційності",
+    "Gotowe": "Готово",
+    "Jesteś na liście": "Ти у списку",
+    "Organizator otrzymał dane kontaktowe.": "Організатор отримав контактні дані.",
+    "Dodaj do kalendarza": "Додати до календаря",
+    "Pobierz .ics": "Завантажити .ics",
+    "Otwórz kanał": "Відкрити канал",
+    "Profil gracza": "Профіль гравця",
+    "Miejsce": "Місце",
+    "Punkty": "Бали",
+    "Historia punktów": "Історія балів",
+    "Wyniki z gier": "Результати ігор",
+    "Artykuł dla BAZY": "Стаття для BAZY",
+    "Lista pełna": "Список заповнений",
+    "Brak wolnych miejsc na tę grę.": "На цю гру немає вільних місць.",
+    "Zapis nieudany": "Не вдалося записатися",
+    "Sprawdź dane i spróbuj ponownie.": "Перевір дані та спробуй ще раз.",
+    "Zbyt wiele prób. Spróbuj ponownie później.": "Забагато спроб. Спробуй пізніше.",
+    "drużyny": "команди",
+    "graczy": "гравців",
+    "punktów zwycięzcy": "балів переможця",
+    "nowy scenariusz": "новий сценарій",
+    "Opinie graczy": "Відгуки гравців",
+    "Turniej oczami uczestników": "Турнір очима учасників",
+    "Przeczytaj relacje AGENT, TORT i JAK albo sprawdź termin kolejnego turnieju.": "Прочитай відгуки AGENT, TORT і JAK або перевір дату наступного турніру.",
+    "Kolejny turniej": "Наступний турнір",
   },
   ru: {
     "RU": "RU",
@@ -984,6 +1136,45 @@ const interfaceCopy = {
     "10+ lat": "10+ лет",
     "Błąd komentarza.": "Ошибка комментария.",
     "Spróbuj ponownie za chwilę.": "Попробуйте еще раз через минуту.",
+    "Zobacz listę": "Посмотреть список",
+    "Ukryj listę": "Скрыть список",
+    "Czas": "Длительность",
+    "Cena": "Цена",
+    "Wolne miejsca": "Свободные места",
+    "2 godz.": "2 часа",
+    "BAZA Warszawa / mapa": "BAZA Варшава / карта",
+    "Znajdź gracza": "Найти игрока",
+    "Znajdź gracza po nicku": "Найти игрока по нику",
+    "Szybki zapis": "Быстрая запись",
+    "Zapisz się do gry": "Записаться на игру",
+    "wolnych miejsc": "свободных мест",
+    "Nick będzie publiczny. Telefon otrzyma tylko organizator.": "Ник будет виден на сайте. Телефон получит только организатор.",
+    "Polityka prywatności": "Политика конфиденциальности",
+    "Gotowe": "Готово",
+    "Jesteś na liście": "Вы в списке",
+    "Organizator otrzymał dane kontaktowe.": "Организатор получил контактные данные.",
+    "Dodaj do kalendarza": "Добавить в календарь",
+    "Pobierz .ics": "Скачать .ics",
+    "Otwórz kanał": "Открыть канал",
+    "Profil gracza": "Профиль игрока",
+    "Miejsce": "Место",
+    "Punkty": "Баллы",
+    "Historia punktów": "История баллов",
+    "Wyniki z gier": "Результаты игр",
+    "Artykuł dla BAZY": "Статья для BAZY",
+    "Lista pełna": "Список заполнен",
+    "Brak wolnych miejsc na tę grę.": "На эту игру больше нет свободных мест.",
+    "Zapis nieudany": "Не удалось записаться",
+    "Sprawdź dane i spróbuj ponownie.": "Проверьте данные и попробуйте снова.",
+    "Zbyt wiele prób. Spróbuj ponownie później.": "Слишком много попыток. Попробуйте позже.",
+    "drużyny": "команды",
+    "graczy": "игроков",
+    "punktów zwycięzcy": "баллов победителя",
+    "nowy scenariusz": "новый сценарий",
+    "Opinie graczy": "Отзывы игроков",
+    "Turniej oczami uczestników": "Турнир глазами участников",
+    "Przeczytaj relacje AGENT, TORT i JAK albo sprawdź termin kolejnego turnieju.": "Прочитайте отзывы AGENT, TORT и JAK или узнайте дату следующего турнира.",
+    "Kolejny turniej": "Следующий турнир",
   },
 };
 
@@ -1220,6 +1411,8 @@ const applySiteLanguage = (language) => {
   renderTortReviewSections();
   renderNewsComments();
   renderSignupLists();
+  updateNewsReaderLabels();
+  updateQuickSignupSummary(quickSignupForm?.querySelector('select[name="game"]')?.value || activeNextGame);
 };
 
 const getNextGameDate = (weekday, time, now = new Date()) => {
@@ -1273,7 +1466,7 @@ const getHeroGameConfig = (now = new Date()) => {
       title: "Środa 18:30",
       scenario: "Counter-Strike 6v6",
       age: "14+ lat",
-      meter: "50%",
+      ...gameDetails.wednesday,
     };
   }
 
@@ -1283,7 +1476,29 @@ const getHeroGameConfig = (now = new Date()) => {
     title: "Niedziela 18:00",
     scenario: "Dla wszystkich chętnych",
     age: "10+ lat",
-    meter: "32%",
+    ...gameDetails.sunday,
+  };
+};
+
+const getGameConfig = (game, now = new Date()) => {
+  if (game === "sunday") {
+    return {
+      game: "sunday",
+      date: getNextGameDate(0, "18:00", now),
+      title: "Niedziela 18:00",
+      scenario: "Dla wszystkich chętnych",
+      age: "10+ lat",
+      ...gameDetails.sunday,
+    };
+  }
+
+  return {
+    game: "wednesday",
+    date: getNextGameDate(3, "18:30", now),
+    title: "Środa 18:30",
+    scenario: "Counter-Strike 6v6",
+    age: "14+ lat",
+    ...gameDetails.wednesday,
   };
 };
 
@@ -1368,13 +1583,19 @@ const updateHeroNextGame = () => {
   const date = nextGamePanel.querySelector("[data-next-game-date]");
   const scenario = nextGamePanel.querySelector("[data-next-game-scenario]");
   const age = nextGamePanel.querySelector("[data-next-game-age]");
+  const price = nextGamePanel.querySelector("[data-next-game-price]");
+  const capacity = nextGamePanel.querySelector("[data-next-game-capacity]");
+  const mobileGame = document.querySelector("[data-mobile-signup-game]");
   const meter = nextGamePanel.querySelector("[data-next-game-meter]");
 
   if (title) title.textContent = translateCopy(config.title);
   if (date) date.textContent = formatGameDateLabel(config.date);
   if (scenario) scenario.textContent = translateCopy(config.scenario);
   if (age) age.textContent = translateCopy(config.age);
-  if (meter) meter.style.width = config.meter;
+  if (price) price.textContent = config.price;
+  if (capacity) capacity.textContent = String(config.capacity);
+  if (mobileGame) mobileGame.textContent = translateCopy(config.title);
+  if (meter) meter.style.width = "0%";
 
   nextGamePanel.dataset.nextGame = activeNextGame;
   updateHeroWeather(config.date);
@@ -1415,8 +1636,69 @@ const renderHeroSignupList = () => {
   if (!nextGameList) return;
 
   const signups = getStoredSignups().filter((signup) => signup.game === activeNextGame);
+  const config = getGameConfig(activeNextGame);
+  const remaining = Math.max(0, config.capacity - signups.length);
+  const progress = Math.min(100, (signups.length / config.capacity) * 100);
+  const remainingElement = nextGamePanel?.querySelector("[data-next-game-remaining]");
+  const capacityElement = nextGamePanel?.querySelector("[data-next-game-capacity]");
+  const meter = nextGamePanel?.querySelector("[data-next-game-meter]");
+  const progressElement = nextGamePanel?.querySelector("[data-next-game-progress]");
+
   renderSignupItems(nextGameList, signups);
   if (nextGameCount) nextGameCount.textContent = String(signups.length);
+  if (remainingElement) remainingElement.textContent = String(remaining);
+  if (capacityElement) capacityElement.textContent = String(config.capacity);
+  if (meter) meter.style.width = `${progress}%`;
+  if (progressElement) {
+    progressElement.setAttribute("aria-valuemax", String(config.capacity));
+    progressElement.setAttribute("aria-valuenow", String(signups.length));
+  }
+
+  const isFull = remaining === 0;
+  quickSignupOpenButtons.forEach((button) => {
+    button.disabled = isFull;
+    button.classList.toggle("is-full", isFull);
+    const strong = button.querySelector("strong");
+    const label = translateCopy(isFull ? "Lista pełna" : "Zapisz się");
+    if (strong) strong.textContent = label;
+    else if (!button.matches("[data-next-game-register]")) button.textContent = label;
+  });
+  if (nextGameRegister) {
+    nextGameRegister.disabled = isFull;
+    nextGameRegister.textContent = translateCopy(isFull ? "Lista pełna" : "Zapisz się");
+  }
+};
+
+const closePlayerProfile = () => {
+  if (!playerProfileModal || playerProfileModal.hidden) return;
+  playerProfileModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const openPlayerProfile = (card) => {
+  if (!playerProfileModal || card.dataset.playerArticleTarget) return;
+
+  const name = card.querySelector("strong")?.textContent.trim() || "";
+  const rank = card.querySelector(":scope > b")?.textContent.trim() || "";
+  const points = Number.parseInt(card.querySelector(":scope > span")?.textContent, 10) || 0;
+  const image = card.querySelector("img");
+  const bonus = card.classList.contains("is-bonus") ? 30 : 0;
+  const profileImage = playerProfileModal.querySelector("[data-player-profile-image]");
+
+  playerProfileModal.querySelector("[data-player-profile-name]").textContent = name;
+  playerProfileModal.querySelector("[data-player-profile-rank]").textContent = `#${rank}`;
+  playerProfileModal.querySelector("[data-player-profile-points]").textContent = String(points);
+  playerProfileModal.querySelector("[data-player-game-points]").textContent = String(Math.max(0, points - bonus));
+  playerProfileModal.querySelector("[data-player-article-points-row]").hidden = bonus === 0;
+
+  if (profileImage && image) {
+    profileImage.src = image.currentSrc || image.src;
+    profileImage.alt = name;
+  }
+
+  playerProfileModal.hidden = false;
+  document.body.classList.add("modal-open");
+  playerProfileModal.querySelector("[data-player-profile-close]")?.focus();
 };
 
 const setupPlayerCarousel = () => {
@@ -1428,22 +1710,49 @@ const setupPlayerCarousel = () => {
   const nextButton = playerCarousel.querySelector("[data-carousel-next]");
   const status = playerCarousel.querySelector("[data-carousel-status]");
   const cardsPerPage = 5;
-  const totalPages = Math.ceil(cards.length / cardsPerPage);
   let currentPage = 0;
 
-  const setPage = (page) => {
-    currentPage = (page + totalPages) % totalPages;
-    const targetCard = cards[currentPage * cardsPerPage];
-    const offset = targetCard.offsetLeft - cards[0].offsetLeft;
+  cards.forEach((card) => {
+    if (card.dataset.playerArticleTarget) return;
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", `${translateCopy("Profil gracza")} ${card.querySelector("strong")?.textContent || ""}`);
+    card.addEventListener("click", () => openPlayerProfile(card));
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openPlayerProfile(card);
+    });
+  });
 
-    viewport.scrollTo({ left: offset, behavior: "smooth" });
-    if (status) status.textContent = `${currentPage + 1} / ${totalPages}`;
+  const visibleCards = () => cards.filter((card) => !card.hidden);
+  const totalPages = () => Math.max(1, Math.ceil(visibleCards().length / cardsPerPage));
+
+  const updateStatus = () => {
+    if (status) status.textContent = `${Math.min(currentPage + 1, totalPages())} / ${totalPages()}`;
+    if (playerSearchStatus) playerSearchStatus.textContent = `${visibleCards().length} / ${cards.length}`;
+  };
+
+  const setPage = (page, behavior = "smooth") => {
+    const availableCards = visibleCards();
+    const pages = totalPages();
+    currentPage = (page + pages) % pages;
+    const targetCard = availableCards[currentPage * cardsPerPage];
+
+    if (targetCard && availableCards[0]) {
+      const offset = targetCard.offsetLeft - availableCards[0].offsetLeft;
+      viewport.scrollTo({ left: offset, behavior });
+    } else {
+      viewport.scrollTo({ left: 0, behavior });
+    }
+    updateStatus();
   };
 
   const updatePageFromScroll = () => {
-    const pageWidth = cards[cardsPerPage]?.offsetLeft - cards[0].offsetLeft || viewport.clientWidth;
-    currentPage = Math.min(totalPages - 1, Math.max(0, Math.round(viewport.scrollLeft / pageWidth)));
-    if (status) status.textContent = `${currentPage + 1} / ${totalPages}`;
+    const availableCards = visibleCards();
+    const pageWidth = availableCards[cardsPerPage]?.offsetLeft - availableCards[0]?.offsetLeft || viewport.clientWidth;
+    currentPage = Math.min(totalPages() - 1, Math.max(0, Math.round(viewport.scrollLeft / pageWidth)));
+    updateStatus();
   };
 
   prevButton?.addEventListener("click", () => setPage(currentPage - 1));
@@ -1453,7 +1762,6 @@ const setupPlayerCarousel = () => {
     "wheel",
     (event) => {
       if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-
       event.preventDefault();
       viewport.scrollLeft += event.deltaY;
       updatePageFromScroll();
@@ -1461,7 +1769,19 @@ const setupPlayerCarousel = () => {
     { passive: false },
   );
   window.addEventListener("resize", updatePageFromScroll);
-  setPage(0);
+
+  playerSearchInput?.addEventListener("input", () => {
+    const query = playerSearchInput.value.trim().toLocaleLowerCase();
+    cards.forEach((card) => {
+      const name = card.querySelector("strong")?.textContent.trim().toLocaleLowerCase() || "";
+      card.hidden = Boolean(query && !name.includes(query));
+    });
+    setPage(0, "auto");
+    window.clearTimeout(playerSearchTimer);
+    playerSearchTimer = window.setTimeout(() => trackEvent("player_search", { hasResults: visibleCards().length > 0 }), 500);
+  });
+
+  setPage(0, "auto");
 };
 
 const showToast = (title, text) => {
@@ -1474,6 +1794,145 @@ const showToast = (title, text) => {
   window.setTimeout(() => {
     toast.classList.remove("visible");
   }, 4000);
+};
+
+const trackEvent = (eventName, metadata = {}) => {
+  const allowedMetadata = Object.fromEntries(
+    Object.entries(metadata)
+      .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value))
+      .slice(0, 6),
+  );
+  const payload = JSON.stringify({
+    event: eventName,
+    path: window.location.pathname,
+    language: currentSiteLanguage,
+    metadata: allowedMetadata,
+  });
+
+  if (navigator.sendBeacon && window.location.protocol !== "file:") {
+    navigator.sendBeacon(analyticsEndpoint, new Blob([payload], { type: "application/json" }));
+    return;
+  }
+
+  fetch(analyticsEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: payload,
+    keepalive: true,
+  }).catch(() => {});
+};
+
+const setFormStartTime = (form) => {
+  const input = form?.querySelector('input[name="formStartedAt"]');
+  if (input) input.value = String(Date.now());
+};
+
+const updateQuickSignupSummary = (game = activeNextGame) => {
+  if (!quickSignupModal) return;
+  const config = getGameConfig(game);
+  const signups = getStoredSignups().filter((signup) => signup.game === game);
+  const remaining = Math.max(0, config.capacity - signups.length);
+
+  quickSignupModal.querySelector("[data-quick-game-title]").textContent = translateCopy(config.title);
+  quickSignupModal.querySelector("[data-quick-game-date]").textContent = formatGameDateLabel(config.date);
+  quickSignupModal.querySelector("[data-quick-game-remaining]").textContent = String(remaining);
+  const submitButton = quickSignupForm?.querySelector('[type="submit"]');
+  if (submitButton) {
+    submitButton.disabled = remaining === 0;
+    const label = submitButton.childNodes[submitButton.childNodes.length - 1];
+    if (label?.nodeType === Node.TEXT_NODE) label.textContent = ` ${translateCopy(remaining === 0 ? "Lista pełna" : "Dodaj do listy")}`;
+  }
+};
+
+const openQuickSignup = (game = activeNextGame) => {
+  if (!quickSignupModal || !quickSignupForm) return;
+  const select = quickSignupForm.querySelector('select[name="game"]');
+  if (select) select.value = game;
+  setFormStartTime(quickSignupForm);
+  updateQuickSignupSummary(game);
+  quickSignupModal.hidden = false;
+  document.body.classList.add("modal-open");
+  closeMobileMenu();
+  window.setTimeout(() => quickSignupForm.querySelector('input[name="nickname"]')?.focus(), 80);
+  trackEvent("signup_open", { game });
+};
+
+const closeQuickSignup = () => {
+  if (!quickSignupModal || quickSignupModal.hidden) return;
+  quickSignupModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const closeSignupSuccess = () => {
+  if (!signupSuccessModal || signupSuccessModal.hidden) return;
+  signupSuccessModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const formatCalendarDate = (date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+const buildCalendarEvent = (game) => {
+  const config = getGameConfig(game);
+  const end = new Date(config.date.getTime() + config.durationHours * 60 * 60 * 1000);
+  const title = `Lasertag BAZA — ${config.title}`;
+  const details = `${config.scenario}. Lasertag Club BAZA Warszawa.`;
+  const location = "Lasertag Club BAZA, Warszawa";
+
+  return {
+    config,
+    title,
+    details,
+    location,
+    start: config.date,
+    end,
+    googleUrl: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatCalendarDate(
+      config.date,
+    )}/${formatCalendarDate(end)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`,
+  };
+};
+
+const openSignupSuccess = (game) => {
+  if (!signupSuccessModal) return;
+  lastCalendarEvent = buildCalendarEvent(game);
+  const copy = signupSuccessModal.querySelector("[data-signup-success-copy]");
+  const googleLink = signupSuccessModal.querySelector("[data-google-calendar]");
+  if (copy) {
+    copy.textContent = `${translateCopy(lastCalendarEvent.config.title)} · ${formatGameDateLabel(
+      lastCalendarEvent.config.date,
+    )}. ${translateCopy("Organizator otrzymał dane kontaktowe.")}`;
+  }
+  if (googleLink) googleLink.href = lastCalendarEvent.googleUrl;
+
+  closeQuickSignup();
+  signupSuccessModal.hidden = false;
+  document.body.classList.add("modal-open");
+  signupSuccessModal.querySelector("[data-signup-success-close]")?.focus();
+};
+
+const downloadCalendarEvent = () => {
+  if (!lastCalendarEvent) return;
+  const escapeIcs = (value) => value.replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const content = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Lasertag Club BAZA//Open Games//PL",
+    "BEGIN:VEVENT",
+    `UID:${Date.now()}@lasertagbaza.pl`,
+    `DTSTAMP:${formatCalendarDate(new Date())}`,
+    `DTSTART:${formatCalendarDate(lastCalendarEvent.start)}`,
+    `DTEND:${formatCalendarDate(lastCalendarEvent.end)}`,
+    `SUMMARY:${escapeIcs(lastCalendarEvent.title)}`,
+    `DESCRIPTION:${escapeIcs(lastCalendarEvent.details)}`,
+    `LOCATION:${escapeIcs(lastCalendarEvent.location)}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `lasertag-baza-${lastCalendarEvent.config.game}.ics`;
+  link.click();
+  URL.revokeObjectURL(url);
 };
 
 const getCurrentSignupCycleStart = (now = new Date()) => {
@@ -1579,10 +2038,12 @@ const renderSignupLists = () => {
 
   signupCounters.forEach((counter) => {
     const game = counter.dataset.signupCount;
-    counter.textContent = String(signups.filter((signup) => signup.game === game).length);
+    const count = signups.filter((signup) => signup.game === game).length;
+    counter.textContent = `${count} / ${gameDetails[game]?.capacity || count}`;
   });
 
   renderHeroSignupList();
+  updateQuickSignupSummary(quickSignupForm?.querySelector('select[name="game"]')?.value || activeNextGame);
 };
 
 const sendSignupToTelegram = async (signup) => {
@@ -1595,8 +2056,13 @@ const sendSignupToTelegram = async (signup) => {
     }),
   });
 
-  if (!response.ok) throw new Error("Telegram endpoint error");
-  return response.json();
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.error || "Signup endpoint error");
+    error.status = response.status;
+    throw error;
+  }
+  return data;
 };
 
 const getArticleId = (article, index = 0) => {
@@ -1633,10 +2099,16 @@ const setupNewsCommentWidgets = () => {
       <form class="news-comment-form" data-comment-form>
         <input name="name" type="text" maxlength="40" autocomplete="nickname" required />
         <textarea name="text" maxlength="500" rows="3" required></textarea>
+        <label class="form-honeypot" aria-hidden="true">
+          Website
+          <input name="website" type="text" tabindex="-1" autocomplete="off" />
+        </label>
+        <input name="formStartedAt" type="hidden" />
         <button type="submit"></button>
       </form>
     `;
     body.append(widget);
+    setFormStartTime(widget.querySelector("[data-comment-form]"));
 
     widget.querySelector("[data-comment-form]")?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1644,7 +2116,9 @@ const setupNewsCommentWidgets = () => {
       const formData = new FormData(form);
       const name = formData.get("name")?.trim();
       const text = formData.get("text")?.trim();
-      if (!name || !text) return;
+      const website = formData.get("website")?.trim();
+      const formStartedAt = Number(formData.get("formStartedAt")) || Date.now();
+      if (!name || !text || website) return;
 
       const button = form.querySelector("button");
       if (button) button.disabled = true;
@@ -1657,6 +2131,8 @@ const setupNewsCommentWidgets = () => {
             articleId,
             name,
             text,
+            website,
+            formStartedAt,
             createdAt: new Date().toISOString(),
           }),
         });
@@ -1664,19 +2140,9 @@ const setupNewsCommentWidgets = () => {
         const data = await response.json();
         setNewsComments(data.comments);
         form.reset();
+        setFormStartTime(form);
         showToast(translateCopy("Komentarz dodany."), translateCopy("Dziękujemy za opinię."));
       } catch (error) {
-        const fallbackComment = {
-          id: `${Date.now()}`,
-          name,
-          text,
-          createdAt: new Date().toISOString(),
-        };
-        setNewsComments({
-          ...newsComments,
-          [articleId]: [...(newsComments[articleId] || []), fallbackComment].slice(-80),
-        });
-        form.reset();
         showToast(translateCopy("Błąd komentarza."), translateCopy("Spróbuj ponownie za chwilę."));
       } finally {
         if (button) button.disabled = false;
@@ -1748,23 +2214,128 @@ const renderNewsComments = () => {
       list.append(item);
     });
   });
+
+  updateNewsCardMeta();
+};
+
+const updateNewsCardMeta = () => {
+  newsArticles.forEach((article, index) => {
+    const articleId = getArticleId(article, index);
+    const body = article.querySelector(".update-article-body");
+    const summaryCopy = article.querySelector(".update-summary-copy") || article.querySelector("summary");
+    if (!body || !summaryCopy) return;
+
+    let meta = summaryCopy.querySelector(".news-card-meta");
+    if (!meta) {
+      meta = document.createElement("span");
+      meta.className = "news-card-meta";
+      const readButton = summaryCopy.querySelector("summary b, :scope > b");
+      summaryCopy.insertBefore(meta, readButton || null);
+    }
+
+    const wordCount = body.textContent.trim().split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.ceil(wordCount / 220));
+    const commentCount = (newsComments[articleId] || []).length;
+    const labels = newsMetaLabels[currentSiteLanguage] || newsMetaLabels.pl;
+    const published = article.dataset.published
+      ? new Date(`${article.dataset.published}T12:00:00`).toLocaleDateString(document.documentElement.lang || "pl", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "";
+    meta.textContent = [published, `${minutes} ${labels.read}`, `${commentCount} ${labels.comments}`]
+      .filter(Boolean)
+      .join(" · ");
+
+    const readerButton = article.querySelector("[data-news-reader-toggle]");
+    if (readerButton && article.open) readerButton.hidden = body.scrollHeight <= 920;
+  });
+};
+
+const updateNewsReaderLabels = () => {
+  document.querySelectorAll("[data-news-reader-toggle]").forEach((button) => {
+    const body = button.previousElementSibling;
+    button.textContent = translateCopy(body?.classList.contains("is-expanded") ? "Zwiń tekst" : "Czytaj dalej");
+  });
+  updateNewsCardMeta();
+};
+
+const setupNewsReaders = () => {
+  newsArticles.forEach((article) => {
+    article.addEventListener("toggle", () => {
+      if (article.open) {
+        trackEvent("news_open", { article: article.dataset.newsKey || getArticleId(article) });
+      }
+    });
+
+    if (article.dataset.newsKey === "tort") return;
+    const body = article.querySelector(".update-article-body");
+    if (!body || article.querySelector("[data-news-reader-toggle]")) return;
+
+    body.classList.add("article-body-collapsible");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "article-read-more";
+    button.dataset.newsReaderToggle = "";
+    button.hidden = true;
+    button.textContent = translateCopy("Czytaj dalej");
+    body.insertAdjacentElement("afterend", button);
+
+    article.addEventListener("toggle", () => {
+      if (!article.open) {
+        body.classList.remove("is-expanded");
+        button.textContent = translateCopy("Czytaj dalej");
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        button.hidden = body.scrollHeight <= 920;
+      });
+    });
+
+    button.addEventListener("click", () => {
+      const expanded = body.classList.toggle("is-expanded");
+      button.textContent = translateCopy(expanded ? "Zwiń tekst" : "Czytaj dalej");
+      if (!expanded) article.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  updateNewsCardMeta();
 };
 
 const tortReviewImages = [
-  "assets/tort-review-01.jpg",
-  "assets/tort-review-02.jpg",
-  "assets/tort-review-03.jpg",
-  "assets/tort-review-04.jpg",
-  "assets/tort-review-05.jpg",
-  "assets/tort-review-06.jpg",
-  "assets/tort-review-07.jpg",
-  "assets/tort-review-08.jpg",
-  "assets/tort-review-09.jpg",
-  "assets/tort-review-10.jpg",
-  "assets/tort-review-11.jpg",
-  "assets/tort-review-12.jpg",
-  "assets/tort-review-13.jpg",
-  "assets/tort-review-14.jpg",
+  "assets/tort-review-01.webp",
+  "assets/tort-review-02.webp",
+  "assets/tort-review-03.webp",
+  "assets/tort-review-04.webp",
+  "assets/tort-review-05.webp",
+  "assets/tort-review-06.webp",
+  "assets/tort-review-07.webp",
+  "assets/tort-review-08.webp",
+  "assets/tort-review-09.webp",
+  "assets/tort-review-10.webp",
+  "assets/tort-review-11.webp",
+  "assets/tort-review-12.webp",
+  "assets/tort-review-13.webp",
+  "assets/tort-review-14.webp",
+];
+
+const tortReviewImageDimensions = [
+  [1500, 1131],
+  [1500, 1137],
+  [1500, 1137],
+  [1500, 1133],
+  [1500, 1136],
+  [1500, 1135],
+  [1500, 1132],
+  [1500, 1137],
+  [1500, 1136],
+  [1500, 1134],
+  [1500, 1136],
+  [1500, 1136],
+  [1500, 1136],
+  [1500, 1393],
 ];
 
 const splitReviewIntoSections = (text) => {
@@ -1841,7 +2412,10 @@ const renderTortReviewSections = () => {
         const image = document.createElement("img");
         image.className = "tort-review-image";
         image.loading = "lazy";
+        image.decoding = "async";
         image.src = src;
+        image.width = tortReviewImageDimensions[index * 2 + imageIndex]?.[0] || 1500;
+        image.height = tortReviewImageDimensions[index * 2 + imageIndex]?.[1] || 1136;
         image.alt = `Turniej Open Lasertag - zdjęcie ${index * 2 + imageIndex + 1}`;
         gallery.append(image);
       });
@@ -1947,12 +2521,17 @@ const initializeSite = async () => {
   collectTranslatableText();
   collectTranslatableAttributes();
   setupNewsCommentWidgets();
+  setupNewsReaders();
+  bookingForms.forEach(setFormStartTime);
   ensureCurrentSignupCycle();
   applySiteLanguage(currentSiteLanguage);
   setupPlayerCarousel();
   renderSignupLists();
   fetchSharedSignups();
   fetchNewsComments();
+  const articleKey = new URLSearchParams(window.location.search).get("article");
+  if (articleKey) window.setTimeout(() => openNewsArticleByKey(articleKey), 120);
+  trackEvent(document.body.classList.contains("tournaments-page") ? "tournament_open" : "page_view");
 };
 
 initializeSite();
@@ -2013,7 +2592,11 @@ priceCloseButtons.forEach((button) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closePriceModal();
+  if (event.key !== "Escape") return;
+  closePriceModal();
+  closeQuickSignup();
+  closeSignupSuccess();
+  closePlayerProfile();
 });
 
 nextGameToggle?.addEventListener("click", () => {
@@ -2021,14 +2604,27 @@ nextGameToggle?.addEventListener("click", () => {
   const signups = nextGamePanel.querySelector(".next-game-signups");
   const isOpen = nextGamePanel.classList.toggle("show-signups");
   if (signups) signups.hidden = !isOpen;
+  nextGameToggle.setAttribute("aria-expanded", String(isOpen));
+  nextGameToggle.textContent = translateCopy(isOpen ? "Ukryj listę" : "Zobacz listę");
   renderHeroSignupList();
 });
 
 nextGameRegister?.addEventListener("click", () => {
-  const select = bookingForm?.querySelector('select[name="game"]');
-  if (select) select.value = activeNextGame;
-  document.querySelector("#join")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.setTimeout(() => bookingForm?.querySelector('input[name="nickname"]')?.focus(), 450);
+  openQuickSignup(activeNextGame);
+});
+
+quickSignupOpenButtons.forEach((button) => {
+  button.addEventListener("click", () => openQuickSignup(activeNextGame));
+});
+
+quickSignupCloseButtons.forEach((button) => button.addEventListener("click", closeQuickSignup));
+signupSuccessCloseButtons.forEach((button) => button.addEventListener("click", closeSignupSuccess));
+playerProfileCloseButtons.forEach((button) => button.addEventListener("click", closePlayerProfile));
+document.querySelector("[data-download-calendar]")?.addEventListener("click", downloadCalendarEvent);
+
+quickSignupForm?.querySelector('select[name="game"]')?.addEventListener("change", (event) => {
+  setFormStartTime(quickSignupForm);
+  updateQuickSignupSummary(event.currentTarget.value);
 });
 
 let belarusianLanguageClickTimer = null;
@@ -2082,15 +2678,25 @@ filterButtons.forEach((button) => {
   });
 });
 
-bookingForm?.addEventListener("submit", async (event) => {
+const handleSignupSubmit = async (event) => {
   event.preventDefault();
-  const formData = new FormData(bookingForm);
+  const form = event.currentTarget;
+  const formData = new FormData(form);
   const nickname = formData.get("nickname")?.trim();
   const phone = formData.get("phone")?.trim();
   const note = formData.get("note")?.trim();
   const game = formData.get("game");
+  const website = formData.get("website")?.trim();
+  const formStartedAt = Number(formData.get("formStartedAt")) || Date.now();
 
-  if (!nickname || !phone || !game) return;
+  if (website || !nickname || !phone || !game || !form.reportValidity()) return;
+
+  const gameConfig = getGameConfig(game);
+  const currentCount = sharedSignups.filter((signup) => signup.game === game).length;
+  if (currentCount >= gameConfig.capacity) {
+    showToast(translateCopy("Lista pełna"), translateCopy("Brak wolnych miejsc na tę grę."));
+    return;
+  }
 
   if (hasDeviceSignupThisCycle(game)) {
     const gameName = game === "sunday" ? "niedzielę" : "środę";
@@ -2104,36 +2710,43 @@ bookingForm?.addEventListener("submit", async (event) => {
     nickname,
     phone,
     note,
+    website,
+    formStartedAt,
     createdAt: new Date().toISOString(),
   };
-
-  showToast(translateCopy("Plus dodany."), translateCopy("Nick pojawił się na liście. Wysyłamy dane do Telegrama."));
-
-  const submitButton = bookingForm.querySelector("[type='submit']");
+  const submitButton = form.querySelector("[type='submit']");
   submitButton.disabled = true;
+  trackEvent("signup_submit", { game });
 
   try {
     const result = await sendSignupToTelegram(signup);
     setSharedSignups(result.signups);
     markDeviceSignupThisCycle(game);
     renderSignupLists();
-    bookingForm.reset();
-    showToast(
-      result.telegram?.ok === false ? translateCopy("Plus zapisany na stronie.") : translateCopy("Telegram wysłany."),
-      result.telegram?.ok === false
-        ? translateCopy("Telegram endpoint trzeba jeszcze podłączyć na hostingu.")
-        : translateCopy("Organizator dostał pełne dane gracza."),
-    );
+    bookingForms.forEach((item) => {
+      item.reset();
+      setFormStartTime(item);
+    });
+    openSignupSuccess(game);
+    showToast(translateCopy("Plus zapisany na stronie."), translateCopy("Organizator dostał pełne dane gracza."));
+    trackEvent("signup_success", { game });
   } catch (error) {
-    setSharedSignups([...sharedSignups, signup]);
-    markDeviceSignupThisCycle(game);
-    renderSignupLists();
-    bookingForm.reset();
+    const isFull = error.status === 409;
+    const isRateLimited = error.status === 429;
     showToast(
-      translateCopy("Plus zapisany na stronie."),
-      translateCopy("Telegram endpoint trzeba jeszcze podłączyć na hostingu."),
+      translateCopy(isFull ? "Lista pełna" : "Zapis nieudany"),
+      translateCopy(
+        isFull
+          ? "Brak wolnych miejsc na tę grę."
+          : isRateLimited
+            ? "Zbyt wiele prób. Spróbuj ponownie później."
+            : "Sprawdź dane i spróbuj ponownie.",
+      ),
     );
+    trackEvent("signup_error", { game, status: error.status || 0 });
   } finally {
     submitButton.disabled = false;
   }
-});
+};
+
+bookingForms.forEach((form) => form.addEventListener("submit", handleSignupSubmit));

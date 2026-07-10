@@ -6,6 +6,7 @@ const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const signupsPath = path.join(dataDir, "site-signups.json");
 const signupsStorageKey = "baza:site-signups:v1";
+const gameCapacities = { wednesday: 12, sunday: 60 };
 
 const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
@@ -94,6 +95,14 @@ const addSiteSignup = async (signup) => {
   const id = cleanText(signup.id || String(Date.now()), 80);
 
   if (state.signups.some((item) => item.id === id)) return state;
+
+  const capacity = gameCapacities[signup.game];
+  const gameSignups = state.signups.filter((item) => item.game === signup.game);
+  if (!capacity || gameSignups.length >= capacity) {
+    const error = new Error("Game capacity reached");
+    error.statusCode = 409;
+    throw error;
+  }
 
   state.signups.push({
     id,

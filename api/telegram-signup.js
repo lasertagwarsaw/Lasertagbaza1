@@ -1,5 +1,6 @@
 const { appendTelegramFeed } = require("./_telegram-feed");
 const { readSiteSignups, addSiteSignup } = require("./_site-signups");
+const { assertHumanSubmission, enforceRateLimit } = require("./_request-guard");
 
 module.exports = async function handler(request, response) {
   if (request.method === "GET") {
@@ -29,6 +30,14 @@ module.exports = async function handler(request, response) {
     return;
   }
 
+  try {
+    assertHumanSubmission(body);
+    enforceRateLimit(request, "signup", 4, 10 * 60 * 1000);
+  } catch (error) {
+    response.status(error.statusCode || 400).json({ error: error.message });
+    return;
+  }
+
   const { id, game, gameLabel, nickname, phone, note, createdAt } = body;
 
   if (!["wednesday", "sunday"].includes(game) || !gameLabel || !nickname || !phone) {
@@ -42,8 +51,11 @@ module.exports = async function handler(request, response) {
     siteState = await addSiteSignup({ id, game, nickname, note, createdAt });
     storageResult = siteState.storage || storageResult;
   } catch (error) {
-    storageResult = { ok: false, reason: error.message };
     console.warn("[telegram-signup] site signup storage failed:", error.message);
+    response.status(error.statusCode || 503).json({
+      error: error.statusCode === 409 ? "Game capacity reached" : "Signup storage unavailable",
+    });
+    return;
   }
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;

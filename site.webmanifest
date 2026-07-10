@@ -1,0 +1,9 @@
+{
+  "name": "Lasertag Club BAZA",
+  "short_name": "BAZA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#ffd400",
+  "description": "Otwarte gry laser tag w Warszawie"
+}

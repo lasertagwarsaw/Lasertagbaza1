@@ -7,6 +7,42 @@
       name="description"
       content="Lasertag Club BAZA Warszawa — otwarte gry laser tag, rankingi graczy, top drużyny, aktualności i Telegram z tłumaczeniem na polski."
     />
+    <link rel="canonical" href="https://www.lasertagbaza.pl/" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#050505" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content="Lasertag Club BAZA" />
+    <meta property="og:title" content="Lasertag Club BAZA — otwarte gry w Warszawie" />
+    <meta
+      property="og:description"
+      content="Środowe i niedzielne gry laser tag, lista graczy, ranking i aktualności klubu BAZA."
+    />
+    <meta property="og:url" content="https://www.lasertagbaza.pl/" />
+    <meta property="og:image" content="https://www.lasertagbaza.pl/assets/baza-hero.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lasertag Club BAZA — otwarte gry w Warszawie" />
+    <meta
+      name="twitter:description"
+      content="Sprawdź najbliższą grę, pogodę, wolne miejsca i zapisz się do składu."
+    />
+    <meta name="twitter:image" content="https://www.lasertagbaza.pl/assets/baza-hero.webp" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SportsActivityLocation",
+        "name": "Lasertag Club BAZA",
+        "url": "https://www.lasertagbaza.pl/",
+        "image": "https://www.lasertagbaza.pl/assets/baza-hero.webp",
+        "telephone": "+48501229099",
+        "email": "lasertagwarsaw@gmail.com",
+        "sameAs": [
+          "https://www.youtube.com/@Lasertag_Warsaw",
+          "https://instagram.com/lasertagwarsaw",
+          "https://www.facebook.com/lasertagwarsaw"
+        ]
+      }
+    </script>
     <title>Lasertag Club BAZA — Otwarte gry laser tag Warszawa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -114,10 +150,43 @@
             <span>Wiek</span>
             <strong data-next-game-age>14+ lat</strong>
           </div>
-          <div class="panel-meter" aria-label="Gra 6 na 6">
+          <div class="next-game-facts">
+            <div>
+              <span>Czas</span>
+              <strong>2 godz.</strong>
+            </div>
+            <div>
+              <span>Cena</span>
+              <strong data-next-game-price>0 / 50 zł</strong>
+            </div>
+            <div class="next-game-spots">
+              <span>Wolne miejsca</span>
+              <strong><b data-next-game-remaining>12</b> / <b data-next-game-capacity>12</b></strong>
+            </div>
+          </div>
+          <div
+            class="panel-meter"
+            role="progressbar"
+            aria-label="Wolne miejsca"
+            aria-valuemin="0"
+            aria-valuemax="12"
+            aria-valuenow="0"
+            data-next-game-progress
+          >
             <span data-next-game-meter style="width: 50%"></span>
           </div>
-          <button class="button button-main next-game-toggle" type="button" data-next-game-toggle>Zapisz się</button>
+          <div class="next-game-actions">
+            <button class="button button-main" type="button" data-quick-signup-open>Zapisz się</button>
+            <button class="next-game-toggle" type="button" data-next-game-toggle aria-expanded="false">
+              Zobacz listę
+            </button>
+          </div>
+          <a
+            class="next-game-map"
+            href="https://maps.app.goo.gl/UEqhXndbi5Lfzbr57"
+            target="_blank"
+            rel="noopener"
+          >BAZA Warszawa / mapa</a>
           <div class="next-game-signups" aria-live="polite" hidden>
             <div class="next-game-signups-head">
               <span>Lista graczy</span>
@@ -127,7 +196,7 @@
               <li class="empty-signup">Lista jest pusta</li>
             </ol>
             <button class="button button-main next-game-register" type="button" data-next-game-register>
-              Dodaj do listy
+              Zapisz się
             </button>
           </div>
         </aside>
@@ -177,46 +246,58 @@
             </div>
           </div>
 
+          <div class="player-search">
+            <label class="sr-only" for="player-search">Znajdź gracza</label>
+            <input
+              id="player-search"
+              type="search"
+              placeholder="Znajdź gracza po nicku"
+              autocomplete="off"
+              data-player-search
+            />
+            <span data-player-search-status aria-live="polite"></span>
+          </div>
+
           <div class="points-viewport">
             <div class="points-track">
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-jakub.jpg" alt="JAKUB" /></div>
+                <div class="points-avatar"><img src="assets/player-jakub.webp" alt="JAKUB" width="853" height="1280" loading="lazy" decoding="async" /></div>
                 <b>01</b>
                 <strong data-no-translate>JAKUB</strong>
                 <span>320 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-noka.jpeg" alt="NOKA" /></div>
+                <div class="points-avatar"><img src="assets/player-noka.webp" alt="NOKA" width="6000" height="4000" loading="lazy" decoding="async" /></div>
                 <b>02</b>
                 <strong data-no-translate>NOKA</strong>
                 <span>300 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-ynwa.jpg" alt="YNWA" /></div>
+                <div class="points-avatar"><img src="assets/player-ynwa.webp" alt="YNWA" width="960" height="1280" loading="lazy" decoding="async" /></div>
                 <b>03</b>
                 <strong data-no-translate>YNWA</strong>
                 <span>244 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-max.jpg" alt="MAX" /></div>
+                <div class="points-avatar"><img src="assets/player-max.webp" alt="MAX" width="853" height="1280" loading="lazy" decoding="async" /></div>
                 <b>04</b>
                 <strong data-no-translate>MAX</strong>
                 <span>233 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-platau.jpg" alt="PLATAU" /></div>
+                <div class="points-avatar"><img src="assets/player-platau.webp" alt="PLATAU" width="960" height="1280" loading="lazy" decoding="async" /></div>
                 <b>05</b>
                 <strong data-no-translate>PLATAU</strong>
                 <span>199 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-sved.jpg" alt="SHVED" /></div>
+                <div class="points-avatar"><img src="assets/player-sved.webp" alt="SHVED" width="1245" height="830" loading="lazy" decoding="async" /></div>
                 <b>06</b>
                 <strong data-no-translate>SHVED</strong>
                 <span>191 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-spica.jpg" alt="SPICA" /></div>
+                <div class="points-avatar"><img src="assets/player-spica.webp" alt="SPICA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>07</b>
                 <strong data-no-translate>SPICA</strong>
                 <span>191 pkt</span>
@@ -228,7 +309,7 @@
                 data-player-article-target="agent"
                 aria-label="Otwórz artykuł AGENT"
               >
-                <div class="points-avatar"><img src="assets/player-agent.jpg" alt="AGENT" /><span class="points-bonus-badge">+30</span></div>
+                <div class="points-avatar"><img src="assets/player-agent.webp" alt="AGENT" width="960" height="1280" loading="lazy" decoding="async" /><span class="points-bonus-badge">+30</span></div>
                 <b>08</b>
                 <strong data-no-translate>AGENT</strong>
                 <span>171 pkt</span>
@@ -240,61 +321,61 @@
                 data-player-article-target="tort"
                 aria-label="Otwórz artykuł TORT"
               >
-                <div class="points-avatar"><img src="assets/player-tort.jpg" alt="TORT" /><span class="points-bonus-badge">+30</span></div>
+                <div class="points-avatar"><img src="assets/player-tort.webp" alt="TORT" width="768" height="1152" loading="lazy" decoding="async" /><span class="points-bonus-badge">+30</span></div>
                 <b>09</b>
                 <strong data-no-translate>TORT</strong>
                 <span>160 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-zhenya.jpg" alt="ZHENYA" /></div>
+                <div class="points-avatar"><img src="assets/player-zhenya.webp" alt="ZHENYA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>10</b>
                 <strong data-no-translate>ZHENYA</strong>
                 <span>154 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-pasha.jpg" alt="PASHA" /></div>
+                <div class="points-avatar"><img src="assets/player-pasha.webp" alt="PASHA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>11</b>
                 <strong data-no-translate>PASHA</strong>
                 <span>144 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-mikhal.jpg" alt="Michał" /></div>
+                <div class="points-avatar"><img src="assets/player-mikhal.webp" alt="Michał" width="1254" height="1254" loading="lazy" decoding="async" /></div>
                 <b>12</b>
                 <strong class="translatable-player-name">Michał</strong>
                 <span>142 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-ben.jpg" alt="BEN" /></div>
+                <div class="points-avatar"><img src="assets/player-ben.webp" alt="BEN" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>13</b>
                 <strong data-no-translate>BEN</strong>
                 <span>134 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-kira.jpg" alt="KIRA" /></div>
+                <div class="points-avatar"><img src="assets/player-kira.webp" alt="KIRA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>14</b>
                 <strong data-no-translate>KIRA</strong>
                 <span>134 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-w1laser.jpg" alt="W1LASER" /></div>
+                <div class="points-avatar"><img src="assets/player-w1laser.webp" alt="W1LASER" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>15</b>
                 <strong data-no-translate>W1LASER</strong>
                 <span>117 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-tsisa.jpg" alt="TSISA" /></div>
+                <div class="points-avatar"><img src="assets/player-tsisa.webp" alt="TSISA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>16</b>
                 <strong data-no-translate>TSISA</strong>
                 <span>111 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-jinn.jpg" alt="JINN" /></div>
+                <div class="points-avatar"><img src="assets/player-jinn.webp" alt="JINN" width="1700" height="2550" loading="lazy" decoding="async" /></div>
                 <b>17</b>
                 <strong data-no-translate>JINN</strong>
                 <span>102 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-katya.jpg" alt="KATYA" /></div>
+                <div class="points-avatar"><img src="assets/player-katya.webp" alt="KATYA" width="851" height="1280" loading="lazy" decoding="async" /></div>
                 <b>18</b>
                 <strong data-no-translate>KATYA</strong>
                 <span>94 pkt</span>
@@ -306,25 +387,25 @@
                 data-player-article-target="jak"
                 aria-label="Otwórz artykuł JAK"
               >
-                <div class="points-avatar"><img src="assets/player-jak.jpg" alt="JAK" /><span class="points-bonus-badge">+30</span></div>
+                <div class="points-avatar"><img src="assets/player-jak.webp" alt="JAK" width="1280" height="853" loading="lazy" decoding="async" /><span class="points-bonus-badge">+30</span></div>
                 <b>19</b>
                 <strong data-no-translate>JAK</strong>
                 <span>83 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-kometa.jpg" alt="KOMETA" /></div>
+                <div class="points-avatar"><img src="assets/player-kometa.webp" alt="KOMETA" width="719" height="1280" loading="lazy" decoding="async" /></div>
                 <b>20</b>
                 <strong data-no-translate>KOMETA</strong>
                 <span>51 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-agateeni.jpg" alt="Agateeni" /></div>
+                <div class="points-avatar"><img src="assets/player-agateeni.webp" alt="Agateeni" width="640" height="640" loading="lazy" decoding="async" /></div>
                 <b>21</b>
                 <strong data-no-translate>Agateeni</strong>
                 <span>1 pkt</span>
               </article>
               <article class="points-card has-avatar">
-                <div class="points-avatar"><img src="assets/player-bg.jpg" alt="BG" /></div>
+                <div class="points-avatar"><img src="assets/player-bg.webp" alt="BG" width="508" height="640" loading="lazy" decoding="async" /></div>
                 <b>22</b>
                 <strong data-no-translate>BG</strong>
                 <span>1 pkt</span>
@@ -446,9 +527,9 @@
 
         <div class="update-grid">
           <article class="update-card">
-            <details class="update-article">
+            <details class="update-article" data-published="2026-07-06">
               <summary>
-                <img class="update-card-image" src="assets/update-wednesday.jpg" alt="Counter-Strike 6v6" />
+                <img class="update-card-image" src="assets/update-wednesday.webp" alt="Counter-Strike 6v6" width="1280" height="853" loading="lazy" decoding="async" />
                 <span>Środa / 18:30</span>
                 <h3>Counter-Strike 6 na 6 dla graczy 14+</h3>
                 <p>Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.</p>
@@ -460,9 +541,9 @@
             </details>
           </article>
           <article class="update-card">
-            <details class="update-article">
+            <details class="update-article" data-published="2026-07-06">
               <summary>
-                <img class="update-card-image" src="assets/update-sunday.jpg" alt="Niedzielna gra otwarta" />
+                <img class="update-card-image" src="assets/update-sunday.webp" alt="Niedzielna gra otwarta" width="960" height="1280" loading="lazy" decoding="async" />
                 <span>Niedziela / 18:00</span>
                 <h3>Otwarta gra dla wszystkich chętnych 10+</h3>
                 <p>Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.</p>
@@ -474,9 +555,9 @@
             </details>
           </article>
           <article class="update-card">
-            <details class="update-article">
+            <details class="update-article" data-published="2026-07-06">
               <summary>
-                <img class="update-card-image" src="assets/update-telegram.jpg" alt="Daty wyjazdów i turniejów" />
+                <img class="update-card-image" src="assets/update-telegram.webp" alt="Daty wyjazdów i turniejów" width="1280" height="853" loading="lazy" decoding="async" />
                 <span><a class="inline-telegram-link" href="https://t.me/+9lyXtbEsZ5FlZTky" target="_blank" rel="noopener">Telegram / daty</a></span>
                 <h3>Wyjazdy i turnieje ogłaszamy w TG</h3>
                 <p><a class="inline-telegram-link" href="https://t.me/+9lyXtbEsZ5FlZTky" target="_blank" rel="noopener">Daty, lokalizacje, regulaminy i listy graczy publikujemy w klubowym czacie Telegram.</a></p>
@@ -488,13 +569,13 @@
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article">
+            <details class="update-article" data-published="2026-07-06">
               <summary>
                 <img
                   class="update-card-image"
-                  src="assets/photo_2026-07-06_22-53-50.jpg"
+                  src="assets/photo_2026-07-06_22-53-50.webp"
                   alt="Instruktaż przed grą na BAZIE Lasertag Warsaw"
-                />
+                width="1280" height="853" loading="lazy" decoding="async" />
                 <div class="update-summary-copy">
                   <span>Technologia / BAZA</span>
                   <h3>Nowa era laserowego paintballa w Lasertag Warsaw</h3>
@@ -534,9 +615,9 @@
                 </p>
 
                 <div class="update-article-gallery" aria-label="Zdjęcia nowego systemu gry">
-                  <img src="assets/photo_2026-07-06_22-53-43.jpg" alt="Ekran statystyk w czasie rzeczywistym" />
-                  <img src="assets/photo_2026-07-06_22-53-07.jpg" alt="Urządzenie scenariusza z bombą" />
-                  <img src="assets/photo_2026-07-06_22-53-47.jpg" alt="Sprzęt laser tag po grze" />
+                  <img src="assets/photo_2026-07-06_22-53-43.webp" alt="Ekran statystyk w czasie rzeczywistym" width="1280" height="853" loading="lazy" decoding="async" />
+                  <img src="assets/photo_2026-07-06_22-53-07.webp" alt="Urządzenie scenariusza z bombą" width="853" height="1280" loading="lazy" decoding="async" />
+                  <img src="assets/photo_2026-07-06_22-53-47.webp" alt="Sprzęt laser tag po grze" width="853" height="1280" loading="lazy" decoding="async" />
                 </div>
 
                 <h4>Nowe scenariusze rozgrywek</h4>
@@ -584,13 +665,13 @@
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article">
+            <details class="update-article" data-published="2026-07-05">
               <summary>
                 <img
                   class="update-card-image"
-                  src="assets/update-open-turniej-2026-07-05.jpg"
+                  src="assets/update-open-turniej-2026-07-05.webp"
                   alt="Zwycięska drużyna Hard Skill po turnieju Open Lasertag"
-                />
+                width="1280" height="960" loading="lazy" decoding="async" />
                 <div class="update-summary-copy">
                   <span>Turniej / 5 lipca</span>
                   <h3>Turniej Open Lasertag - emocje do ostatniego meczu!</h3>
@@ -663,13 +744,13 @@
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article" data-news-key="tort">
+            <details class="update-article" data-news-key="tort" data-published="2026-07-09">
               <summary>
                 <img
                   class="update-card-image"
-                  src="assets/player-tort.jpg"
+                  src="assets/player-tort.webp"
                   alt="TORT"
-                />
+                width="768" height="1152" loading="lazy" decoding="async" />
                 <div class="update-summary-copy">
                   <span data-copy-id="tort-card-kicker">Opinia gracza / TORT</span>
                   <h3 data-copy-id="tort-card-title">Обзор лазертаг-соревнований в Варшаве</h3>
@@ -881,13 +962,13 @@ Noka - замечательная игра, очень сильная. Ты ум
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article" data-news-key="jak">
+            <details class="update-article" data-news-key="jak" data-published="2026-07-07">
               <summary>
                 <img
                   class="update-card-image"
-                  src="assets/update-jak-review.jpg"
+                  src="assets/update-jak-review.webp"
                   alt="JAK po turnieju Open Lasertag"
-                />
+                width="1280" height="853" loading="lazy" decoding="async" />
                 <div class="update-summary-copy">
                   <span>Opinia gracza / JAK</span>
                   <h3>Opinia gracza po turnieju Open Lasertag</h3>
@@ -999,13 +1080,13 @@ Noka - замечательная игра, очень сильная. Ты ум
             </details>
           </article>
           <article class="update-card featured-update">
-            <details class="update-article" data-news-key="agent">
+            <details class="update-article" data-news-key="agent" data-published="2026-07-10">
               <summary>
                 <img
                   class="update-card-image agent-review-image"
-                  src="assets/update-agent-review.jpg"
+                  src="assets/update-agent-review.webp"
                   alt="AGENT po turnieju Open Lasertag"
-                />
+                width="853" height="1280" loading="lazy" decoding="async" />
                 <div class="update-summary-copy">
                   <span data-copy-id="agent-card-kicker">Opinia gracza / AGENT</span>
                   <h3 data-copy-id="agent-card-title">Turniej 5 lipca oczami gracza Old Skufs</h3>
@@ -1074,7 +1155,7 @@ Noka - замечательная игра, очень сильная. Ты ум
               rel="noopener"
               aria-label="Odtwórz film na YouTube"
             >
-              <img src="assets/youtube-open-game.jpg" alt="Lasertag Warsaw Open Game" />
+              <img src="assets/youtube-open-game.webp" alt="Lasertag Warsaw Open Game" width="480" height="360" loading="lazy" decoding="async" />
               <span class="youtube-play-button" aria-hidden="true"></span>
             </a>
           </div>
@@ -1124,24 +1205,41 @@ Noka - замечательная игра, очень сильная. Ты ум
             </label>
             <label>
               Numer telefonu
-              <input name="phone" type="tel" placeholder="+48 ___ ___ ___" maxlength="24" autocomplete="tel" required />
+              <input
+                name="phone"
+                type="tel"
+                placeholder="+48 ___ ___ ___"
+                maxlength="24"
+                minlength="7"
+                pattern="[0-9+() -]{7,24}"
+                autocomplete="tel"
+                required
+              />
             </label>
             <label>
               Informacja dla organizatora
               <input name="note" type="text" placeholder="solo / ekipa / pierwszy raz" maxlength="120" />
             </label>
+            <label class="form-honeypot" aria-hidden="true">
+              Strona internetowa
+              <input name="website" type="text" tabindex="-1" autocomplete="off" />
+            </label>
+            <input name="formStartedAt" type="hidden" />
             <button class="button button-main plus-submit" type="submit">
               <span>+</span>
               Dodaj do listy
             </button>
-            <p class="form-note">Na stronie pokazujemy nick. Telefon wysyłamy tylko do organizatora.</p>
+            <p class="form-note">
+              Na stronie pokazujemy nick. Telefon wysyłamy tylko do organizatora.
+              <a href="polityka-prywatnosci.html">Polityka prywatności</a>
+            </p>
           </form>
 
           <div class="signup-lists" aria-live="polite">
             <article class="signup-list-card">
               <div class="panel-heading">
                 <p>Środa 18:30</p>
-                <span><b data-signup-count="wednesday">0</b> graczy</span>
+                <span><b data-signup-count="wednesday">0 / 12</b> graczy</span>
               </div>
               <ol class="signup-list" data-signup-list="wednesday">
                 <li class="empty-signup">Lista jest pusta</li>
@@ -1151,7 +1249,7 @@ Noka - замечательная игра, очень сильная. Ты ум
             <article class="signup-list-card">
               <div class="panel-heading">
                 <p>Niedziela 18:00</p>
-                <span><b data-signup-count="sunday">0</b> graczy</span>
+                <span><b data-signup-count="sunday">0 / 60</b> graczy</span>
               </div>
               <ol class="signup-list" data-signup-list="sunday">
                 <li class="empty-signup">Lista jest pusta</li>
@@ -1192,8 +1290,127 @@ Noka - замечательная игра, очень сильная. Ты ум
         <span>NIP 9512602646</span>
         <span>KRS 0001121446</span>
       </div>
+      <div>
+        <p>Informacje</p>
+        <a href="polityka-prywatnosci.html">Polityka prywatności</a>
+      </div>
       <span>© 2026 Lasertag Club BAZA</span>
     </footer>
+
+    <button class="mobile-signup-cta" type="button" data-quick-signup-open>
+      <span data-mobile-signup-game>Niedziela 18:00</span>
+      <strong>Zapisz się</strong>
+    </button>
+
+    <div
+      class="quick-signup-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quick-signup-title"
+      hidden
+    >
+      <button class="quick-signup-backdrop" type="button" aria-label="Zamknij zapis" data-quick-signup-close></button>
+      <div class="quick-signup-panel">
+        <button class="modal-icon-close" type="button" aria-label="Zamknij zapis" data-quick-signup-close>×</button>
+        <p class="eyebrow"><span></span> Szybki zapis</p>
+        <h2 id="quick-signup-title">Zapisz się do gry</h2>
+        <div class="quick-signup-summary">
+          <strong data-quick-game-title>Niedziela 18:00</strong>
+          <span data-quick-game-date></span>
+          <b><span data-quick-game-remaining>60</span> wolnych miejsc</b>
+        </div>
+        <form class="booking-form quick-signup-form">
+          <label>
+            Dzień gry
+            <select name="game" required>
+              <option value="wednesday">Środa 18:30 / Counter-Strike 6v6 / 14+</option>
+              <option value="sunday">Niedziela 18:00 / otwarta gra / 10+</option>
+            </select>
+          </label>
+          <div class="quick-signup-fields">
+            <label>
+              Nick gracza
+              <input name="nickname" type="text" placeholder="NOKA / SHVED / ..." maxlength="40" autocomplete="nickname" required />
+            </label>
+            <label>
+              Numer telefonu
+              <input
+                name="phone"
+                type="tel"
+                placeholder="+48 ___ ___ ___"
+                maxlength="24"
+                minlength="7"
+                pattern="[0-9+() -]{7,24}"
+                autocomplete="tel"
+                required
+              />
+            </label>
+          </div>
+          <label>
+            Informacja dla organizatora
+            <input name="note" type="text" placeholder="solo / ekipa / pierwszy raz" maxlength="120" />
+          </label>
+          <label class="form-honeypot" aria-hidden="true">
+            Strona internetowa
+            <input name="website" type="text" tabindex="-1" autocomplete="off" />
+          </label>
+          <input name="formStartedAt" type="hidden" />
+          <button class="button button-main plus-submit" type="submit">
+            <span>+</span>
+            Dodaj do listy
+          </button>
+          <p class="form-note">
+            Nick będzie publiczny. Telefon otrzyma tylko organizator.
+            <a href="polityka-prywatnosci.html">Polityka prywatności</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <div
+      class="signup-success-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="signup-success-title"
+      hidden
+    >
+      <button class="quick-signup-backdrop" type="button" aria-label="Zamknij potwierdzenie" data-signup-success-close></button>
+      <div class="signup-success-panel">
+        <button class="modal-icon-close" type="button" aria-label="Zamknij potwierdzenie" data-signup-success-close>×</button>
+        <span class="success-mark" aria-hidden="true">✓</span>
+        <p class="eyebrow"><span></span> Gotowe</p>
+        <h2 id="signup-success-title">Jesteś na liście</h2>
+        <p data-signup-success-copy></p>
+        <div class="signup-success-actions">
+          <a class="button button-main" href="#" target="_blank" rel="noopener" data-google-calendar>
+            Dodaj do kalendarza
+          </a>
+          <button class="button button-secondary" type="button" data-download-calendar>Pobierz .ics</button>
+          <a class="button button-secondary" href="https://t.me/+9lyXtbEsZ5FlZTky" target="_blank" rel="noopener">
+            Otwórz kanał
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-profile-modal" role="dialog" aria-modal="true" aria-labelledby="player-profile-title" hidden>
+      <button class="quick-signup-backdrop" type="button" aria-label="Zamknij profil" data-player-profile-close></button>
+      <div class="player-profile-panel">
+        <button class="modal-icon-close" type="button" aria-label="Zamknij profil" data-player-profile-close>×</button>
+        <img data-player-profile-image alt="" width="118" height="118" />
+        <p class="eyebrow"><span></span> Profil gracza</p>
+        <h2 id="player-profile-title" data-player-profile-name></h2>
+        <div class="player-profile-stats">
+          <div><span>Miejsce</span><strong data-player-profile-rank></strong></div>
+          <div><span>Punkty</span><strong data-player-profile-points></strong></div>
+        </div>
+        <div class="player-points-history">
+          <p>Historia punktów</p>
+          <div><span>Wyniki z gier</span><strong data-player-game-points></strong></div>
+          <div data-player-article-points-row hidden><span>Artykuł dla BAZY</span><strong>+30</strong></div>
+        </div>
+      </div>
+    </div>
 
     <div class="price-modal" role="dialog" aria-modal="true" aria-labelledby="price-modal-title" hidden>
       <button class="price-modal-backdrop" type="button" aria-label="Zamknij cennik" data-price-close></button>
@@ -1231,6 +1448,7 @@ Noka - замечательная игра, очень сильная. Ты ум
       <span>Wyślemy termin i link do Telegrama.</span>
     </div>
 
-    <script src="script.js?v=weather-2"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script src="script.js?v=ux-1"></script>
   </body>
 </html>
