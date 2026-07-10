@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "feedId": "baza-player-ranking-v1",
+  "updatedAt": "2026-07-10T00:00:00+02:00",
+  "rankingDate": "2026-07-05",
+  "defaultLocale": "pl",
+  "webSection": {
+    "id": "top-punkty",
+    "selector": "[data-ranking-source='baza-player-ranking-v1']",
+    "feedAttribute": "data-ranking-feed",
+    "itemAttribute": "data-player-id",
+    "rankAttribute": "data-player-rank",
+    "pointsAttribute": "data-player-points"
+  },
+  "scoring": {
+    "unit": "points",
+    "articleBonus": 30
+  },
+  "players": [
+    { "id": "noka", "rank": 1, "nickname": "NOKA", "points": 330, "avatar": "https://www.lasertagbaza.pl/assets/player-noka.webp", "bonusPoints": 30, "articleKey": "noka", "articleUrl": "https://www.lasertagbaza.pl/?article=noka#aktualnosci" },
+    { "id": "jakub", "rank": 2, "nickname": "JAKUB", "points": 320, "avatar": "https://www.lasertagbaza.pl/assets/player-jakub.webp" },
+    { "id": "ynwa", "rank": 3, "nickname": "YNWA", "points": 244, "avatar": "https://www.lasertagbaza.pl/assets/player-ynwa.webp" },
+    { "id": "max", "rank": 4, "nickname": "MAX", "points": 233, "avatar": "https://www.lasertagbaza.pl/assets/player-max.webp" },
+    { "id": "platau", "rank": 5, "nickname": "PLATAU", "points": 199, "avatar": "https://www.lasertagbaza.pl/assets/player-platau.webp" },
+    { "id": "shved", "rank": 6, "nickname": "SHVED", "points": 191, "avatar": "https://www.lasertagbaza.pl/assets/player-sved.webp" },
+    { "id": "spica", "rank": 7, "nickname": "SPICA", "points": 191, "avatar": "https://www.lasertagbaza.pl/assets/player-spica.webp" },
+    { "id": "agent", "rank": 8, "nickname": "AGENT", "points": 171, "avatar": "https://www.lasertagbaza.pl/assets/player-agent.webp", "bonusPoints": 30, "articleKey": "agent", "articleUrl": "https://www.lasertagbaza.pl/?article=agent#aktualnosci" },
+    { "id": "tort", "rank": 9, "nickname": "TORT", "points": 160, "avatar": "https://www.lasertagbaza.pl/assets/player-tort.webp", "bonusPoints": 30, "articleKey": "tort", "articleUrl": "https://www.lasertagbaza.pl/?article=tort#aktualnosci" },
+    { "id": "zhenya", "rank": 10, "nickname": "ZHENYA", "points": 154, "avatar": "https://www.lasertagbaza.pl/assets/player-zhenya.webp" },
+    { "id": "pasha", "rank": 11, "nickname": "PASHA", "points": 144, "avatar": "https://www.lasertagbaza.pl/assets/player-pasha.webp" },
+    { "id": "michal", "rank": 12, "nickname": "Michał", "points": 142, "avatar": "https://www.lasertagbaza.pl/assets/player-mikhal.webp", "localizedNicknames": { "be": "Міша", "en": "I love Hot Moms", "ru": "Миша" } },
+    { "id": "ben", "rank": 13, "nickname": "BEN", "points": 134, "avatar": "https://www.lasertagbaza.pl/assets/player-ben.webp" },
+    { "id": "kira", "rank": 14, "nickname": "KIRA", "points": 134, "avatar": "https://www.lasertagbaza.pl/assets/player-kira.webp" },
+    { "id": "w1laser", "rank": 15, "nickname": "W1LASER", "points": 117, "avatar": "https://www.lasertagbaza.pl/assets/player-w1laser.webp" },
+    { "id": "tsisa", "rank": 16, "nickname": "TSISA", "points": 111, "avatar": "https://www.lasertagbaza.pl/assets/player-tsisa.webp" },
+    { "id": "jinn", "rank": 17, "nickname": "JINN", "points": 102, "avatar": "https://www.lasertagbaza.pl/assets/player-jinn.webp" },
+    { "id": "katya", "rank": 18, "nickname": "KATYA", "points": 94, "avatar": "https://www.lasertagbaza.pl/assets/player-katya.webp" },
+    { "id": "jak", "rank": 19, "nickname": "JAK", "points": 83, "avatar": "https://www.lasertagbaza.pl/assets/player-jak.webp", "bonusPoints": 30, "articleKey": "jak", "articleUrl": "https://www.lasertagbaza.pl/?article=jak#aktualnosci" },
+    { "id": "kometa", "rank": 20, "nickname": "KOMETA", "points": 51, "avatar": "https://www.lasertagbaza.pl/assets/player-kometa.webp" },
+    { "id": "agateeni", "rank": 21, "nickname": "Agateeni", "points": 1, "avatar": "https://www.lasertagbaza.pl/assets/player-agateeni.webp" },
+    { "id": "bg", "rank": 22, "nickname": "BG", "points": 1, "avatar": "https://www.lasertagbaza.pl/assets/player-bg.webp" }
+  ]
+}

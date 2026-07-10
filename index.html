@@ -10,6 +10,7 @@
     <link rel="canonical" href="https://www.lasertagbaza.pl/" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="alternate" type="application/json" title="BAZA News Feed" href="/api/news-feed" />
+    <link rel="alternate" type="application/json" title="BAZA Player Ranking" href="/api/ranking-feed" />
     <meta name="theme-color" content="#050505" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
@@ -202,7 +203,13 @@
         </div>
       </section>
 
-      <section class="points-rating section" id="top-punkty">
+      <section
+        class="points-rating section"
+        id="top-punkty"
+        data-ranking-source="baza-player-ranking-v1"
+        data-ranking-feed="/api/ranking-feed"
+        data-ranking-updated="2026-07-10"
+      >
         <div class="section-heading">
           <div>
             <p class="eyebrow"><span></span> Ranking 05.07.26</p>
@@ -244,6 +251,9 @@
                 class="points-card has-avatar is-bonus"
                 role="button"
                 tabindex="0"
+                data-player-id="noka"
+                data-player-rank="1"
+                data-player-points="330"
                 data-player-article-target="noka"
                 aria-label="Otwórz artykuł NOKA"
               >
@@ -252,37 +262,37 @@
                 <strong data-no-translate>NOKA</strong>
                 <span>330 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="jakub" data-player-rank="2" data-player-points="320">
                 <div class="points-avatar"><img src="assets/player-jakub.webp" alt="JAKUB" width="853" height="1280" loading="lazy" decoding="async" /></div>
                 <b>02</b>
                 <strong data-no-translate>JAKUB</strong>
                 <span>320 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="ynwa" data-player-rank="3" data-player-points="244">
                 <div class="points-avatar"><img src="assets/player-ynwa.webp" alt="YNWA" width="960" height="1280" loading="lazy" decoding="async" /></div>
                 <b>03</b>
                 <strong data-no-translate>YNWA</strong>
                 <span>244 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="max" data-player-rank="4" data-player-points="233">
                 <div class="points-avatar"><img src="assets/player-max.webp" alt="MAX" width="853" height="1280" loading="lazy" decoding="async" /></div>
                 <b>04</b>
                 <strong data-no-translate>MAX</strong>
                 <span>233 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="platau" data-player-rank="5" data-player-points="199">
                 <div class="points-avatar"><img src="assets/player-platau.webp" alt="PLATAU" width="960" height="1280" loading="lazy" decoding="async" /></div>
                 <b>05</b>
                 <strong data-no-translate>PLATAU</strong>
                 <span>199 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="shved" data-player-rank="6" data-player-points="191">
                 <div class="points-avatar"><img src="assets/player-sved.webp" alt="SHVED" width="1245" height="830" loading="lazy" decoding="async" /></div>
                 <b>06</b>
                 <strong data-no-translate>SHVED</strong>
                 <span>191 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="spica" data-player-rank="7" data-player-points="191">
                 <div class="points-avatar"><img src="assets/player-spica.webp" alt="SPICA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>07</b>
                 <strong data-no-translate>SPICA</strong>
@@ -292,6 +302,9 @@
                 class="points-card has-avatar is-bonus"
                 role="button"
                 tabindex="0"
+                data-player-id="agent"
+                data-player-rank="8"
+                data-player-points="171"
                 data-player-article-target="agent"
                 aria-label="Otwórz artykuł AGENT"
               >
@@ -304,6 +317,9 @@
                 class="points-card has-avatar is-bonus"
                 role="button"
                 tabindex="0"
+                data-player-id="tort"
+                data-player-rank="9"
+                data-player-points="160"
                 data-player-article-target="tort"
                 aria-label="Otwórz artykuł TORT"
               >
@@ -312,55 +328,55 @@
                 <strong data-no-translate>TORT</strong>
                 <span>160 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="zhenya" data-player-rank="10" data-player-points="154">
                 <div class="points-avatar"><img src="assets/player-zhenya.webp" alt="ZHENYA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>10</b>
                 <strong data-no-translate>ZHENYA</strong>
                 <span>154 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="pasha" data-player-rank="11" data-player-points="144">
                 <div class="points-avatar"><img src="assets/player-pasha.webp" alt="PASHA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>11</b>
                 <strong data-no-translate>PASHA</strong>
                 <span>144 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="michal" data-player-rank="12" data-player-points="142">
                 <div class="points-avatar"><img src="assets/player-mikhal.webp" alt="Michał" width="1254" height="1254" loading="lazy" decoding="async" /></div>
                 <b>12</b>
                 <strong class="translatable-player-name">Michał</strong>
                 <span>142 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="ben" data-player-rank="13" data-player-points="134">
                 <div class="points-avatar"><img src="assets/player-ben.webp" alt="BEN" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>13</b>
                 <strong data-no-translate>BEN</strong>
                 <span>134 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="kira" data-player-rank="14" data-player-points="134">
                 <div class="points-avatar"><img src="assets/player-kira.webp" alt="KIRA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>14</b>
                 <strong data-no-translate>KIRA</strong>
                 <span>134 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="w1laser" data-player-rank="15" data-player-points="117">
                 <div class="points-avatar"><img src="assets/player-w1laser.webp" alt="W1LASER" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>15</b>
                 <strong data-no-translate>W1LASER</strong>
                 <span>117 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="tsisa" data-player-rank="16" data-player-points="111">
                 <div class="points-avatar"><img src="assets/player-tsisa.webp" alt="TSISA" width="1280" height="853" loading="lazy" decoding="async" /></div>
                 <b>16</b>
                 <strong data-no-translate>TSISA</strong>
                 <span>111 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="jinn" data-player-rank="17" data-player-points="102">
                 <div class="points-avatar"><img src="assets/player-jinn.webp" alt="JINN" width="1700" height="2550" loading="lazy" decoding="async" /></div>
                 <b>17</b>
                 <strong data-no-translate>JINN</strong>
                 <span>102 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="katya" data-player-rank="18" data-player-points="94">
                 <div class="points-avatar"><img src="assets/player-katya.webp" alt="KATYA" width="851" height="1280" loading="lazy" decoding="async" /></div>
                 <b>18</b>
                 <strong data-no-translate>KATYA</strong>
@@ -370,6 +386,9 @@
                 class="points-card has-avatar is-bonus"
                 role="button"
                 tabindex="0"
+                data-player-id="jak"
+                data-player-rank="19"
+                data-player-points="83"
                 data-player-article-target="jak"
                 aria-label="Otwórz artykuł JAK"
               >
@@ -378,19 +397,19 @@
                 <strong data-no-translate>JAK</strong>
                 <span>83 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="kometa" data-player-rank="20" data-player-points="51">
                 <div class="points-avatar"><img src="assets/player-kometa.webp" alt="KOMETA" width="719" height="1280" loading="lazy" decoding="async" /></div>
                 <b>20</b>
                 <strong data-no-translate>KOMETA</strong>
                 <span>51 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="agateeni" data-player-rank="21" data-player-points="1">
                 <div class="points-avatar"><img src="assets/player-agateeni.webp" alt="Agateeni" width="640" height="640" loading="lazy" decoding="async" /></div>
                 <b>21</b>
                 <strong data-no-translate>Agateeni</strong>
                 <span>1 pkt</span>
               </article>
-              <article class="points-card has-avatar">
+              <article class="points-card has-avatar" data-player-id="bg" data-player-rank="22" data-player-points="1">
                 <div class="points-avatar"><img src="assets/player-bg.webp" alt="BG" width="508" height="640" loading="lazy" decoding="async" /></div>
                 <b>22</b>
                 <strong data-no-translate>BG</strong>

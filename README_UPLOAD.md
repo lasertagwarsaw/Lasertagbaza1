@@ -51,6 +51,25 @@ GET https://www.lasertagbaza.pl/api/news-feed?section=baza-updates
 атрибуты `data-news-id` и `data-news-section`. Исходные данные ленты находятся в
 `data/news-feed.json`.
 
+## Рейтинг игроков для приложения
+
+Полный структурированный рейтинг:
+
+```text
+GET https://www.lasertagbaza.pl/api/ranking-feed
+```
+
+Только первые три игрока:
+
+```text
+GET https://www.lasertagbaza.pl/api/ranking-feed?limit=3
+```
+
+API возвращает позицию, ник, очки, аватарку, бонус за статью и ссылку на статью игрока.
+В HTML источник отмечен как `data-ranking-source="baza-player-ranking-v1"`, а каждая карточка
+имеет стабильные атрибуты `data-player-id`, `data-player-rank` и `data-player-points`.
+Исходные данные рейтинга находятся в `data/ranking-feed.json`.
+
 ## Деплой на Vercel
 
 Upload the full contents of this folder to GitHub or Vercel.

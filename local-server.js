@@ -159,6 +159,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (request.url.startsWith("/api/ranking-feed")) {
+      await callApi(request, response, path.join(root, "api", "ranking-feed.js"));
+      return;
+    }
+
     if (request.url.startsWith("/api/weather")) {
       await callApi(request, response, path.join(root, "api", "weather.js"));
       return;
