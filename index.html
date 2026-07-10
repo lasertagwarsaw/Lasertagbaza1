@@ -11,6 +11,7 @@
     <link rel="manifest" href="site.webmanifest" />
     <link rel="alternate" type="application/json" title="BAZA News Feed" href="/api/news-feed" />
     <link rel="alternate" type="application/json" title="BAZA Player Ranking" href="/api/ranking-feed" />
+    <link rel="alternate" type="application/json" title="BAZA Open Games" href="/api/games-feed" />
     <meta name="theme-color" content="#050505" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
@@ -133,7 +134,13 @@
           </div>
         </div>
 
-        <aside class="next-game-panel" aria-label="Najbliższa gra otwarta" data-next-game-panel>
+        <aside
+          class="next-game-panel"
+          aria-label="Najbliższa gra otwarta"
+          data-next-game-panel
+          data-game-preview
+          data-games-feed="/api/games-feed"
+        >
           <p>Najbliższa gra otwarta</p>
           <h2 data-next-game-title>Środa 18:30</h2>
           <div class="next-game-date-row">
@@ -451,6 +458,7 @@
           <article
             class="game-row"
             data-kind="counter"
+            data-game-id="wednesday"
             data-recurring-weekday="3"
             data-recurring-time="18:30"
           >
@@ -470,6 +478,7 @@
           <article
             class="game-row"
             data-kind="open"
+            data-game-id="sunday"
             data-recurring-weekday="0"
             data-recurring-time="18:00"
           >
@@ -1261,7 +1270,13 @@ Noka - замечательная игра, очень сильная. Ты ум
         </div>
       </section>
 
-      <section class="join section" id="join">
+      <section
+        class="join section"
+        id="join"
+        data-games-source="baza-open-games-v1"
+        data-games-feed="/api/games-feed"
+        data-game-signup-endpoint="/api/games-feed"
+      >
         <div class="booking-copy">
           <p class="eyebrow"><span></span> Zapis</p>
           <h2>Wejdź do<br /><em>gry.</em></h2>
@@ -1274,7 +1289,7 @@ Noka - замечательная игра, очень сильная. Ты ум
         </div>
 
         <div class="signup-board">
-          <form class="booking-form signup-form">
+          <form class="booking-form signup-form" data-game-signup-form data-signup-endpoint="/api/games-feed">
             <label>
               Dzień gry
               <select name="game" required>
@@ -1319,7 +1334,7 @@ Noka - замечательная игра, очень сильная. Ты ум
           </form>
 
           <div class="signup-lists" aria-live="polite">
-            <article class="signup-list-card">
+            <article class="signup-list-card" data-game-signups="wednesday">
               <div class="panel-heading">
                 <p>Środa 18:30</p>
                 <span><b data-signup-count="wednesday">0 / 12</b> graczy</span>
@@ -1329,7 +1344,7 @@ Noka - замечательная игра, очень сильная. Ты ум
               </ol>
             </article>
 
-            <article class="signup-list-card">
+            <article class="signup-list-card" data-game-signups="sunday">
               <div class="panel-heading">
                 <p>Niedziela 18:00</p>
                 <span><b data-signup-count="sunday">0 / 60</b> graczy</span>
@@ -1401,7 +1416,7 @@ Noka - замечательная игра, очень сильная. Ты ум
           <strong data-quick-game-title>Niedziela 18:00</strong>
           <span data-quick-game-date></span>
         </div>
-        <form class="booking-form quick-signup-form">
+        <form class="booking-form quick-signup-form" data-game-signup-form data-signup-endpoint="/api/games-feed">
           <label>
             Dzień gry
             <select name="game" required>

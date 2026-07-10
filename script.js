@@ -38,7 +38,7 @@ const newsMoreButton = document.querySelector("[data-news-more]");
 const newsFilterButtons = document.querySelectorAll("[data-news-filter]");
 
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
-const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
+const gameSignupEndpoint = `${localApiBase}/api/games-feed`;
 const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
 const weatherForecastEndpoint = `${localApiBase}/api/weather`;
 const analyticsEndpoint = `${localApiBase}/api/analytics`;
@@ -2066,7 +2066,7 @@ const setSharedSignups = (signups) => {
 
 const fetchSharedSignups = async () => {
   try {
-    const response = await fetch(telegramSignupEndpoint, { cache: "no-store" });
+    const response = await fetch(gameSignupEndpoint, { cache: "no-store" });
     if (!response.ok) return;
 
     const data = await response.json();
@@ -2100,7 +2100,7 @@ const renderSignupLists = () => {
 };
 
 const sendSignupToTelegram = async (signup) => {
-  const response = await fetch(telegramSignupEndpoint, {
+  const response = await fetch(gameSignupEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -2629,8 +2629,9 @@ window.setInterval(() => {
   const currentCycle = ensureCurrentSignupCycle();
   if (beforeCycle !== currentCycle) renderSignupLists();
   updateHeroNextGame();
-  fetchSharedSignups();
 }, 60 * 1000);
+
+window.setInterval(fetchSharedSignups, 15 * 1000);
 
 if (menuButton) {
   menuButton.addEventListener("click", () => {
