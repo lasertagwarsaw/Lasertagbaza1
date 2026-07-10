@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "feedId": "baza-news-v1",
+  "updatedAt": "2026-07-10T00:00:00+02:00",
+  "defaultLocale": "pl",
+  "supportedLocales": ["pl", "uk", "be", "en", "ru"],
+  "webSection": {
+    "id": "aktualnosci",
+    "selector": "[data-news-source='baza-news-v1']",
+    "categoryAttribute": "data-news-section",
+    "itemAttribute": "data-news-id"
+  },
+  "sections": [
+    {
+      "id": "player-reviews",
+      "type": "player_review",
+      "labels": {
+        "pl": "Opinie graczy",
+        "uk": "Відгуки гравців",
+        "be": "Водгукі гульцоў",
+        "en": "Player reviews",
+        "ru": "Отзывы игроков"
+      },
+      "items": [
+        {
+          "id": "agent-review-2026-07-10",
+          "articleKey": "agent",
+          "publishedAt": "2026-07-10",
+          "author": "AGENT",
+          "title": "Turniej 5 lipca oczami gracza Old Skufs",
+          "summary": "AGENT opowiada o organizacji, grze Old Skufs, najmocniejszych rywalach i sportowej atmosferze turnieju.",
+          "image": "https://www.lasertagbaza.pl/assets/update-agent-review.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=agent#aktualnosci",
+          "webSelector": "[data-news-id='agent-review-2026-07-10']"
+        },
+        {
+          "id": "tort-review-2026-07-09",
+          "articleKey": "tort",
+          "publishedAt": "2026-07-09",
+          "author": "TORT",
+          "title": "Przegląd turniejów laser tag w Warszawie",
+          "summary": "Przede wszystkim chcę podziękować organizatorom - Leshy i Shvedowi - za to, co robią dla Laser Tag w Warszawie. Zwłaszcza Szwed.",
+          "image": "https://www.lasertagbaza.pl/assets/player-tort.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=tort#aktualnosci",
+          "webSelector": "[data-news-id='tort-review-2026-07-09']"
+        },
+        {
+          "id": "jak-review-2026-07-07",
+          "articleKey": "jak",
+          "publishedAt": "2026-07-07",
+          "author": "JAK",
+          "title": "Opinia gracza po turnieju Open Lasertag",
+          "summary": "JAK opowiada o nowym sprzęcie, scenariuszu CS, ustawieniach turniejowych i tym, dlaczego po latach gry trzeba nauczyć się kilku rzeczy od nowa.",
+          "image": "https://www.lasertagbaza.pl/assets/update-jak-review.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=jak#aktualnosci",
+          "webSelector": "[data-news-id='jak-review-2026-07-07']"
+        }
+      ]
+    },
+    {
+      "id": "baza-updates",
+      "type": "baza_update",
+      "labels": {
+        "pl": "Aktualizacje BAZY",
+        "uk": "Оновлення BAZY",
+        "be": "Абнаўленні BAZY",
+        "en": "BAZA updates",
+        "ru": "Обновления BAZY"
+      },
+      "items": [
+        {
+          "id": "technology-upgrade",
+          "articleKey": "technology-upgrade",
+          "publishedAt": "2026-07-06",
+          "title": "Nowa era laserowego paintballa w Lasertag Warsaw",
+          "summary": "Największa aktualizacja w historii naszej areny: statystyki w czasie rzeczywistym, efekty dźwiękowe jak w FPS-ach i nowe scenariusze rozgrywek.",
+          "image": "https://www.lasertagbaza.pl/assets/photo_2026-07-06_22-53-50.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=technology-upgrade#aktualnosci",
+          "webSelector": "[data-news-id='technology-upgrade']"
+        },
+        {
+          "id": "telegram-events",
+          "articleKey": "telegram-events",
+          "publishedAt": "2026-07-06",
+          "title": "Wyjazdy i turnieje ogłaszamy w TG",
+          "summary": "Daty, lokalizacje, regulaminy i listy graczy publikujemy w klubowym czacie Telegram.",
+          "image": "https://www.lasertagbaza.pl/assets/update-telegram.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=telegram-events#aktualnosci",
+          "webSelector": "[data-news-id='telegram-events']"
+        },
+        {
+          "id": "sunday-open-game",
+          "articleKey": "sunday-open-game",
+          "publishedAt": "2026-07-06",
+          "title": "Otwarta gra dla wszystkich chętnych 10+",
+          "summary": "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.",
+          "image": "https://www.lasertagbaza.pl/assets/update-sunday.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=sunday-open-game#aktualnosci",
+          "webSelector": "[data-news-id='sunday-open-game']"
+        },
+        {
+          "id": "wednesday-counter-strike",
+          "articleKey": "wednesday-counter-strike",
+          "publishedAt": "2026-07-06",
+          "title": "Counter-Strike 6 na 6 dla graczy 14+",
+          "summary": "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.",
+          "image": "https://www.lasertagbaza.pl/assets/update-wednesday.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=wednesday-counter-strike#aktualnosci",
+          "webSelector": "[data-news-id='wednesday-counter-strike']"
+        },
+        {
+          "id": "open-tournament-2026-07-05",
+          "articleKey": "open-tournament-2026-07-05",
+          "publishedAt": "2026-07-05",
+          "title": "Turniej Open Lasertag - emocje do ostatniego meczu!",
+          "summary": "Cztery pięcioosobowe drużyny, nowy scenariusz CS, zacięta walka do końca i zwycięstwo Hard Skill prowadzonego przez Shveda.",
+          "image": "https://www.lasertagbaza.pl/assets/update-open-turniej-2026-07-05.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=open-tournament-2026-07-05#aktualnosci",
+          "webSelector": "[data-news-id='open-tournament-2026-07-05']"
+        }
+      ]
+    }
+  ]
+}

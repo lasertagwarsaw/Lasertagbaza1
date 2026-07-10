@@ -32,6 +32,25 @@ http://localhost:3000
 Форма `Zapis` отправляет заявку в Telegram через `/api/telegram-signup`.
 Окно Telegram-чата отправляет сообщение через `/api/telegram-message`.
 
+## Лента новостей для приложения
+
+Полная структурированная лента:
+
+```text
+GET https://www.lasertagbaza.pl/api/news-feed
+```
+
+Отдельные разделы:
+
+```text
+GET https://www.lasertagbaza.pl/api/news-feed?section=player-reviews
+GET https://www.lasertagbaza.pl/api/news-feed?section=baza-updates
+```
+
+В HTML источник отмечен как `data-news-source="baza-news-v1"`. Каждая карточка имеет стабильные
+атрибуты `data-news-id` и `data-news-section`. Исходные данные ленты находятся в
+`data/news-feed.json`.
+
 ## Деплой на Vercel
 
 Upload the full contents of this folder to GitHub or Vercel.

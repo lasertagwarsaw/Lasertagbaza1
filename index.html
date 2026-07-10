@@ -9,6 +9,7 @@
     />
     <link rel="canonical" href="https://www.lasertagbaza.pl/" />
     <link rel="manifest" href="site.webmanifest" />
+    <link rel="alternate" type="application/json" title="BAZA News Feed" href="/api/news-feed" />
     <meta name="theme-color" content="#050505" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
@@ -50,7 +51,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=ux-4" />
+    <link rel="stylesheet" href="styles.css?v=ux-5" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -504,9 +505,16 @@
           </p>
         </div>
 
-        <div class="update-grid">
-          <article class="update-card">
-            <details class="update-article" data-published="2026-07-06">
+        <div class="news-source-block" data-news-source="baza-news-v1" data-news-feed="/api/news-feed">
+          <div class="news-category-tabs" role="group" aria-label="Kategorie aktualności">
+            <button class="active" type="button" data-news-filter="all" aria-pressed="true">Wszystkie</button>
+            <button type="button" data-news-filter="player-reviews" aria-pressed="false">Opinie graczy</button>
+            <button type="button" data-news-filter="baza-updates" aria-pressed="false">Aktualizacje BAZY</button>
+          </div>
+
+          <div class="update-grid">
+          <article class="update-card" data-news-id="wednesday-counter-strike" data-news-section="baza-updates">
+            <details class="update-article" data-news-key="wednesday-counter-strike" data-published="2026-07-06">
               <summary>
                 <img class="update-card-image" src="assets/update-wednesday.webp" alt="Counter-Strike 6v6" width="1280" height="853" loading="lazy" decoding="async" />
                 <span>Środa / 18:30</span>
@@ -519,8 +527,8 @@
               </div>
             </details>
           </article>
-          <article class="update-card">
-            <details class="update-article" data-published="2026-07-06">
+          <article class="update-card" data-news-id="sunday-open-game" data-news-section="baza-updates">
+            <details class="update-article" data-news-key="sunday-open-game" data-published="2026-07-06">
               <summary>
                 <img class="update-card-image" src="assets/update-sunday.webp" alt="Niedzielna gra otwarta" width="960" height="1280" loading="lazy" decoding="async" />
                 <span>Niedziela / 18:00</span>
@@ -533,8 +541,8 @@
               </div>
             </details>
           </article>
-          <article class="update-card">
-            <details class="update-article" data-published="2026-07-06">
+          <article class="update-card" data-news-id="telegram-events" data-news-section="baza-updates">
+            <details class="update-article" data-news-key="telegram-events" data-published="2026-07-06">
               <summary>
                 <img class="update-card-image" src="assets/update-telegram.webp" alt="Daty wyjazdów i turniejów" width="1280" height="853" loading="lazy" decoding="async" />
                 <span><a class="inline-telegram-link" href="https://t.me/+9lyXtbEsZ5FlZTky" target="_blank" rel="noopener">Telegram / daty</a></span>
@@ -547,8 +555,8 @@
               </div>
             </details>
           </article>
-          <article class="update-card featured-update">
-            <details class="update-article" data-published="2026-07-06">
+          <article class="update-card featured-update" data-news-id="technology-upgrade" data-news-section="baza-updates">
+            <details class="update-article" data-news-key="technology-upgrade" data-published="2026-07-06">
               <summary>
                 <img
                   class="update-card-image"
@@ -643,8 +651,8 @@
               </div>
             </details>
           </article>
-          <article class="update-card featured-update">
-            <details class="update-article" data-published="2026-07-05">
+          <article class="update-card featured-update" data-news-id="open-tournament-2026-07-05" data-news-section="baza-updates">
+            <details class="update-article" data-news-key="open-tournament-2026-07-05" data-published="2026-07-05">
               <summary>
                 <img
                   class="update-card-image"
@@ -722,7 +730,7 @@
               </div>
             </details>
           </article>
-          <article class="update-card featured-update">
+          <article class="update-card featured-update" data-news-id="tort-review-2026-07-09" data-news-section="player-reviews">
             <details class="update-article" data-news-key="tort" data-published="2026-07-09">
               <summary>
                 <img
@@ -940,7 +948,7 @@ Noka - замечательная игра, очень сильная. Ты ум
               </div>
             </details>
           </article>
-          <article class="update-card featured-update">
+          <article class="update-card featured-update" data-news-id="jak-review-2026-07-07" data-news-section="player-reviews">
             <details class="update-article" data-news-key="jak" data-published="2026-07-07">
               <summary>
                 <img
@@ -1058,7 +1066,7 @@ Noka - замечательная игра, очень сильная. Ты ум
               </div>
             </details>
           </article>
-          <article class="update-card featured-update">
+          <article class="update-card featured-update" data-news-id="agent-review-2026-07-10" data-news-section="player-reviews">
             <details class="update-article" data-news-key="agent" data-published="2026-07-10">
               <summary>
                 <img
@@ -1105,10 +1113,11 @@ Noka - замечательная игра, очень сильная. Ты ум
               </div>
             </details>
           </article>
+          </div>
+          <button class="updates-more-button" type="button" data-news-more>
+            Pokaż więcej aktualności
+          </button>
         </div>
-        <button class="updates-more-button" type="button" data-news-more>
-          Pokaż więcej aktualności
-        </button>
       </section>
 
       <section class="telegram section" id="telegram">
@@ -1427,6 +1436,6 @@ Noka - замечательная игра, очень сильная. Ты ум
     </div>
 
     <script defer src="/_vercel/insights/script.js"></script>
-    <script src="script.js?v=ux-3"></script>
+    <script src="script.js?v=ux-5"></script>
   </body>
 </html>

@@ -35,6 +35,7 @@ const priceModal = document.querySelector(".price-modal");
 const newsArticles = document.querySelectorAll(".update-article");
 const updatesGrid = document.querySelector(".update-grid");
 const newsMoreButton = document.querySelector("[data-news-more]");
+const newsFilterButtons = document.querySelectorAll("[data-news-filter]");
 
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const telegramSignupEndpoint = `${localApiBase}/api/telegram-signup`;
@@ -911,6 +912,9 @@ Object.entries(updateArticleCopy).forEach(([language, copy]) => {
 const interfaceCopy = {
   be: {
     "RU": "RU",
+    "Wszystkie": "Усе",
+    "Aktualizacje BAZY": "Абнаўленні BAZY",
+    "Kategorie aktualności": "Катэгорыі навін",
     "Lista graczy": "Спіс гульцоў",
     "Ceny": "Цэны",
     "Cennik": "Цэннік",
@@ -976,6 +980,9 @@ const interfaceCopy = {
   },
   en: {
     "RU": "RU",
+    "Wszystkie": "All",
+    "Aktualizacje BAZY": "BAZA updates",
+    "Kategorie aktualności": "News categories",
     "Lista graczy": "Player list",
     "Ceny": "Prices",
     "Cennik": "Pricing",
@@ -1041,6 +1048,9 @@ const interfaceCopy = {
   },
   uk: {
     "RU": "RU",
+    "Wszystkie": "Усі",
+    "Aktualizacje BAZY": "Оновлення BAZY",
+    "Kategorie aktualności": "Категорії новин",
     "Lista graczy": "Список гравців",
     "Ceny": "Ціни",
     "Cennik": "Ціни",
@@ -1106,6 +1116,9 @@ const interfaceCopy = {
   },
   ru: {
     "RU": "RU",
+    "Wszystkie": "Все",
+    "Aktualizacje BAZY": "Обновления BAZY",
+    "Kategorie aktualności": "Категории новостей",
     "Lista graczy": "Список игроков",
     "Ceny": "Цены",
     "Cennik": "Цены",
@@ -2485,18 +2498,42 @@ const setupNewsPagination = () => {
   const cards = [...updatesGrid.querySelectorAll(":scope > .update-card")];
   if (!cards.length) return;
 
-  const orderedCards = [...cards].reverse();
+  const orderedCards = cards
+    .map((card, sourceIndex) => ({
+      card,
+      sourceIndex,
+      publishedAt: Date.parse(card.querySelector(".update-article")?.dataset.published || "") || 0,
+    }))
+    .sort((a, b) => b.publishedAt - a.publishedAt || b.sourceIndex - a.sourceIndex)
+    .map(({ card }) => card);
   orderedCards.forEach((card) => updatesGrid.append(card));
 
+  let activeNewsSection = "all";
   visibleNewsCount = Math.min(3, orderedCards.length);
 
-  const render = () => {
-    orderedCards.forEach((card, index) => {
-      card.hidden = index >= visibleNewsCount;
+  const getFilteredCards = () =>
+    activeNewsSection === "all"
+      ? orderedCards
+      : orderedCards.filter((card) => card.dataset.newsSection === activeNewsSection);
+
+  const updateFilterState = () => {
+    newsFilterButtons.forEach((button) => {
+      const isActive = button.dataset.newsFilter === activeNewsSection;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
     });
+  };
+
+  const render = () => {
+    const filteredCards = getFilteredCards();
+    const visibleCards = new Set(filteredCards.slice(0, visibleNewsCount));
+    orderedCards.forEach((card) => {
+      card.hidden = !visibleCards.has(card);
+    });
+    updateFilterState();
 
     if (!newsMoreButton) return;
-    newsMoreButton.hidden = visibleNewsCount >= orderedCards.length;
+    newsMoreButton.hidden = visibleNewsCount >= filteredCards.length;
     newsMoreButton.textContent = translateCopy("Pokaż więcej aktualności");
   };
 
@@ -2507,8 +2544,16 @@ const setupNewsPagination = () => {
   };
 
   newsMoreButton?.addEventListener("click", () => {
-    visibleNewsCount = Math.min(visibleNewsCount + 3, orderedCards.length);
+    visibleNewsCount = Math.min(visibleNewsCount + 3, getFilteredCards().length);
     render();
+  });
+
+  newsFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeNewsSection = button.dataset.newsFilter || "all";
+      visibleNewsCount = Math.min(3, getFilteredCards().length);
+      render();
+    });
   });
 
   openNewsArticleByKey = (key) => {
@@ -2516,11 +2561,13 @@ const setupNewsPagination = () => {
     const card = details?.closest(".update-card");
     if (!details || !card) return false;
 
-    const targetIndex = orderedCards.indexOf(card);
+    activeNewsSection = card.dataset.newsSection || "all";
+    const filteredCards = getFilteredCards();
+    const targetIndex = filteredCards.indexOf(card);
     if (targetIndex >= visibleNewsCount) {
-      visibleNewsCount = Math.min(targetIndex + 1, orderedCards.length);
-      render();
+      visibleNewsCount = Math.min(targetIndex + 1, filteredCards.length);
     }
+    render();
 
     details.open = true;
     requestAnimationFrame(() => {

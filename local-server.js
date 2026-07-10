@@ -61,6 +61,7 @@ const sendJson = (response, statusCode, payload) => {
 const callApi = async (request, response, handlerPath) => {
   const rawBody = await readBody(request);
   let parsedBody = rawBody;
+  const requestUrl = new URL(request.url, `http://${request.headers.host}`);
 
   if ((request.headers["content-type"] || "").includes("application/json")) {
     try {
@@ -73,7 +74,12 @@ const callApi = async (request, response, handlerPath) => {
 
   const handler = require(handlerPath);
   await handler(
-    { method: request.method, headers: request.headers, body: parsedBody },
+    {
+      method: request.method,
+      headers: request.headers,
+      body: parsedBody,
+      query: Object.fromEntries(requestUrl.searchParams),
+    },
     {
       setHeader(name, value) {
         response.setHeader(name, value);
@@ -145,6 +151,11 @@ const server = http.createServer(async (request, response) => {
 
     if (request.url.startsWith("/api/news-comments")) {
       await callApi(request, response, path.join(root, "api", "news-comments.js"));
+      return;
+    }
+
+    if (request.url.startsWith("/api/news-feed")) {
+      await callApi(request, response, path.join(root, "api", "news-feed.js"));
       return;
     }
 
