@@ -1497,6 +1497,7 @@ h2 em {
 
 .update-card-image {
   width: 100%;
+  height: clamp(170px, 15vw, 220px);
   aspect-ratio: 16 / 10;
   margin-bottom: 18px;
   display: block;
@@ -1507,6 +1508,10 @@ h2 em {
 }
 
 .agent-review-image {
+  object-position: center 32%;
+}
+
+.update-card-image[src*="player-tort"] {
   object-position: center 32%;
 }
 
@@ -1538,6 +1543,7 @@ h2 em {
 }
 
 .featured-update .update-card-image {
+  height: clamp(260px, 28vw, 410px);
   aspect-ratio: 16 / 9;
   margin-bottom: 0;
 }
@@ -1787,6 +1793,7 @@ h2 em {
 
 .update-article-gallery img {
   width: 100%;
+  height: clamp(180px, 20vw, 260px);
   aspect-ratio: 4 / 3;
   display: block;
   border: 1px solid rgba(255, 212, 0, 0.18);
@@ -3069,11 +3076,16 @@ footer > span {
   }
 
   .featured-update .update-card-image {
+    height: clamp(210px, 44vw, 340px);
     aspect-ratio: 16 / 10;
   }
 
   .update-article-gallery {
     grid-template-columns: 1fr;
+  }
+
+  .update-article-gallery img {
+    height: clamp(220px, 48vw, 380px);
   }
 }
 
@@ -3386,6 +3398,15 @@ footer > span {
 
   .next-game-panel {
     width: min(360px, calc(100% - 56px));
+  }
+
+  .update-card-image,
+  .featured-update .update-card-image {
+    height: clamp(168px, 46vw, 190px);
+  }
+
+  .update-article-gallery img {
+    height: clamp(200px, 65vw, 270px);
   }
 
   .tournament-facts {
