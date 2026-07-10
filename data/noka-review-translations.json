@@ -1,0 +1,116 @@
+{
+  "copyById": {
+    "noka-card-kicker": {
+      "pl": "Opinia gracza / NOKA",
+      "be": "Водгук гульца / NOKA",
+      "en": "Player review / NOKA",
+      "uk": "Відгук гравця / NOKA",
+      "ru": "Отзыв игрока / NOKA"
+    },
+    "noka-card-title": {
+      "pl": "11. generacja oczami zwycięzcy turnieju",
+      "be": "11-е пакаленне вачыма пераможцы турніру",
+      "en": "The 11th generation through the tournament winner's eyes",
+      "uk": "11-те покоління очима переможця турніру",
+      "ru": "11-е поколение глазами победителя турнира"
+    },
+    "noka-card-summary": {
+      "pl": "Noka opowiada o adaptacji, wysokim poziomie rywali i o tym, dlaczego nowe wyposażenie ponownie zmusza do myślenia podczas gry.",
+      "be": "Noka распавядае пра адаптацыю, высокі ўзровень сапернікаў і пра тое, чаму новае абсталяванне зноў прымушае думаць падчас гульні.",
+      "en": "Noka talks about adaptation, strong opponents and why the new equipment makes players think differently again.",
+      "uk": "Noka розповідає про адаптацію, високий рівень суперників і про те, чому нове обладнання знову змушує думати під час гри.",
+      "ru": "Noka рассказывает об адаптации, высоком уровне соперников и о том, почему новое оборудование снова заставляет думать во время игры."
+    },
+    "noka-intro": {
+      "pl": "No cóż, nadszedł również mój czas, aby napisać opinię o turnieju, który odbył się 05.07.2026 w Warszawie.",
+      "be": "Ну што ж, настаў і мой час напісаць водгук пра турнір, які прайшоў 05.07.2026 у Варшаве.",
+      "en": "Well, it is finally my turn to write a review of the tournament that took place in Warsaw on July 5, 2026.",
+      "uk": "Ну що ж, настав і мій час написати відгук про турнір, який відбувся 05.07.2026 у Варшаві.",
+      "ru": "Ну что, настало и моё время написать отзыв о турнире, который прошёл 05.07.2026 в Варшаве."
+    },
+    "noka-heading-adaptation": {
+      "pl": "Adaptacja zamiast starych odruchów",
+      "be": "Адаптацыя замест старых рэфлексаў",
+      "en": "Adaptation over old reflexes",
+      "uk": "Адаптація замість старих рефлексів",
+      "ru": "Адаптация вместо старых рефлексов"
+    },
+    "noka-adaptation": {
+      "pl": "Jako zwycięzca turnieju mogę powiedzieć, że nowa generacja naprawdę robi wrażenie. Choć nie było to moje pierwsze spotkanie z tym sprzętem, w formacie turniejowym odczuwa się go zupełnie inaczej. Nie da się już grać wyłącznie na starych odruchach - wiele rzeczy trzeba przemyśleć i przebudować dosłownie w trakcie gry. Właśnie to czyni nowy format ciekawym: wygrywa nie ten, kto gra dłużej, lecz ten, kto szybciej się adaptuje. Tym razem naszej drużynie „Lepcy Bandyci” udało się zrobić to odrobinę szybciej od pozostałych.",
+      "be": "Як пераможца турніру магу сказаць, што новае пакаленне сапраўды ўражвае. Хоць гэта і не першае маё знаёмства з гэтым абсталяваннем, менавіта ў турнірным фармаце яно адчуваецца зусім інакш. Тут ужо не атрымаецца гуляць толькі на старых рэфлексах - многае даводзіцца пераасэнсоўваць і перабудоўваць літаральна падчас гульні. Менавіта гэта і робіць новы фармат цікавым: перамагае не той, хто даўжэй гуляе, а той, хто хутчэй адаптуецца. Гэтым разам нашай камандзе «Ліпкія бандыты» ўдалося зрабіць гэта крыху хутчэй за астатніх.",
+      "en": "As the tournament winner, I can say that the new generation is genuinely impressive. Although this was not my first experience with the equipment, it feels completely different in a tournament format. Old reflexes alone are no longer enough - many things have to be reconsidered and rebuilt while the game is still happening. That is exactly what makes the new format interesting: victory goes not to the player with the most years behind them, but to the one who adapts faster. This time our team, the Sticky Bandits, managed to do that a little faster than everyone else.",
+      "uk": "Як переможець турніру можу сказати, що нове покоління справді вражає. Хоча це й не перше моє знайомство з цим обладнанням, саме в турнірному форматі воно відчувається зовсім інакше. Тут уже не вийде грати лише на старих рефлексах - багато чого доводиться переосмислювати й перебудовувати буквально під час гри. Саме це й робить новий формат цікавим: перемагає не той, хто довше грає, а той, хто швидше адаптується. Цього разу нашій команді «Липкі бандити» вдалося зробити це трохи швидше за інших.",
+      "ru": "Как победитель турнира, могу сказать, что новое поколение действительно впечатляет. Хоть это и не первое моё знакомство с этим оборудованием, именно в турнирном формате оно ощущается совершенно иначе. Здесь уже не получится играть только на старых рефлексах — многое приходится переосмысливать и перестраивать буквально по ходу игры. Именно это и делает новый формат интересным: побеждает не тот, кто дольше играет, а тот, кто быстрее адаптируется. В этот раз нашей команде «Липкие бандиты» удалось сделать это немного быстрее остальных."
+    },
+    "noka-heading-competition": {
+      "pl": "Bez łatwych spotkań",
+      "be": "Без лёгкіх матчаў",
+      "en": "No easy matches",
+      "uk": "Без легких матчів",
+      "ru": "Без проходных матчей"
+    },
+    "noka-competition": {
+      "pl": "Tak, w turnieju zagrały tylko cztery drużyny, ale poziom uczestników był bardzo wysoki. Nie było ani jednego łatwego meczu - w każdej grze trzeba było dawać z siebie maksimum. Właśnie takie turnieje dają najwięcej przyjemności: silni rywale, nieustanna walka i świadomość, że każdy błąd może kosztować zwycięstwo.",
+      "be": "Так, на турніры было ўсяго чатыры каманды, але ўзровень удзельнікаў быў вельмі высокі. Прахадных матчаў не было ўвогуле - у кожнай гульні даводзілася выкладвацца на максімум. Менавіта такія турніры і даюць задавальненне: моцныя сапернікі, пастаянная барацьба і разуменне, што любая памылка можа каштаваць перамогі.",
+      "en": "Yes, there were only four teams in the tournament, but the level of the participants was very high. There were no easy matches at all - every game demanded maximum effort. These are the tournaments that bring real enjoyment: strong opponents, constant pressure and the knowledge that any mistake can cost you the win.",
+      "uk": "Так, на турнірі було лише чотири команди, але рівень учасників був дуже високим. Прохідних матчів не було взагалі - у кожній грі доводилося викладатися на максимум. Саме такі турніри й приносять задоволення: сильні суперники, постійна боротьба і розуміння, що будь-яка помилка може коштувати перемоги.",
+      "ru": "Да, на турнире было всего четыре команды, но уровень участников был очень высоким. Проходных матчей не было вообще — в каждой игре приходилось выкладываться на максимум. Именно такие турниры и дают удовольствие: сильные соперники, постоянная борьба и понимание, что любая ошибка может стоить победы."
+    },
+    "noka-heading-generation": {
+      "pl": "Inne nie znaczy gorsze",
+      "be": "Іншае не значыць горшае",
+      "en": "Different does not mean worse",
+      "uk": "Інше не означає гірше",
+      "ru": "Другое не значит хуже"
+    },
+    "noka-generation": {
+      "pl": "Jeśli chodzi o samą 11. generację, opinie - zgodnie z oczekiwaniami - były podzielone. Dla wielu osób była nietypowa, niektórzy nie zdążyli się jeszcze przyzwyczaić, a komuś nie spodobała się kategorycznie. Ja jednak zawsze opowiadam się za rozwojem. Jeśli gra się nie zmienia, zaczyna stać w miejscu. Nowa generacja zmusza do myślenia, szukania innych rozwiązań i wychodzenia ze strefy komfortu, a właśnie to powinno dziać się w rywalizacji laser tag.",
+      "be": "Што да самога 11-га пакалення, меркаванні, як і чакалася, падзяліліся. Для многіх яно аказалася нязвыклым, хтось яшчэ не паспеў асвоіцца, а камусьці яно ўвогуле катэгарычна не спадабалася. Але асабіста я заўсёды за развіццё. Калі гульня не змяняецца, яна пачынае стаяць на месцы. Новае пакаленне прымушае думаць, шукаць іншыя рашэнні і выходзіць з зоны камфорту, а менавіта гэта і павінна адбывацца ў спаборніцкім лазертагу.",
+      "en": "As for the 11th generation itself, opinions were divided, just as expected. Many found it unfamiliar, some have not yet had time to master it, and others strongly disliked it. Personally, I am always in favor of development. If a game does not change, it begins to stand still. The new generation forces us to think, look for different solutions and leave our comfort zones, which is exactly what should happen in competitive laser tag.",
+      "uk": "Що стосується самого 11-го покоління, думки, як і очікувалося, розділилися. Для багатьох воно виявилося незвичним, хтось іще не встиг освоїтися, а комусь воно взагалі категорично не сподобалося. Але особисто я завжди за розвиток. Якщо гра не змінюється, вона починає стояти на місці. Нове покоління змушує думати, шукати інші рішення й виходити із зони комфорту, а саме це й має відбуватися в змагальному лазертазі.",
+      "ru": "Что касается самого 11-го поколения, мнения, как и ожидалось, разделились. Для многих оно оказалось непривычным, кто-то ещё не успел освоиться, а кому-то оно вообще категорически не понравилось. Но лично я всегда за развитие. Если игра не меняется, она начинает стоять на месте. Новое поколение заставляет думать, искать другие решения и выходить из зоны комфорта, а это именно то, что должно происходить в соревновательном лазертаге."
+    },
+    "noka-heading-next": {
+      "pl": "Następny turniej będzie jeszcze mocniejszy",
+      "be": "Наступны турнір будзе яшчэ мацнейшы",
+      "en": "The next tournament will be even stronger",
+      "uk": "Наступний турнір буде ще сильнішим",
+      "ru": "Следующий турнир будет ещё сильнее"
+    },
+    "noka-next": {
+      "pl": "Jestem pewien, że już podczas następnego turnieju poziom gry będzie jeszcze wyższy, ponieważ drużyny zaczną lepiej rozumieć możliwości nowego wyposażenia. No i oczywiście, jeśli Shved zamknie jeszcze więcej przestrzałów na BAZIE.",
+      "be": "Упэўнены, што ўжо на наступным турніры ўзровень гульні стане яшчэ вышэйшым, таму што каманды пачнуць лепш разумець магчымасці новага абсталявання. Ну і, вядома, калі Shved закрые яшчэ больш прастрэлаў на BAZIE.",
+      "en": "I am sure the level of play will be even higher at the next tournament, because the teams will understand the new equipment much better. And, of course, if Shved closes even more shooting lanes at BAZA.",
+      "uk": "Упевнений, що вже на наступному турнірі рівень гри стане ще вищим, тому що команди почнуть краще розуміти можливості нового обладнання. Ну і, звісно, якщо Shved закриє ще більше прострілів на BAZIE.",
+      "ru": "Уверен, что уже на следующем турнире уровень игры станет ещё выше, потому что команды начнут лучше понимать возможности нового оборудования. Ну и, конечно, если Швед ещё больше прострелов закроет на “Baze”"
+    },
+    "noka-heading-thanks": {
+      "pl": "Podziękowania",
+      "be": "Падзякі",
+      "en": "Thanks",
+      "uk": "Подяки",
+      "ru": "Благодарности"
+    },
+    "noka-thanks": {
+      "pl": "Dziękuję wszystkim drużynom za uczciwą, piękną i pełną napięcia rywalizację. Gra przeciwko każdej z nich była przyjemnością. Osobne podziękowania należą się organizatorom za przygotowanie turnieju.",
+      "be": "Дзякуй усім камандам за сумленную, прыгожую і напружаную барацьбу. Было прыемна гуляць супраць кожнай з вас. Асобная падзяка арганізатарам за турнір.",
+      "en": "Thank you to every team for fair, beautiful and intense competition. It was a pleasure to play against each of you. Special thanks to the organizers for the tournament.",
+      "uk": "Дякую всім командам за чесну, красиву й напружену боротьбу. Було приємно грати проти кожної з вас. Окрема подяка організаторам за турнір.",
+      "ru": "Спасибо всем командам за честную, красивую и напряжённую борьбу. Было приятно играть против каждого из вас. Отдельная благодарность организаторам за турнир."
+    },
+    "noka-goodbye": {
+      "pl": "Do zobaczenia na kolejnych zawodach!",
+      "be": "Да сустрэчы на наступных спаборніцтвах!",
+      "en": "See you at the next competition!",
+      "uk": "До зустрічі на наступних змаганнях!",
+      "ru": "До встречи на следующих соревнованиях!"
+    },
+    "noka-ps": {
+      "pl": "P.S. 11. generacja nie polega na tym, że stało się łatwiej albo trudniej. Jest po prostu inna. I właśnie dlatego mi się podoba.",
+      "be": "P.S. 11-е пакаленне - гэта не пра тое, што стала лягчэй ці складаней. Яно проста іншае. І менавіта таму яно мне падабаецца.",
+      "en": "P.S. The 11th generation is not about the game becoming easier or harder. It is simply different. And that is exactly why I like it.",
+      "uk": "P.S. 11-те покоління - це не про те, що стало легше чи складніше. Воно просто інше. І саме тому воно мені подобається.",
+      "ru": "P.S. 11-е поколение — это не про то, что стало легче или сложнее. Оно просто другое. И именно поэтому оно мне нравится."
+    }
+  }
+}

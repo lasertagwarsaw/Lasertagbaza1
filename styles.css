@@ -1548,6 +1548,10 @@ h2 em {
   object-position: center 32%;
 }
 
+.noka-review-image {
+  object-position: 58% center;
+}
+
 .update-card-image[src*="player-tort"] {
   object-position: center 32%;
 }
@@ -1836,6 +1840,14 @@ h2 em {
   border: 1px solid rgba(255, 212, 0, 0.18);
   border-radius: 8px;
   object-fit: cover;
+}
+
+.noka-review-gallery {
+  grid-template-columns: minmax(0, 640px);
+}
+
+.noka-action-image {
+  object-position: 42% 50%;
 }
 
 .news-comments {

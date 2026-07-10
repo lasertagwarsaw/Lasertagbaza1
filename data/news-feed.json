@@ -23,6 +23,17 @@
       },
       "items": [
         {
+          "id": "noka-review-2026-07-10",
+          "articleKey": "noka",
+          "publishedAt": "2026-07-10",
+          "author": "NOKA",
+          "title": "11. generacja oczami zwycięzcy turnieju",
+          "summary": "NOKA opowiada o adaptacji, mocnych rywalach i nowym sprzęcie po zwycięstwie w turnieju 5 lipca.",
+          "image": "https://www.lasertagbaza.pl/assets/update-noka-review.webp",
+          "contentUrl": "https://www.lasertagbaza.pl/?article=noka#aktualnosci",
+          "webSelector": "[data-news-id='noka-review-2026-07-10']"
+        },
+        {
           "id": "agent-review-2026-07-10",
           "articleKey": "agent",
           "publishedAt": "2026-07-10",

@@ -932,6 +932,7 @@ const interfaceCopy = {
     "Czytaj dalej": "Чытаць далей",
     "Zwiń tekst": "Згарнуць тэкст",
     "Otwórz artykuł AGENT": "Адкрыць артыкул AGENT",
+    "Otwórz artykuł NOKA": "Адкрыць артыкул NOKA",
     "Najbliższa gra otwarta": "Бліжэйшая адкрытая гульня",
     "Niedziela 18:00": "Нядзеля 18:00",
     "Dla wszystkich chętnych": "Для ўсіх ахвотных",
@@ -1000,6 +1001,7 @@ const interfaceCopy = {
     "Czytaj dalej": "Read more",
     "Zwiń tekst": "Collapse text",
     "Otwórz artykuł AGENT": "Open AGENT article",
+    "Otwórz artykuł NOKA": "Open NOKA article",
     "Najbliższa gra otwarta": "Next open game",
     "Niedziela 18:00": "Sunday 18:00",
     "Dla wszystkich chętnych": "For everyone",
@@ -1068,6 +1070,7 @@ const interfaceCopy = {
     "Czytaj dalej": "Читати далі",
     "Zwiń tekst": "Згорнути текст",
     "Otwórz artykuł AGENT": "Відкрити статтю AGENT",
+    "Otwórz artykuł NOKA": "Відкрити статтю NOKA",
     "Najbliższa gra otwarta": "Найближча відкрита гра",
     "Niedziela 18:00": "Неділя 18:00",
     "Dla wszystkich chętnych": "Для всіх охочих",
@@ -1139,6 +1142,7 @@ const interfaceCopy = {
     "Otwórz artykuł TORT": "Открыть статью TORT",
     "Otwórz artykuł JAK": "Открыть статью JAK",
     "Otwórz artykuł AGENT": "Открыть статью AGENT",
+    "Otwórz artykuł NOKA": "Открыть статью NOKA",
     "Informacja o zdobywaniu punktów": "Информация о получении баллов",
     "Punkty można zdobyć, wysyłając swój artykuł na lasertagwarsaw@gmail.com albo zdobywając je podczas gry.": "Баллы можно получить, отправив свою статью на lasertagwarsaw@gmail.com или добрав их на игре.",
     "Najbliższa gra otwarta": "Ближайшая открытая игра",
@@ -1307,14 +1311,18 @@ const mergeSiteCopy = (incomingSiteCopy = {}) => {
 };
 
 const loadExternalCopy = async () => {
-  try {
-    const response = await fetch("data/tort-review-translations.json");
-    if (!response.ok) return;
-    const data = await response.json();
-    mergeCopyById(data.copyById);
-    mergeSiteCopy(data.siteCopy);
-  } catch (error) {
-    console.warn("Translation copy is unavailable", error);
+  const sources = ["data/tort-review-translations.json", "data/noka-review-translations.json"];
+
+  for (const source of sources) {
+    try {
+      const response = await fetch(source);
+      if (!response.ok) continue;
+      const data = await response.json();
+      mergeCopyById(data.copyById);
+      mergeSiteCopy(data.siteCopy);
+    } catch (error) {
+      console.warn(`Translation copy is unavailable: ${source}`, error);
+    }
   }
 };
 
