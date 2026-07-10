@@ -105,12 +105,10 @@ const weatherIcons = {
 const gameDetails = {
   wednesday: {
     capacity: 12,
-    price: "0 / 50 zł",
     durationHours: 2,
   },
   sunday: {
     capacity: 60,
-    price: "100 zł",
     durationHours: 2,
   },
 };
@@ -1583,19 +1581,13 @@ const updateHeroNextGame = () => {
   const date = nextGamePanel.querySelector("[data-next-game-date]");
   const scenario = nextGamePanel.querySelector("[data-next-game-scenario]");
   const age = nextGamePanel.querySelector("[data-next-game-age]");
-  const price = nextGamePanel.querySelector("[data-next-game-price]");
-  const capacity = nextGamePanel.querySelector("[data-next-game-capacity]");
   const mobileGame = document.querySelector("[data-mobile-signup-game]");
-  const meter = nextGamePanel.querySelector("[data-next-game-meter]");
 
   if (title) title.textContent = translateCopy(config.title);
   if (date) date.textContent = formatGameDateLabel(config.date);
   if (scenario) scenario.textContent = translateCopy(config.scenario);
   if (age) age.textContent = translateCopy(config.age);
-  if (price) price.textContent = config.price;
-  if (capacity) capacity.textContent = String(config.capacity);
   if (mobileGame) mobileGame.textContent = translateCopy(config.title);
-  if (meter) meter.style.width = "0%";
 
   nextGamePanel.dataset.nextGame = activeNextGame;
   updateHeroWeather(config.date);
@@ -1638,21 +1630,9 @@ const renderHeroSignupList = () => {
   const signups = getStoredSignups().filter((signup) => signup.game === activeNextGame);
   const config = getGameConfig(activeNextGame);
   const remaining = Math.max(0, config.capacity - signups.length);
-  const progress = Math.min(100, (signups.length / config.capacity) * 100);
-  const remainingElement = nextGamePanel?.querySelector("[data-next-game-remaining]");
-  const capacityElement = nextGamePanel?.querySelector("[data-next-game-capacity]");
-  const meter = nextGamePanel?.querySelector("[data-next-game-meter]");
-  const progressElement = nextGamePanel?.querySelector("[data-next-game-progress]");
 
   renderSignupItems(nextGameList, signups);
   if (nextGameCount) nextGameCount.textContent = String(signups.length);
-  if (remainingElement) remainingElement.textContent = String(remaining);
-  if (capacityElement) capacityElement.textContent = String(config.capacity);
-  if (meter) meter.style.width = `${progress}%`;
-  if (progressElement) {
-    progressElement.setAttribute("aria-valuemax", String(config.capacity));
-    progressElement.setAttribute("aria-valuenow", String(signups.length));
-  }
 
   const isFull = remaining === 0;
   quickSignupOpenButtons.forEach((button) => {
@@ -1835,7 +1815,6 @@ const updateQuickSignupSummary = (game = activeNextGame) => {
 
   quickSignupModal.querySelector("[data-quick-game-title]").textContent = translateCopy(config.title);
   quickSignupModal.querySelector("[data-quick-game-date]").textContent = formatGameDateLabel(config.date);
-  quickSignupModal.querySelector("[data-quick-game-remaining]").textContent = String(remaining);
   const submitButton = quickSignupForm?.querySelector('[type="submit"]');
   if (submitButton) {
     submitButton.disabled = remaining === 0;

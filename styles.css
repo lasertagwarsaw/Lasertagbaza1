@@ -465,62 +465,6 @@ h1 .outline {
   text-align: right;
 }
 
-.next-game-facts {
-  padding-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.next-game-facts > div {
-  min-width: 0;
-  padding: 9px;
-  display: grid;
-  gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.next-game-facts .next-game-spots {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.next-game-facts span {
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.next-game-facts strong {
-  color: var(--paper);
-  font-size: 12px;
-}
-
-.next-game-spots strong,
-.next-game-spots b {
-  color: var(--acid);
-  font-family: var(--display);
-}
-
-.panel-meter {
-  height: 7px;
-  margin: 10px 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.panel-meter span {
-  height: 100%;
-  display: block;
-  background: var(--acid);
-}
-
 .next-game-panel .button {
   width: 100%;
   min-height: 50px;
@@ -2671,8 +2615,7 @@ footer > span {
   margin-bottom: 12px;
   padding: 13px 15px;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 16px;
+  gap: 4px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
@@ -2688,18 +2631,6 @@ footer > span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
-  text-transform: uppercase;
-}
-
-.quick-signup-summary > b {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--acid);
-  font-size: 11px;
   text-transform: uppercase;
 }
 
@@ -3439,15 +3370,6 @@ footer > span {
 
   .next-game-panel {
     width: min(360px, calc(100% - 56px));
-  }
-
-  .quick-signup-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-signup-summary > b {
-    grid-column: 1;
-    grid-row: auto;
   }
 
   .tournament-facts {
