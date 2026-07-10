@@ -1,8 +1,22 @@
 const { appendTelegramFeed } = require("./_telegram-feed");
-const { readSiteSignups, addSiteSignup } = require("./_site-signups");
+const { readSiteSignups, addSiteSignup, removeSiteSignup } = require("./_site-signups");
 const { assertHumanSubmission, enforceRateLimit } = require("./_request-guard");
 
+const setCorsHeaders = (response) => {
+  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  response.setHeader("Access-Control-Max-Age", "86400");
+};
+
 module.exports = async function handler(request, response) {
+  setCorsHeaders(response);
+
+  if (request.method === "OPTIONS") {
+    response.status(204).end();
+    return;
+  }
+
   if (request.method === "GET") {
     try {
       response.status(200).json({ ok: true, ...(await readSiteSignups()) });
@@ -13,6 +27,35 @@ module.exports = async function handler(request, response) {
         cycleStart: null,
         signups: [],
       });
+    }
+    return;
+  }
+
+  if (request.method === "DELETE") {
+    let body;
+    try {
+      body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
+    } catch (error) {
+      response.status(400).json({ error: "Invalid JSON body" });
+      return;
+    }
+
+    const { id, game, nickname } = body;
+    if (!id || !["wednesday", "sunday"].includes(game) || !nickname) {
+      response.status(400).json({ error: "Missing cancellation fields" });
+      return;
+    }
+
+    try {
+      const siteState = await removeSiteSignup({ id, game, nickname });
+      response.status(200).json({
+        ok: true,
+        storage: siteState.storage,
+        signups: siteState.signups,
+        cycleStart: siteState.cycleStart,
+      });
+    } catch (error) {
+      response.status(500).json({ error: "Cancellation failed", reason: error.message });
     }
     return;
   }

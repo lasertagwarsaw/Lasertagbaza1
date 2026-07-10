@@ -115,4 +115,27 @@ const addSiteSignup = async (signup) => {
   return { ...state, storage };
 };
 
-module.exports = { readSiteSignups, addSiteSignup, getCurrentSignupCycleStart };
+const removeSiteSignup = async ({ id, game, nickname }) => {
+  const state = await readSiteSignups();
+  const cleanId = cleanText(id, 80);
+  const cleanGame = cleanText(game, 20);
+  const cleanNickname = cleanText(nickname, 40).toLowerCase();
+  const before = state.signups.length;
+
+  state.signups = state.signups.filter((signup) => {
+    if (cleanId && signup.id === cleanId) return false;
+    if (
+      String(signup.id || "").startsWith("app-") &&
+      signup.game === cleanGame &&
+      String(signup.nickname || "").trim().toLowerCase() === cleanNickname
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  const storage = before === state.signups.length ? state.storage || { ok: true } : await writeSiteSignups(state);
+  return { ...state, storage };
+};
+
+module.exports = { readSiteSignups, addSiteSignup, removeSiteSignup, getCurrentSignupCycleStart };
