@@ -6,6 +6,7 @@ const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const rankingPath = path.join(dataDir, "ranking-feed.json");
 const rankingStorageKey = "baza:player-ranking:v1";
+const hiddenPublicNicknames = new Set(["ruslan"]);
 
 const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
@@ -42,6 +43,7 @@ const normalizeRanking = (ranking) => {
   const players = Array.isArray(ranking.players) ? ranking.players : [];
   const normalizedPlayers = players
     .filter((player) => String(player.nickname || player.name || "").trim())
+    .filter((player) => !hiddenPublicNicknames.has(String(player.nickname || player.name || "").trim().toLowerCase()))
     .map((player) => ({ ...player, points: Math.max(0, Math.min(10000, Number(player.points || 0))) }))
     .sort((a, b) => Number(b.points || 0) - Number(a.points || 0) || String(a.nickname || a.name || "").localeCompare(String(b.nickname || b.name || "")))
     .map((player, index) => ({ ...player, rank: index + 1 }));

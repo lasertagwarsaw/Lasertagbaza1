@@ -1685,6 +1685,47 @@ const getJson = (url) =>
 
 const playerCardKey = (card) => normalizePlayerNickname(card.dataset.playerId || card.querySelector("strong")?.textContent || "");
 
+const playerInitials = (nickname) =>
+  String(nickname || "BX")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase() || "BX";
+
+const createPlayerRankingCard = (player, rank, points) => {
+  const nickname = String(player.nickname || player.name || "").trim();
+  const card = document.createElement("article");
+  card.className = `points-card${player.avatar ? " has-avatar" : ""}`;
+  card.dataset.playerId = player.id || normalizePlayerNickname(nickname);
+  card.dataset.playerRank = String(rank);
+  card.dataset.playerPoints = String(points);
+
+  const avatar = document.createElement("div");
+  avatar.className = "points-avatar";
+  if (player.avatar) {
+    const image = document.createElement("img");
+    image.src = player.avatar;
+    image.alt = nickname;
+    image.loading = "lazy";
+    image.decoding = "async";
+    avatar.append(image);
+  } else {
+    const initials = document.createElement("span");
+    initials.textContent = playerInitials(nickname);
+    avatar.append(initials);
+  }
+
+  const rankNode = document.createElement("b");
+  const nameNode = document.createElement("strong");
+  const pointsNode = document.createElement("span");
+  nameNode.dataset.noTranslate = "";
+
+  card.append(avatar, rankNode, nameNode, pointsNode);
+  return card;
+};
+
 const updatePlayerRankingFromFeed = async () => {
   if (!playerCarousel) return;
 
@@ -1705,15 +1746,18 @@ const updatePlayerRankingFromFeed = async () => {
 
     players.forEach((player, index) => {
       const nickname = String(player.nickname || player.name || "").trim();
-      const card = cardsByKey.get(normalizePlayerNickname(player.id)) || cardsByKey.get(normalizePlayerNickname(nickname));
-      if (!card || !nickname) return;
-
+      if (!nickname) return;
       const rank = Number(player.rank || index + 1);
       const points = Number(player.points || 0);
+      const card =
+        cardsByKey.get(normalizePlayerNickname(player.id)) ||
+        cardsByKey.get(normalizePlayerNickname(nickname)) ||
+        createPlayerRankingCard(player, rank, points);
       const rankNode = card.querySelector("b");
       const nameNode = card.querySelector("strong");
       const pointsNode = card.querySelector(":scope > span:last-child");
 
+      card.hidden = false;
       card.dataset.playerRank = String(rank);
       card.dataset.playerPoints = String(points);
       if (rankNode) rankNode.textContent = String(rank).padStart(2, "0");
@@ -1724,6 +1768,9 @@ const updatePlayerRankingFromFeed = async () => {
     window.bazaRankingFeedStatus = { status: "applied", endpoint: rankingFeedEndpoint, players: players.length, cards: sortedCards.length };
 
     if (track && sortedCards.length) {
+      playerCarousel.querySelectorAll(".points-card").forEach((card) => {
+        card.hidden = !sortedCards.includes(card);
+      });
       sortedCards.forEach((card) => track.append(card));
     }
   } catch {
