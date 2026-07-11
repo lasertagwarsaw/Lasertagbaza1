@@ -785,6 +785,8 @@ let voiceHttpTimer = null;
 let voiceSignalCursor = "";
 let chatRefreshTimer = null;
 let playerChatSocket = null;
+let voiceAudioUnlocked = false;
+let voiceAudioContext = null;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const voiceHttpSeenSignals = new Set();
@@ -1354,7 +1356,7 @@ function renderVoiceInviteAlert() {
       <b>${escapeHtml(t("voiceInvitation"))}</b>
       <span>${escapeHtml(invite.room.name)} / ${escapeHtml(invite.room.owner)}</span>
     </div>
-    <button class="primary-button" type="button" data-open-voice-room>${escapeHtml(t("acceptVoiceInvite"))}</button>
+    <button class="primary-button" type="button" data-voice-accept="${escapeHtml(invite.room.id)}">${escapeHtml(t("acceptVoiceInvite"))}</button>
   `;
 }
 
@@ -3773,6 +3775,7 @@ document.addEventListener("click", (event) => {
 
   const openVoiceRoomButton = event.target.closest("[data-open-voice-room]");
   if (openVoiceRoomButton) {
+    unlockVoiceAudio();
     setView("voice");
     renderVoiceRoom();
     return;
@@ -3856,6 +3859,7 @@ document.addEventListener("click", (event) => {
 
   const voiceMicButton = event.target.closest("[data-voice-mic]");
   if (voiceMicButton) {
+    unlockVoiceAudio();
     toggleVoiceMic();
     return;
   }
@@ -3880,6 +3884,7 @@ document.addEventListener("click", (event) => {
 
   const acceptVoiceButton = event.target.closest("[data-voice-accept]");
   if (acceptVoiceButton) {
+    unlockVoiceAudio();
     acceptVoiceInvite(acceptVoiceButton.dataset.voiceAccept);
     return;
   }
@@ -4774,6 +4779,69 @@ function shouldInitiateVoicePeer(remoteName) {
   return normalizePlayerName(playerName()).localeCompare(normalizePlayerName(remoteName)) < 0;
 }
 
+function unlockVoiceAudio() {
+  voiceAudioUnlocked = true;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      voiceAudioContext = voiceAudioContext || new AudioContextClass();
+      if (voiceAudioContext.state === "suspended") voiceAudioContext.resume();
+    }
+  } catch {
+    // iOS may still allow media playback through the audio elements below.
+  }
+  resumeRemoteVoiceAudio();
+}
+
+function resumeRemoteVoiceAudio() {
+  remoteAudioNodes.forEach((audio) => {
+    audio.muted = false;
+    audio.volume = 1;
+    audio.play().catch((error) => {
+      lastVoiceError = error?.message || "audio playback blocked";
+    });
+  });
+}
+
+async function flushVoiceCandidates(peer) {
+  if (!peer?.pc?.remoteDescription || !peer.pendingCandidates?.length) return;
+  const candidates = peer.pendingCandidates.splice(0);
+  for (const candidate of candidates) {
+    try {
+      await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (error) {
+      lastVoiceError = error?.message || "ice candidate skipped";
+    }
+  }
+}
+
+async function negotiateVoicePeer(peer) {
+  if (!peer || peer.negotiating || !shouldInitiateVoicePeer(peer.name) || voiceSocketStatus !== "online" || peer.pc.signalingState !== "stable") return;
+  peer.negotiating = true;
+  try {
+    const offer = await peer.pc.createOffer({ offerToReceiveAudio: true });
+    await peer.pc.setLocalDescription(offer);
+    sendVoiceSignal(peer.name, { description: peer.pc.localDescription });
+  } catch (error) {
+    lastVoiceError = error?.message || "offer failed";
+  } finally {
+    peer.negotiating = false;
+  }
+}
+
+function renegotiateVoicePeers() {
+  voicePeers.forEach((peer) => negotiateVoicePeer(peer));
+}
+
+function scheduleVoicePeerReconnect(remoteName) {
+  const peer = voicePeers.get(voicePeerKey(remoteName));
+  if (!peer || peer.reconnectTimer) return;
+  peer.reconnectTimer = setTimeout(() => {
+    closeVoicePeer(remoteName);
+    connectVoiceRoomMedia();
+  }, 900);
+}
+
 function createVoicePeer(remoteName) {
   const key = voicePeerKey(remoteName);
   if (voicePeers.has(key)) return voicePeers.get(key);
@@ -4782,7 +4850,7 @@ function createVoicePeer(remoteName) {
     bundlePolicy: "max-bundle",
     rtcpMuxPolicy: "require",
   });
-  const peer = { name: remoteName, pc, negotiating: false };
+  const peer = { name: remoteName, pc, negotiating: false, pendingCandidates: [], reconnectTimer: null };
   voicePeers.set(key, peer);
 
   pc.addEventListener("icecandidate", (event) => {
@@ -4797,24 +4865,22 @@ function createVoicePeer(remoteName) {
   });
 
   pc.addEventListener("negotiationneeded", async () => {
-    if (peer.negotiating || !shouldInitiateVoicePeer(remoteName) || voiceSocketStatus !== "online" || pc.signalingState !== "stable") return;
-    peer.negotiating = true;
-    try {
-      const offer = await pc.createOffer({ offerToReceiveAudio: true });
-      await pc.setLocalDescription(offer);
-      sendVoiceSignal(remoteName, { description: pc.localDescription });
-    } catch (error) {
-      lastVoiceError = error?.message || "negotiation failed";
-    } finally {
-      peer.negotiating = false;
-    }
+    negotiateVoicePeer(peer);
   });
 
   pc.addEventListener("connectionstatechange", () => {
     if (pc.connectionState === "connected") lastVoiceError = "";
     if (["failed", "closed", "disconnected"].includes(pc.connectionState)) {
-      if (pc.connectionState === "failed") closeVoicePeer(remoteName);
+      if (pc.connectionState !== "closed") scheduleVoicePeerReconnect(remoteName);
     }
+  });
+
+  pc.addEventListener("iceconnectionstatechange", () => {
+    if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+      lastVoiceError = "";
+      resumeRemoteVoiceAudio();
+    }
+    if (["failed", "disconnected"].includes(pc.iceConnectionState)) scheduleVoicePeerReconnect(remoteName);
   });
 
   addLocalVoiceTracks(pc);
@@ -4840,15 +4906,7 @@ async function connectVoiceRoomMedia() {
   for (const participant of remoteParticipants) {
     const peer = createVoicePeer(participant.name);
     addLocalVoiceTracks(peer.pc);
-    if (shouldInitiateVoicePeer(participant.name) && peer.pc.signalingState === "stable") {
-      try {
-        const offer = await peer.pc.createOffer({ offerToReceiveAudio: true });
-        await peer.pc.setLocalDescription(offer);
-        sendVoiceSignal(participant.name, { description: peer.pc.localDescription });
-      } catch (error) {
-        lastVoiceError = error?.message || "offer failed";
-      }
-    }
+    negotiateVoicePeer(peer);
   }
 }
 
@@ -4880,6 +4938,7 @@ async function handleWebRtcSignal(message) {
       }
       if (description.type === "answer" && pc.signalingState !== "have-local-offer") return;
       await pc.setRemoteDescription(description);
+      await flushVoiceCandidates(peer);
       addLocalVoiceTracks(pc);
       if (description.type === "offer") {
         const answer = await pc.createAnswer();
@@ -4892,7 +4951,11 @@ async function handleWebRtcSignal(message) {
   }
   if (signal.candidate) {
     try {
-      if (pc.remoteDescription) await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+      if (pc.remoteDescription) {
+        await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+      } else {
+        peer.pendingCandidates.push(signal.candidate);
+      }
     } catch (error) {
       // ICE can race ahead of descriptions; a later candidate/offer can still complete the call.
       lastVoiceError = error?.message || "ice candidate skipped";
@@ -4908,18 +4971,24 @@ function attachRemoteVoice(remoteName, stream) {
     audio = document.createElement("audio");
     audio.autoplay = true;
     audio.playsInline = true;
+    audio.muted = false;
+    audio.volume = 1;
     audio.dataset.voiceRemote = key;
     voiceAudioStage.appendChild(audio);
     remoteAudioNodes.set(key, audio);
   }
   audio.srcObject = stream;
-  audio.play().catch(() => {});
+  if (voiceAudioUnlocked) resumeRemoteVoiceAudio();
+  audio.play().catch((error) => {
+    lastVoiceError = error?.message || "audio playback blocked";
+  });
 }
 
 function closeVoicePeer(name) {
   const key = voicePeerKey(name);
   const peer = voicePeers.get(key);
   if (peer) {
+    clearTimeout(peer.reconnectTimer);
     peer.pc.close();
     voicePeers.delete(key);
   }
@@ -5001,6 +5070,7 @@ function removeVoiceParticipant(name) {
 }
 
 function acceptVoiceInvite(roomId) {
+  unlockVoiceAudio();
   if (!isCurrentUserRegistered()) return;
   const room = (state.voiceRooms || []).find((item) => item.id === roomId);
   if (!room) return;
@@ -5013,9 +5083,11 @@ function acceptVoiceInvite(roomId) {
   }
   state.activeVoiceRoomId = room.id;
   saveState();
+  setView("voice");
   renderVoiceRoom({ force: true });
   syncVoiceRoom(room);
   connectVoiceRoomMedia();
+  resumeRemoteVoiceAudio();
 }
 
 function declineVoiceInvite(roomId) {
@@ -5048,6 +5120,7 @@ function leaveVoiceRoom() {
 }
 
 async function toggleVoiceMic() {
+  unlockVoiceAudio();
   const room = currentVoiceRoom();
   if (!room) return;
   const participant = room.participants.find((item) => normalizePlayerName(item.name) === normalizePlayerName(playerName()));
@@ -5067,6 +5140,7 @@ async function toggleVoiceMic() {
       });
       participant.micEnabled = true;
       addLocalVoiceTracksToAllPeers();
+      renegotiateVoicePeers();
     } catch {
       showToast(t("micError"));
       return;
@@ -5076,6 +5150,7 @@ async function toggleVoiceMic() {
   renderVoiceRoom();
   sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
   connectVoiceRoomMedia();
+  resumeRemoteVoiceAudio();
 }
 
 function stopVoiceStream() {
@@ -5097,6 +5172,8 @@ function voiceDebugSnapshot() {
     socket: voiceSocketStatus,
     clientId: voiceClientId,
     lastError: lastVoiceError,
+    audioUnlocked: voiceAudioUnlocked,
+    audioContextState: voiceAudioContext?.state || "",
     peers: voicePeers.size,
     peerStates: [...voicePeers.values()].map((peer) => ({
       name: peer.name,
@@ -5107,6 +5184,13 @@ function voiceDebugSnapshot() {
       receivers: peer.pc.getReceivers().filter((receiver) => receiver.track).length,
     })),
     remoteAudio: remoteAudioNodes.size,
+    remoteAudioStates: [...remoteAudioNodes.entries()].map(([name, audio]) => ({
+      name,
+      paused: audio.paused,
+      muted: audio.muted,
+      readyState: audio.readyState,
+      volume: audio.volume,
+    })),
     hasLocalAudio: Boolean(voiceStream),
     room: currentVoiceRoom()
       ? {
