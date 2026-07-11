@@ -165,6 +165,14 @@ const leaveRoom = (state, roomId, player) => {
   });
 };
 
+const declineInvite = (state, roomId, player) => {
+  const id = cleanText(roomId, 90);
+  const name = normalizeName(player);
+  const room = (state.rooms || []).find((item) => item.id === id);
+  if (!room || !name) return;
+  room.invitations = (room.invitations || []).filter((invite) => normalizeName(invite.name) !== name);
+};
+
 const updateMic = (state, roomId, player, micEnabled) => {
   const room = (state.rooms || []).find((item) => item.id === cleanText(roomId, 90));
   const participant = room?.participants?.find((item) => normalizeName(item.name) === normalizeName(player));
@@ -241,6 +249,8 @@ module.exports = async function handler(request, response) {
     deleteRoom(state, body.roomId, body.player);
   } else if (body.type === "leave-room") {
     leaveRoom(state, body.roomId, body.player);
+  } else if (body.type === "decline-invite") {
+    declineInvite(state, body.roomId, body.player);
   } else if (body.type === "mic") {
     updateMic(state, body.roomId, body.player, body.micEnabled);
   } else if (body.type === "signal") {

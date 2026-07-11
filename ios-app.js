@@ -788,6 +788,7 @@ let playerChatSocket = null;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const voiceHttpSeenSignals = new Set();
+const notifiedVoiceInviteIds = new Set();
 
 const views = document.querySelectorAll("[data-view]");
 const appScroll = document.querySelector(".app-scroll");
@@ -1318,9 +1319,14 @@ function renderStats() {
 function renderHomeVoiceEntry() {
   if (!homeVoiceStatus) return;
   const room = currentVoiceRoom();
+  const invites = pendingVoiceInvites();
   const activeCount = room?.participants?.length || 0;
   if (!isCurrentUserRegistered()) {
     homeVoiceStatus.textContent = t("registerProfile");
+    return;
+  }
+  if (invites.length) {
+    homeVoiceStatus.textContent = `${t("voiceInvitation")} · ${invites.length}`;
     return;
   }
   if (!room) {
@@ -2071,8 +2077,14 @@ function renderAdminLog() {
     : `<p class="empty-note">${escapeHtml(t("syncIdle"))}</p>`;
 }
 
-function renderVoiceRoom() {
+function shouldDeferVoiceRoomRender() {
+  const active = document.activeElement;
+  return Boolean(active?.closest?.("[data-voice-invite-form], [data-voice-room-form]"));
+}
+
+function renderVoiceRoom(options = {}) {
   if (!voiceRoomPanel) return;
+  if (!options.force && shouldDeferVoiceRoomRender()) return;
   const registered = isCurrentUserRegistered();
   if (!registered) {
     voiceRoomPanel.innerHTML = `
@@ -2181,15 +2193,18 @@ function renderVoiceRoom() {
       </div>
       ${
         canInvite
-          ? `<form class="voice-invite-form" data-voice-invite-form>
-              <label>
-                <span>${escapeHtml(t("voiceInvite"))}</span>
-                <select name="member" ${availablePlayers.length ? "" : "disabled"}>
-                  ${availablePlayers.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}
-                </select>
-              </label>
-              <button class="text-button" type="submit" ${availablePlayers.length ? "" : "disabled"}>${escapeHtml(t("addToRoom"))}</button>
-            </form>`
+          ? `<div class="voice-invite-form" data-voice-invite-form>
+              <span>${escapeHtml(t("voiceInvite"))}</span>
+              <div class="voice-player-list">
+                ${
+                  availablePlayers.length
+                    ? availablePlayers
+                        .map((name) => `<button class="text-button" type="button" data-voice-invite-member="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+                        .join("")
+                    : `<p class="empty-note">${escapeHtml(t("transferNoPlayers"))}</p>`
+                }
+              </div>
+            </div>`
           : `<p class="empty-note">${escapeHtml(owner ? t("roomLimit") : t("voiceInvite"))}</p>`
       }
       <button class="text-button" type="button" data-voice-leave>${escapeHtml(t("leaveVoiceRoom"))}</button>
@@ -2217,6 +2232,19 @@ function pendingVoiceInvites() {
         room.invitations?.some((invite) => invite.status === "pending" && normalizePlayerName(invite.name) === currentName),
     )
     .map((room) => ({ room }));
+}
+
+function pendingVoiceInviteKey(invite) {
+  return `${invite?.room?.id || ""}:${normalizePlayerName(playerName())}`;
+}
+
+function notifyNewVoiceInvites(invites) {
+  invites.forEach((invite) => {
+    const key = pendingVoiceInviteKey(invite);
+    if (!key || notifiedVoiceInviteIds.has(key)) return;
+    notifiedVoiceInviteIds.add(key);
+    showToast(`${t("voiceInvitation")}: ${invite.room.name}`);
+  });
 }
 
 function adminRankOptions(points) {
@@ -3808,6 +3836,12 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  const voiceInviteMemberButton = event.target.closest("[data-voice-invite-member]");
+  if (voiceInviteMemberButton) {
+    addVoiceParticipantByName(voiceInviteMemberButton.dataset.voiceInviteMember);
+    return;
+  }
+
   const acceptVoiceButton = event.target.closest("[data-voice-accept]");
   if (acceptVoiceButton) {
     acceptVoiceInvite(acceptVoiceButton.dataset.voiceAccept);
@@ -4540,6 +4574,7 @@ function sendVoiceHttp(payload) {
 function connectVoiceSocket() {
   if (!isCurrentUserRegistered()) return;
   startVoiceHttpSync();
+  if (appApiOrigin().includes("lasertagbaza.pl") || appApiOrigin().includes("vercel.app")) return;
   if (!("WebSocket" in window)) return;
   if (voiceSocket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(voiceSocket.readyState)) return;
   clearTimeout(voiceReconnectTimer);
@@ -4642,6 +4677,7 @@ function prepareVoiceRoomForSync(room) {
 
 function syncVoiceRoomsFromServer(rooms) {
   if (!Array.isArray(rooms)) return;
+  const previousInvites = new Set(pendingVoiceInvites().map(pendingVoiceInviteKey));
   state.voiceRooms = rooms;
   const currentName = normalizePlayerName(playerName());
   const roomForPlayer = rooms.find((room) => room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName));
@@ -4652,6 +4688,8 @@ function syncVoiceRoomsFromServer(rooms) {
     stopVoiceStream();
   }
   saveState();
+  const newInvites = pendingVoiceInvites().filter((invite) => !previousInvites.has(pendingVoiceInviteKey(invite)));
+  notifyNewVoiceInvites(newInvites);
   renderVoiceRoom();
   renderHomeVoiceEntry();
   connectVoiceRoomMedia();
@@ -4659,6 +4697,11 @@ function syncVoiceRoomsFromServer(rooms) {
 
 function syncCurrentVoiceRoom() {
   const room = currentVoiceRoom();
+  if (!room) return;
+  syncVoiceRoom(room);
+}
+
+function syncVoiceRoom(room) {
   if (!room) return;
   connectVoiceSocket();
   const payload = { type: "sync-room", room: prepareVoiceRoomForSync(room) };
@@ -4864,15 +4907,15 @@ function createVoiceRoom(form) {
   ];
   state.activeVoiceRoomId = room.id;
   saveState();
-  renderVoiceRoom();
+  renderVoiceRoom({ force: true });
   syncCurrentVoiceRoom();
   showToast(localizedToast("adminSaved"));
 }
 
-function addVoiceParticipant(form) {
+function addVoiceParticipantByName(memberName) {
   const room = currentVoiceRoom();
   if (!room || normalizePlayerName(room.owner) !== normalizePlayerName(playerName())) return;
-  const member = String(new FormData(form).get("member") || "").trim();
+  const member = String(memberName || "").trim();
   room.invitations = Array.isArray(room.invitations) ? room.invitations : [];
   const pendingInvites = room.invitations.filter((invite) => invite.status === "pending");
   if (!member || room.participants.length + pendingInvites.length >= 6) {
@@ -4885,8 +4928,12 @@ function addVoiceParticipant(form) {
     room.invitations.push({ name: member, status: "pending", createdAt: new Date().toISOString() });
   }
   saveState();
-  renderVoiceRoom();
+  renderVoiceRoom({ force: true });
   syncCurrentVoiceRoom();
+}
+
+function addVoiceParticipant(form) {
+  addVoiceParticipantByName(new FormData(form).get("member"));
 }
 
 function removeVoiceParticipant(name) {
@@ -4896,7 +4943,7 @@ function removeVoiceParticipant(name) {
   room.invitations = (room.invitations || []).filter((invite) => normalizePlayerName(invite.name) !== normalizePlayerName(name));
   closeVoicePeer(name);
   saveState();
-  renderVoiceRoom();
+  renderVoiceRoom({ force: true });
   syncCurrentVoiceRoom();
 }
 
@@ -4913,8 +4960,8 @@ function acceptVoiceInvite(roomId) {
   }
   state.activeVoiceRoomId = room.id;
   saveState();
-  renderVoiceRoom();
-  syncCurrentVoiceRoom();
+  renderVoiceRoom({ force: true });
+  syncVoiceRoom(room);
   connectVoiceRoomMedia();
 }
 
@@ -4925,8 +4972,8 @@ function declineVoiceInvite(roomId) {
   const currentName = normalizePlayerName(playerName());
   room.invitations = (room.invitations || []).filter((item) => normalizePlayerName(item.name) !== currentName);
   saveState();
-  renderVoiceRoom();
-  syncCurrentVoiceRoom();
+  renderVoiceRoom({ force: true });
+  sendVoiceSocket({ type: "decline-invite", roomId: room.id, player: playerName() });
 }
 
 function leaveVoiceRoom() {
@@ -4944,7 +4991,7 @@ function leaveVoiceRoom() {
   state.activeVoiceRoomId = "";
   closeVoicePeers();
   saveState();
-  renderVoiceRoom();
+  renderVoiceRoom({ force: true });
 }
 
 async function toggleVoiceMic() {

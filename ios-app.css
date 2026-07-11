@@ -733,6 +733,32 @@ a {
   margin-top: 10px;
 }
 
+.voice-invite-form > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.voice-player-list {
+  max-height: 188px;
+  display: grid;
+  gap: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.voice-player-list .text-button {
+  min-height: 42px;
+  justify-content: flex-start;
+  padding: 0 12px;
+  border-color: rgba(126, 233, 255, 0.22);
+  background: rgba(126, 233, 255, 0.08);
+  color: var(--paper);
+  text-align: left;
+}
+
 .voice-invite-requests {
   display: grid;
   gap: 10px;
