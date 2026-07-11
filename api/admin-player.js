@@ -1,28 +1,10 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { cleanText, playerId, readPlayerRanking, writePlayerRanking } = require("./_player-ranking");
+const { readPlayerProfiles, writePlayerProfiles } = require("./_player-profiles");
 
 const root = path.join(__dirname, "..");
-const dataDir = path.join(root, "data");
-const profilesPath = path.join(dataDir, "player-profiles.json");
 const indexPath = path.join(root, "index.html");
-
-const ensureDataDir = () => {
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-};
-
-const readJson = (filePath, fallback) => {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch {
-    return fallback;
-  }
-};
-
-const writeJson = (filePath, value) => {
-  ensureDataDir();
-  fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
-};
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -64,7 +46,7 @@ module.exports = async function handler(request, response) {
   }
 
   const ranking = await readPlayerRanking();
-  const profiles = readJson(profilesPath, { profiles: {} });
+  const profiles = await readPlayerProfiles();
 
   if (request.method === "GET") {
     response.status(200).json({ ranking, profiles: profiles.profiles || {} });
@@ -106,12 +88,12 @@ module.exports = async function handler(request, response) {
       id,
       nickname,
       passwordHash: cleanText(body.passwordHash, 120),
-      contact: "admin-created",
+      contact: cleanText(body.contact, 80) || "admin-created",
       points,
-      createdAt: body.createdAt || new Date().toISOString(),
+      createdAt: profiles.profiles[id]?.createdAt || body.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    writeJson(profilesPath, profiles);
+    await writePlayerProfiles(profiles);
   }
 
   const normalizedRanking = await writePlayerRanking(ranking);
