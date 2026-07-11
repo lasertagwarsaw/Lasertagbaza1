@@ -797,6 +797,7 @@ let voiceRelayMimeType = "";
 let voiceRelayActive = false;
 let voiceRelayPlaying = false;
 let voiceRelayLastChunkAt = "";
+let selectedVoiceInviteMember = "";
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const voiceRelaySeenChunks = new Set();
@@ -2186,6 +2187,9 @@ function renderVoiceRoom(options = {}) {
       !participants.some((participant) => normalizePlayerName(participant.name) === normalizePlayerName(name)) &&
       !invitations.some((invite) => normalizePlayerName(invite.name) === normalizePlayerName(name)),
   );
+  if (!availablePlayers.some((name) => normalizePlayerName(name) === normalizePlayerName(selectedVoiceInviteMember))) {
+    selectedVoiceInviteMember = "";
+  }
 
   voiceRoomPanel.innerHTML = `
     <div class="voice-status-card">
@@ -2234,11 +2238,17 @@ function renderVoiceRoom(options = {}) {
                 ${
                   availablePlayers.length
                     ? availablePlayers
-                        .map((name) => `<button class="text-button" type="button" data-voice-invite-member="${escapeHtml(name)}">${escapeHtml(name)}</button>`)
+                        .map((name) => {
+                          const active = normalizePlayerName(name) === normalizePlayerName(selectedVoiceInviteMember);
+                          return `<button class="text-button ${active ? "selected" : ""}" type="button" data-voice-invite-pick="${escapeHtml(name)}">${escapeHtml(name)}</button>`;
+                        })
                         .join("")
                     : `<p class="empty-note">${escapeHtml(t("transferNoPlayers"))}</p>`
                 }
               </div>
+              <button class="primary-button" type="button" data-voice-invite-confirm ${selectedVoiceInviteMember ? "" : "disabled"}>
+                ${escapeHtml(selectedVoiceInviteMember ? `${t("addToRoom")}: ${selectedVoiceInviteMember}` : t("selectPlayer"))}
+              </button>
             </div>`
           : `<p class="empty-note">${escapeHtml(owner ? t("roomLimit") : t("voiceInvite"))}</p>`
       }
@@ -3919,9 +3929,18 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  const voiceInviteMemberButton = event.target.closest("[data-voice-invite-member]");
-  if (voiceInviteMemberButton) {
-    addVoiceParticipantByName(voiceInviteMemberButton.dataset.voiceInviteMember);
+  const voiceInvitePickButton = event.target.closest("[data-voice-invite-pick]");
+  if (voiceInvitePickButton) {
+    selectedVoiceInviteMember = voiceInvitePickButton.dataset.voiceInvitePick || "";
+    renderVoiceRoom({ force: true });
+    return;
+  }
+
+  const voiceInviteConfirmButton = event.target.closest("[data-voice-invite-confirm]");
+  if (voiceInviteConfirmButton && selectedVoiceInviteMember) {
+    const member = selectedVoiceInviteMember;
+    selectedVoiceInviteMember = "";
+    addVoiceParticipantByName(member);
     return;
   }
 

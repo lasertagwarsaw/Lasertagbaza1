@@ -797,6 +797,12 @@ a {
   text-align: left;
 }
 
+.voice-player-list .text-button.selected {
+  border-color: rgba(198, 255, 0, 0.75);
+  background: rgba(198, 255, 0, 0.16);
+  color: var(--acid);
+}
+
 .voice-invite-requests {
   display: grid;
   gap: 10px;
