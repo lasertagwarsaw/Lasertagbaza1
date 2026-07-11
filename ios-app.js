@@ -2587,6 +2587,30 @@ function sendNativeVoiceAudioActive(active) {
   return true;
 }
 
+let nativeVoiceReadyResolver = null;
+
+function requestNativeVoiceAudioReady() {
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (!handler?.postMessage) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    nativeVoiceReadyResolver = resolve;
+    handler.postMessage({ type: "prepareVoiceAudio" });
+    setTimeout(() => {
+      if (nativeVoiceReadyResolver === resolve) {
+        nativeVoiceReadyResolver = null;
+        resolve(true);
+      }
+    }, 1200);
+  });
+}
+
+window.__bazaNativeVoiceReady = (ready) => {
+  if (!nativeVoiceReadyResolver) return;
+  const resolve = nativeVoiceReadyResolver;
+  nativeVoiceReadyResolver = null;
+  resolve(Boolean(ready));
+};
+
 function resizeImageDataUrl(dataUrl, maxSize = 420, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -5274,20 +5298,18 @@ async function toggleVoiceMic() {
     stopVoiceStream();
   } else {
     try {
-      voiceStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          channelCount: 1,
-        },
-      });
+      sendNativeVoiceAudioActive(true);
+      const nativeReady = await requestNativeVoiceAudioReady();
+      if (!nativeReady) throw new Error("Microphone permission denied in iPhone settings");
+      voiceStream = await requestVoiceStream();
       participant.micEnabled = true;
       addLocalVoiceTracksToAllPeers();
       renegotiateVoicePeers();
       startVoiceRelayRecorder();
-    } catch {
-      showToast(t("micError"));
+    } catch (error) {
+      sendNativeVoiceAudioActive(false);
+      lastVoiceError = voiceErrorMessage(error);
+      showToast(`${t("micError")} ${lastVoiceError}`.trim().slice(0, 180));
       return;
     }
   }
@@ -5297,6 +5319,37 @@ async function toggleVoiceMic() {
   connectVoiceRoomMedia();
   if (participant.micEnabled) startVoiceRelayRecorder();
   resumeRemoteVoiceAudio();
+}
+
+async function requestVoiceStream() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new Error("getUserMedia is not available in this WebView");
+  }
+  const constraintsList = [
+    {
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+      },
+    },
+    { audio: true },
+  ];
+  let lastError = null;
+  for (const constraints of constraintsList) {
+    try {
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("microphone stream unavailable");
+}
+
+function voiceErrorMessage(error) {
+  const name = error?.name ? `${error.name}: ` : "";
+  return `${name}${error?.message || "microphone stream unavailable"}`.trim();
 }
 
 function stopVoiceStream() {
