@@ -802,8 +802,15 @@ let nativeVoiceRtcStatus = "offline";
 let nativeVoiceRtcRoomId = "";
 let nativeVoiceRtcMicEnabled = false;
 let nativeVoiceRequestSequence = 0;
+let browserVoiceRtcStatus = "offline";
+let browserVoiceRtcRoomId = "";
+let browserVoiceRtcPlayer = "";
+let browserVoiceRtcMicEnabled = false;
+let browserVoiceRoom = null;
+let browserVoiceConnectPromise = null;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
+const browserVoiceAudioNodes = new Map();
 const voiceRelaySeenChunks = new Set();
 const voiceRelayQueue = [];
 const voiceHttpSeenSignals = new Set();
@@ -1355,7 +1362,7 @@ function renderHomeVoiceEntry() {
     homeVoiceStatus.textContent = t("noVoiceRoom");
     return;
   }
-  const transportStatus = hasNativeVoiceRtc() ? nativeVoiceRtcStatus : voiceSocketStatus;
+  const transportStatus = voiceTransportStatus();
   const status = transportStatus === "connected" || transportStatus === "online" ? t("online") : t("offline");
   homeVoiceStatus.textContent = `${activeCount}/6 · ${status}`;
 }
@@ -2141,7 +2148,7 @@ function renderVoiceRoom(options = {}) {
   }
 
   const room = currentVoiceRoom();
-  const transportStatus = hasNativeVoiceRtc() ? nativeVoiceRtcStatus : voiceSocketStatus;
+  const transportStatus = voiceTransportStatus();
   const voiceStatus =
     transportStatus === "connected" || transportStatus === "online"
       ? t("voiceReady")
@@ -2635,7 +2642,17 @@ window.__bazaNativeVoiceReady = (ready) => {
 
 function hasNativeVoiceRtc() {
   const handler = window.webkit?.messageHandlers?.bazaNative;
-  return Boolean(window.BAZA_NATIVE_APP && handler?.postMessage);
+  return Boolean(window.BAZA_NATIVE_APP && window.BAZA_NATIVE_CAPABILITIES?.liveKitVoice === true && handler?.postMessage);
+}
+
+function hasBrowserVoiceRtc() {
+  return Boolean(!hasNativeVoiceRtc() && window.LivekitClient?.Room);
+}
+
+function voiceTransportStatus() {
+  if (hasNativeVoiceRtc()) return nativeVoiceRtcStatus;
+  if (hasBrowserVoiceRtc()) return browserVoiceRtcStatus;
+  return voiceSocketStatus;
 }
 
 function sendNativeVoiceRtcCommand(type, payload = {}, timeoutMs = 15000) {
@@ -2689,6 +2706,157 @@ function leaveNativeVoiceRoom() {
   return sendNativeVoiceRtcCommand("liveKitLeave", {}, 8000).catch(() => {});
 }
 
+async function fetchBrowserVoiceToken(room) {
+  let lastError = "Voice token was not issued";
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      const response = await fetch(appApiUrl("/api/voice-room"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ type: "livekit-token", roomId: room.id, player: playerName() }),
+      });
+      const data = await response.json();
+      if (response.ok && data.ok && data.serverUrl && data.token) return data;
+      lastError = data.error || `Voice token failed (${response.status})`;
+      if (![403, 404].includes(response.status)) break;
+    } catch (error) {
+      lastError = error?.message || lastError;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+  }
+  throw new Error(lastError);
+}
+
+function clearBrowserVoiceAudio() {
+  browserVoiceAudioNodes.forEach(({ track, element }) => {
+    try {
+      track?.detach?.(element);
+    } catch {
+      // The room can already be disconnected.
+    }
+    element?.remove();
+  });
+  browserVoiceAudioNodes.clear();
+}
+
+function attachBrowserVoiceAudio(track, publication, participant) {
+  if (track?.kind !== "audio" || !voiceAudioStage) return;
+  const key = publication?.trackSid || `${participant?.identity || "player"}:${Date.now()}`;
+  const element = document.createElement("audio");
+  element.autoplay = true;
+  element.playsInline = true;
+  element.muted = false;
+  element.volume = 1;
+  element.dataset.voiceRemote = `livekit-${key}`;
+  voiceAudioStage.appendChild(element);
+  track.attach(element);
+  browserVoiceAudioNodes.set(key, { track, element });
+  element.play().catch((error) => {
+    lastVoiceError = error?.message || "audio playback blocked";
+  });
+}
+
+function detachBrowserVoiceAudio(track, publication) {
+  const key = publication?.trackSid;
+  const attached = key ? browserVoiceAudioNodes.get(key) : null;
+  if (!attached) return;
+  try {
+    track?.detach?.(attached.element);
+  } catch {
+    // The track can already be detached by LiveKit.
+  }
+  attached.element.remove();
+  browserVoiceAudioNodes.delete(key);
+}
+
+async function leaveBrowserVoiceRoom() {
+  const room = browserVoiceRoom;
+  browserVoiceRoom = null;
+  browserVoiceConnectPromise = null;
+  browserVoiceRtcStatus = "offline";
+  browserVoiceRtcRoomId = "";
+  browserVoiceRtcPlayer = "";
+  browserVoiceRtcMicEnabled = false;
+  clearBrowserVoiceAudio();
+  if (room) await room.disconnect().catch(() => {});
+}
+
+async function ensureBrowserVoiceRoom(room) {
+  if (!hasBrowserVoiceRtc() || !room) return false;
+  const currentPlayer = playerName();
+  if (
+    browserVoiceRoom &&
+    browserVoiceRtcStatus === "connected" &&
+    browserVoiceRtcRoomId === room.id &&
+    normalizePlayerName(browserVoiceRtcPlayer) === normalizePlayerName(currentPlayer)
+  ) {
+    return true;
+  }
+  if (browserVoiceConnectPromise && browserVoiceRtcRoomId === room.id) return browserVoiceConnectPromise;
+
+  browserVoiceRtcRoomId = room.id;
+  browserVoiceRtcPlayer = currentPlayer;
+  browserVoiceRtcStatus = "connecting";
+  renderVoiceRoom();
+  renderHomeVoiceEntry();
+
+  browserVoiceConnectPromise = (async () => {
+    await leaveBrowserVoiceRoom();
+    browserVoiceRtcRoomId = room.id;
+    browserVoiceRtcPlayer = currentPlayer;
+    browserVoiceRtcStatus = "connecting";
+    const credentials = await fetchBrowserVoiceToken(room);
+    const { Room, RoomEvent } = window.LivekitClient;
+    const liveRoom = new Room({ adaptiveStream: false, dynacast: false });
+    liveRoom.on(RoomEvent.TrackSubscribed, attachBrowserVoiceAudio);
+    liveRoom.on(RoomEvent.TrackUnsubscribed, detachBrowserVoiceAudio);
+    liveRoom.on(RoomEvent.Disconnected, () => {
+      if (browserVoiceRoom !== liveRoom) return;
+      browserVoiceRtcStatus = "offline";
+      browserVoiceRtcMicEnabled = false;
+      clearBrowserVoiceAudio();
+      renderVoiceRoom();
+      renderHomeVoiceEntry();
+    });
+    await liveRoom.connect(credentials.serverUrl, credentials.token, { autoSubscribe: true });
+    browserVoiceRoom = liveRoom;
+    browserVoiceRtcStatus = "connected";
+    browserVoiceRtcMicEnabled = false;
+    const activeRoom = currentVoiceRoom();
+    const activeParticipant = activeRoom?.participants?.find(
+      (participant) => normalizePlayerName(participant.name) === normalizePlayerName(currentPlayer),
+    );
+    if (activeParticipant) activeParticipant.micEnabled = false;
+    if (activeRoom) sendVoiceSocket({ type: "mic", roomId: activeRoom.id, player: currentPlayer, micEnabled: false });
+    lastVoiceError = "";
+    if (voiceAudioUnlocked) await liveRoom.startAudio().catch(() => {});
+    renderVoiceRoom();
+    renderHomeVoiceEntry();
+    return true;
+  })();
+
+  try {
+    return await browserVoiceConnectPromise;
+  } catch (error) {
+    browserVoiceRtcStatus = "offline";
+    browserVoiceRtcMicEnabled = false;
+    lastVoiceError = error?.message || "LiveKit connection failed";
+    renderVoiceRoom();
+    renderHomeVoiceEntry();
+    throw error;
+  } finally {
+    browserVoiceConnectPromise = null;
+  }
+}
+
+async function setBrowserVoiceMicrophone(enabled) {
+  if (!browserVoiceRoom || browserVoiceRtcStatus !== "connected") throw new Error("Voice room is not connected");
+  await browserVoiceRoom.localParticipant.setMicrophoneEnabled(Boolean(enabled));
+  browserVoiceRtcMicEnabled = Boolean(enabled);
+  return browserVoiceRtcMicEnabled;
+}
+
 window.__bazaNativeVoiceEvent = (event) => {
   if (!event || typeof event !== "object") return;
   if (event.status) nativeVoiceRtcStatus = String(event.status);
@@ -2699,7 +2867,10 @@ window.__bazaNativeVoiceEvent = (event) => {
 
   const room = currentVoiceRoom();
   const participant = room?.participants?.find((item) => normalizePlayerName(item.name) === normalizePlayerName(playerName()));
-  if (participant && typeof event.micEnabled === "boolean") participant.micEnabled = event.micEnabled;
+  if (participant && typeof event.micEnabled === "boolean") {
+    participant.micEnabled = event.micEnabled;
+    sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: event.micEnabled });
+  }
 
   const pending = event.requestId ? nativeVoiceRequests.get(event.requestId) : null;
   if (pending) {
@@ -4904,6 +5075,7 @@ function syncVoiceRoomsFromServer(rooms) {
     closeVoicePeers();
     stopVoiceStream();
     leaveNativeVoiceRoom();
+    leaveBrowserVoiceRoom();
   }
   saveState();
   const newInvites = pendingVoiceInvites().filter((invite) => !previousInvites.has(pendingVoiceInviteKey(invite)));
@@ -4951,6 +5123,7 @@ function unlockVoiceAudio() {
   } catch {
     // iOS may still allow media playback through the audio elements below.
   }
+  browserVoiceRoom?.startAudio?.().catch(() => {});
   resumeRemoteVoiceAudio();
 }
 
@@ -4959,6 +5132,13 @@ function resumeRemoteVoiceAudio() {
     audio.muted = false;
     audio.volume = 1;
     audio.play().catch((error) => {
+      lastVoiceError = error?.message || "audio playback blocked";
+    });
+  });
+  browserVoiceAudioNodes.forEach(({ element }) => {
+    element.muted = false;
+    element.volume = 1;
+    element.play().catch((error) => {
       lastVoiceError = error?.message || "audio playback blocked";
     });
   });
@@ -5189,6 +5369,15 @@ async function connectVoiceRoomMedia() {
     });
     return;
   }
+  if (hasBrowserVoiceRtc()) {
+    ensureBrowserVoiceRoom(room).catch((error) => {
+      lastVoiceError = voiceErrorMessage(error);
+      browserVoiceRtcStatus = "offline";
+      renderVoiceRoom();
+      renderHomeVoiceEntry();
+    });
+    return;
+  }
   if (voiceSocketStatus !== "online") return;
   const currentName = normalizePlayerName(playerName());
   const remoteParticipants = (room.participants || []).filter(
@@ -5408,6 +5597,7 @@ function leaveVoiceRoom() {
   state.activeVoiceRoomId = "";
   closeVoicePeers();
   leaveNativeVoiceRoom();
+  leaveBrowserVoiceRoom();
   sendNativeVoiceAudioActive(false);
   saveState();
   renderVoiceRoom({ force: true });
@@ -5427,6 +5617,24 @@ async function toggleVoiceMic() {
       await ensureNativeVoiceRoom(room);
       const nextEnabled = !participant.micEnabled;
       participant.micEnabled = await setNativeVoiceMicrophone(nextEnabled);
+      saveState();
+      renderVoiceRoom();
+      sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
+    } catch (error) {
+      lastVoiceError = voiceErrorMessage(error);
+      participant.micEnabled = false;
+      renderVoiceRoom();
+      renderHomeVoiceEntry();
+      showToast(`${t("micError")} ${lastVoiceError}`.trim().slice(0, 180));
+    }
+    return;
+  }
+  if (hasBrowserVoiceRtc()) {
+    try {
+      sendNativeVoiceAudioActive(true);
+      await ensureBrowserVoiceRoom(room);
+      await browserVoiceRoom?.startAudio?.().catch(() => {});
+      participant.micEnabled = await setBrowserVoiceMicrophone(!participant.micEnabled);
       saveState();
       renderVoiceRoom();
       sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
@@ -5515,10 +5723,14 @@ function addLocalVoiceTracksToAllPeers() {
 
 function voiceDebugSnapshot() {
   return {
-    transport: hasNativeVoiceRtc() ? "livekit-native" : "legacy-webrtc",
+    transport: hasNativeVoiceRtc() ? "livekit-native" : hasBrowserVoiceRtc() ? "livekit-browser" : "legacy-webrtc",
     nativeRtcStatus: nativeVoiceRtcStatus,
     nativeRtcRoomId: nativeVoiceRtcRoomId,
     nativeRtcMicEnabled: nativeVoiceRtcMicEnabled,
+    browserRtcStatus: browserVoiceRtcStatus,
+    browserRtcRoomId: browserVoiceRtcRoomId,
+    browserRtcMicEnabled: browserVoiceRtcMicEnabled,
+    browserRemoteAudio: browserVoiceAudioNodes.size,
     socket: voiceSocketStatus,
     clientId: voiceClientId,
     lastError: lastVoiceError,

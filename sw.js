@@ -1,8 +1,9 @@
-const CACHE_NAME = "baza-ios-app-v69";
+const CACHE_NAME = "baza-ios-app-v70";
 const APP_ASSETS = [
   "ios-app.html",
   "ios-app.css",
   "ios-app.js",
+  "vendor/livekit-client.umd.js?v=70",
   "manifest.webmanifest",
   "assets/baza-hero.jpg",
   "assets/laser-arena-hero.png",
@@ -30,6 +31,7 @@ self.addEventListener("fetch", (event) => {
     requestUrl.pathname.endsWith("/ios-app.html") ||
     requestUrl.pathname.endsWith("/ios-app.css") ||
     requestUrl.pathname.endsWith("/ios-app.js") ||
+    requestUrl.pathname.endsWith("/vendor/livekit-client.umd.js") ||
     requestUrl.pathname.endsWith("/manifest.webmanifest");
 
   if (isAppShell) {
