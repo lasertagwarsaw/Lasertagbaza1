@@ -2668,7 +2668,7 @@ async function ensureNativeVoiceRoom(room) {
     {
       roomId: room.id,
       player: playerName(),
-      tokenEndpoint: appApiUrl("/api/voice-token"),
+      tokenEndpoint: appApiUrl("/api/voice-room"),
     },
     20000,
   );

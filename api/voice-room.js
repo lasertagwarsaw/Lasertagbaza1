@@ -25,6 +25,34 @@ const normalizeName = (value) => cleanText(value, 40).toLowerCase();
 const makeId = (prefix) =>
   crypto.randomUUID ? crypto.randomUUID() : `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+const base64Url = (value) => Buffer.from(value).toString("base64url");
+
+const createLiveKitJoinToken = ({ apiKey, apiSecret, roomId, player }) => {
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64Url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payload = base64Url(
+    JSON.stringify({
+      iss: apiKey,
+      sub: normalizeName(player),
+      name: player,
+      nbf: now - 5,
+      exp: now + 15 * 60,
+      video: {
+        room: roomId,
+        roomJoin: true,
+        canPublish: true,
+        canSubscribe: true,
+        canPublishData: false,
+        canPublishSources: ["microphone"],
+      },
+      metadata: JSON.stringify({ app: "baza-club", player }),
+    }),
+  );
+  const unsigned = `${header}.${payload}`;
+  const signature = crypto.createHmac("sha256", apiSecret).update(unsigned).digest("base64url");
+  return `${unsigned}.${signature}`;
+};
+
 const emptyState = () => ({
   schemaVersion: 1,
   rooms: [],
@@ -277,6 +305,34 @@ module.exports = async function handler(request, response) {
 
   if (request.method !== "POST") {
     response.status(405).json({ error: "Method not allowed" });
+    return;
+  }
+
+  if (body.type === "livekit-token") {
+    response.setHeader("Cache-Control", "no-store, private");
+    const liveKitUrl = cleanText(process.env.LIVEKIT_URL, 240);
+    const apiKey = cleanText(process.env.LIVEKIT_API_KEY, 160);
+    const apiSecret = String(process.env.LIVEKIT_API_SECRET || "").trim();
+    if (!liveKitUrl || !apiKey || !apiSecret) {
+      response.status(503).json({ ok: false, error: "Voice service is not configured" });
+      return;
+    }
+
+    const roomId = cleanText(body.roomId, 90);
+    const player = cleanText(body.player, 40);
+    const room = (state.rooms || []).find((item) => item.id === roomId);
+    const participant = room?.participants?.some((item) => normalizeName(item.name) === normalizeName(player));
+    if (!roomId || !player || !room || !participant) {
+      response.status(403).json({ ok: false, error: "Player is not a member of this room" });
+      return;
+    }
+
+    response.status(200).json({
+      ok: true,
+      serverUrl: liveKitUrl,
+      token: createLiveKitJoinToken({ apiKey, apiSecret, roomId, player }),
+      expiresIn: 900,
+    });
     return;
   }
 
