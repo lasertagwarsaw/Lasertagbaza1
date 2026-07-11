@@ -783,12 +783,20 @@ let pendingVoiceRoomSync = null;
 let lastVoiceError = "";
 let voiceHttpTimer = null;
 let voiceSignalCursor = "";
+let voiceAudioCursor = "";
 let chatRefreshTimer = null;
 let playerChatSocket = null;
 let voiceAudioUnlocked = false;
 let voiceAudioContext = null;
+let voiceRelayRecorder = null;
+let voiceRelayMimeType = "";
+let voiceRelayActive = false;
+let voiceRelayPlaying = false;
+let voiceRelayLastChunkAt = "";
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
+const voiceRelaySeenChunks = new Set();
+const voiceRelayQueue = [];
 const voiceHttpSeenSignals = new Set();
 const notifiedVoiceInviteIds = new Set();
 
@@ -4576,7 +4584,9 @@ async function syncVoiceRoomOverHttp(payload = null) {
       : { cache: "no-store" };
     const url = payload
       ? voiceHttpApiUrl()
-      : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}${voiceSignalCursor ? `&after=${encodeURIComponent(voiceSignalCursor)}` : ""}`;
+      : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}${voiceSignalCursor ? `&after=${encodeURIComponent(voiceSignalCursor)}` : ""}${
+          voiceAudioCursor ? `&afterAudio=${encodeURIComponent(voiceAudioCursor)}` : ""
+        }`;
     const response = await fetch(url, options);
     if (!response.ok) throw new Error("voice http failed");
     const data = await response.json();
@@ -4589,6 +4599,9 @@ async function syncVoiceRoomOverHttp(payload = null) {
         voiceSignalCursor = signal.createdAt || voiceSignalCursor;
         handleWebRtcSignal({ type: "signal", ...signal });
       });
+    }
+    if (Array.isArray(data.audioChunks)) {
+      data.audioChunks.forEach(handleVoiceRelayChunk);
     }
     renderVoiceRoom();
     renderHomeVoiceEntry();
@@ -4800,6 +4813,120 @@ function resumeRemoteVoiceAudio() {
     audio.play().catch((error) => {
       lastVoiceError = error?.message || "audio playback blocked";
     });
+  });
+  playNextVoiceRelayChunk();
+}
+
+function supportedVoiceRelayMimeType() {
+  if (!("MediaRecorder" in window)) return "";
+  const candidates = ["audio/webm;codecs=opus", "audio/mp4", "audio/aac", "audio/webm"];
+  return candidates.find((type) => MediaRecorder.isTypeSupported?.(type)) || "";
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
+    reader.onerror = () => reject(reader.error || new Error("audio encode failed"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function startVoiceRelayRecorder() {
+  const room = currentVoiceRoom();
+  if (!room || !voiceStream || !("MediaRecorder" in window)) return;
+  if (voiceRelayRecorder && voiceRelayRecorder.state !== "inactive") return;
+  voiceRelayActive = true;
+  try {
+    voiceRelayMimeType = supportedVoiceRelayMimeType();
+    const options = voiceRelayMimeType ? { mimeType: voiceRelayMimeType, audioBitsPerSecond: 24000 } : { audioBitsPerSecond: 24000 };
+    voiceRelayRecorder = new MediaRecorder(voiceStream, options);
+    voiceRelayRecorder.addEventListener("dataavailable", async (event) => {
+      if (!event.data || event.data.size < 120 || event.data.size > 90_000) return;
+      const activeRoom = currentVoiceRoom();
+      if (!activeRoom || !voiceStream) return;
+      try {
+        const data = await blobToBase64(event.data);
+        if (!data) return;
+        sendVoiceHttp({
+          type: "audio-chunk",
+          roomId: activeRoom.id,
+          source: playerName(),
+          mimeType: event.data.type || voiceRelayMimeType || "audio/mp4",
+          data,
+        });
+        voiceRelayLastChunkAt = new Date().toISOString();
+      } catch (error) {
+        lastVoiceError = error?.message || "audio relay send failed";
+      }
+    });
+    voiceRelayRecorder.addEventListener("error", (event) => {
+      lastVoiceError = event.error?.message || "audio relay recorder failed";
+    });
+    voiceRelayRecorder.addEventListener(
+      "stop",
+      () => {
+        voiceRelayRecorder = null;
+        if (voiceRelayActive && voiceStream && currentVoiceRoom()) {
+          setTimeout(startVoiceRelayRecorder, 80);
+        }
+      },
+      { once: true },
+    );
+    voiceRelayRecorder.start();
+    setTimeout(() => {
+      if (voiceRelayRecorder?.state === "recording") voiceRelayRecorder.stop();
+    }, 900);
+  } catch (error) {
+    voiceRelayRecorder = null;
+    lastVoiceError = error?.message || "audio relay unavailable";
+  }
+}
+
+function stopVoiceRelayRecorder() {
+  voiceRelayActive = false;
+  if (!voiceRelayRecorder) return;
+  try {
+    if (voiceRelayRecorder.state !== "inactive") voiceRelayRecorder.stop();
+  } catch {
+    // Recorder can already be stopped by WebKit.
+  }
+  voiceRelayRecorder = null;
+}
+
+function handleVoiceRelayChunk(chunk) {
+  if (!chunk?.id || voiceRelaySeenChunks.has(chunk.id)) return;
+  voiceRelaySeenChunks.add(chunk.id);
+  voiceAudioCursor = chunk.createdAt || voiceAudioCursor;
+  if (!chunk.data || normalizePlayerName(chunk.source) === normalizePlayerName(playerName())) return;
+  voiceRelayQueue.push(chunk);
+  voiceRelayQueue.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  playNextVoiceRelayChunk();
+}
+
+function playNextVoiceRelayChunk() {
+  if (voiceRelayPlaying || !voiceAudioUnlocked || !voiceRelayQueue.length) return;
+  const chunk = voiceRelayQueue.shift();
+  const mimeType = chunk.mimeType || "audio/mp4";
+  const audio = document.createElement("audio");
+  audio.autoplay = true;
+  audio.playsInline = true;
+  audio.muted = false;
+  audio.volume = 1;
+  audio.dataset.voiceRelay = voicePeerKey(chunk.source || "relay");
+  audio.src = `data:${mimeType};base64,${chunk.data}`;
+  voiceRelayPlaying = true;
+  if (voiceAudioStage) voiceAudioStage.appendChild(audio);
+  const finish = () => {
+    voiceRelayPlaying = false;
+    audio.remove();
+    playNextVoiceRelayChunk();
+  };
+  audio.addEventListener("ended", finish, { once: true });
+  audio.addEventListener("error", finish, { once: true });
+  audio.play().catch((error) => {
+    lastVoiceError = error?.message || "audio relay playback blocked";
+    finish();
   });
 }
 
@@ -5141,6 +5268,7 @@ async function toggleVoiceMic() {
       participant.micEnabled = true;
       addLocalVoiceTracksToAllPeers();
       renegotiateVoicePeers();
+      startVoiceRelayRecorder();
     } catch {
       showToast(t("micError"));
       return;
@@ -5150,10 +5278,12 @@ async function toggleVoiceMic() {
   renderVoiceRoom();
   sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
   connectVoiceRoomMedia();
+  if (participant.micEnabled) startVoiceRelayRecorder();
   resumeRemoteVoiceAudio();
 }
 
 function stopVoiceStream() {
+  stopVoiceRelayRecorder();
   if (voiceStream) {
     voiceStream.getTracks().forEach((track) => track.stop());
     voiceStream = null;
@@ -5174,6 +5304,11 @@ function voiceDebugSnapshot() {
     lastError: lastVoiceError,
     audioUnlocked: voiceAudioUnlocked,
     audioContextState: voiceAudioContext?.state || "",
+    relayActive: voiceRelayActive,
+    relayRecorder: voiceRelayRecorder?.state || "",
+    relayMimeType: voiceRelayMimeType,
+    relayQueue: voiceRelayQueue.length,
+    relayLastChunkAt: voiceRelayLastChunkAt,
     peers: voicePeers.size,
     peerStates: [...voicePeers.values()].map((peer) => ({
       name: peer.name,

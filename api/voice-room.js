@@ -7,6 +7,8 @@ const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const voicePath = path.join(dataDir, "voice-room.json");
 const voiceStorageKey = "baza:voice-room:v1";
+const AUDIO_CHUNK_LIMIT = 48;
+const MAX_AUDIO_CHUNK_SIZE = 120_000;
 
 const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
@@ -27,6 +29,7 @@ const emptyState = () => ({
   schemaVersion: 1,
   rooms: [],
   signals: [],
+  audioChunks: [],
   clients: {},
   updatedAt: new Date().toISOString(),
 });
@@ -75,6 +78,7 @@ const normalizeState = (state) => ({
   ...(state && typeof state === "object" ? state : {}),
   rooms: Array.isArray(state?.rooms) ? state.rooms.map(normalizeRoom).filter((room) => room.owner) : [],
   signals: Array.isArray(state?.signals) ? state.signals.slice(-240) : [],
+  audioChunks: Array.isArray(state?.audioChunks) ? state.audioChunks.slice(-AUDIO_CHUNK_LIMIT) : [],
   clients: state?.clients && typeof state.clients === "object" ? state.clients : {},
   updatedAt: new Date().toISOString(),
 });
@@ -196,6 +200,34 @@ const addSignal = (state, message) => {
   ].slice(-240);
 };
 
+const addAudioChunk = (state, message) => {
+  const roomId = cleanText(message.roomId, 90);
+  const source = cleanText(message.source, 40);
+  const mimeType = cleanText(message.mimeType, 80) || "audio/mp4";
+  const data = cleanText(message.data, MAX_AUDIO_CHUNK_SIZE);
+  if (!roomId || !source || !data) return;
+  state.audioChunks = [
+    ...(state.audioChunks || []),
+    {
+      id: makeId("audio"),
+      roomId,
+      source,
+      mimeType,
+      data,
+      createdAt: new Date().toISOString(),
+    },
+  ].slice(-AUDIO_CHUNK_LIMIT);
+};
+
+const participantRoomIds = (state, player) => {
+  if (!player) return new Set();
+  return new Set(
+    (state.rooms || [])
+      .filter((room) => (room.participants || []).some((participant) => normalizeName(participant.name) === player))
+      .map((room) => room.id),
+  );
+};
+
 const setCorsHeaders = (response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -219,16 +251,25 @@ module.exports = async function handler(request, response) {
     markClient(state, query.player);
     const player = normalizeName(query.player);
     const after = cleanText(query.after, 90);
+    const afterAudio = cleanText(query.afterAudio, 90);
     const signals = (state.signals || []).filter((signal) => {
       if (player && normalizeName(signal.target) !== player) return false;
       if (!after) return true;
       return new Date(signal.createdAt).getTime() > new Date(after).getTime();
+    });
+    const roomIds = participantRoomIds(state, player);
+    const audioChunks = (state.audioChunks || []).filter((chunk) => {
+      if (!roomIds.has(chunk.roomId)) return false;
+      if (normalizeName(chunk.source) === player) return false;
+      if (!afterAudio) return true;
+      return new Date(chunk.createdAt).getTime() > new Date(afterAudio).getTime();
     });
     const nextState = await writeVoiceState(state);
     response.status(200).json({
       ok: true,
       rooms: roomsWithOnlineState(nextState),
       signals,
+      audioChunks,
       serverTime: new Date().toISOString(),
     });
     return;
@@ -255,6 +296,8 @@ module.exports = async function handler(request, response) {
     updateMic(state, body.roomId, body.player, body.micEnabled);
   } else if (body.type === "signal") {
     addSignal(state, body);
+  } else if (body.type === "audio-chunk") {
+    addAudioChunk(state, body);
   }
 
   const nextState = await writeVoiceState(state);
