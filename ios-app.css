@@ -395,6 +395,44 @@ a {
   text-transform: uppercase;
 }
 
+.voice-invite-alert {
+  margin: 0 0 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 212, 0, 0.4);
+  border-radius: 16px;
+  background:
+    linear-gradient(90deg, rgba(255, 212, 0, 0.2), rgba(126, 233, 255, 0.08)),
+    rgba(255, 255, 255, 0.08);
+}
+
+.voice-invite-alert[hidden] {
+  display: none;
+}
+
+.voice-invite-alert b {
+  display: block;
+  color: var(--paper);
+  font-size: 13px;
+}
+
+.voice-invite-alert span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.voice-invite-alert .primary-button {
+  width: auto;
+  min-height: 38px;
+  padding: 0 12px;
+}
+
 .home-team-card {
   margin-top: 10px;
   padding: 13px;

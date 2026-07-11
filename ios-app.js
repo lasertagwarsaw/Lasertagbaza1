@@ -830,6 +830,7 @@ const adminPanel = document.querySelector("[data-admin-panel]");
 const voiceRoomPanel = document.querySelector("[data-voice-room]");
 const voiceAudioStage = document.querySelector("[data-voice-audio]");
 const homeVoiceStatus = document.querySelector("[data-home-voice-status]");
+const voiceInviteAlert = document.querySelector("[data-voice-invite-alert]");
 const envWarning = document.querySelector("[data-env-warning]");
 const homeTeam = document.querySelector("[data-home-team]");
 const achievementsList = document.querySelector("[data-achievements]");
@@ -1314,6 +1315,7 @@ function renderStats() {
   renderAvatar(document.querySelector("[data-avatar-mini]"));
   renderAvatar(document.querySelector("[data-avatar-large]"), "large");
   renderHomeVoiceEntry();
+  renderVoiceInviteAlert();
 }
 
 function renderHomeVoiceEntry() {
@@ -1335,6 +1337,25 @@ function renderHomeVoiceEntry() {
   }
   const status = voiceSocketStatus === "online" ? t("online") : t("offline");
   homeVoiceStatus.textContent = `${activeCount}/6 · ${status}`;
+}
+
+function renderVoiceInviteAlert() {
+  if (!voiceInviteAlert) return;
+  const invites = pendingVoiceInvites();
+  if (!invites.length) {
+    voiceInviteAlert.hidden = true;
+    voiceInviteAlert.innerHTML = "";
+    return;
+  }
+  const invite = invites[0];
+  voiceInviteAlert.hidden = false;
+  voiceInviteAlert.innerHTML = `
+    <div>
+      <b>${escapeHtml(t("voiceInvitation"))}</b>
+      <span>${escapeHtml(invite.room.name)} / ${escapeHtml(invite.room.owner)}</span>
+    </div>
+    <button class="primary-button" type="button" data-open-voice-room>${escapeHtml(t("acceptVoiceInvite"))}</button>
+  `;
 }
 
 function gameCard(game, isCompact = false) {
@@ -2244,6 +2265,7 @@ function notifyNewVoiceInvites(invites) {
     if (!key || notifiedVoiceInviteIds.has(key)) return;
     notifiedVoiceInviteIds.add(key);
     showToast(`${t("voiceInvitation")}: ${invite.room.name}`);
+    sendNativeVoiceInviteNotification(invite);
   });
 }
 
@@ -2530,6 +2552,18 @@ function requestNativeAvatarPicker() {
     return true;
   }
   return false;
+}
+
+function sendNativeVoiceInviteNotification(invite) {
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (!handler?.postMessage || !invite?.room) return false;
+  handler.postMessage({
+    type: "voiceInviteNotification",
+    title: t("voiceInvitation"),
+    body: `${invite.room.name} / ${invite.room.owner}`,
+    roomId: invite.room.id,
+  });
+  return true;
 }
 
 function resizeImageDataUrl(dataUrl, maxSize = 420, quality = 0.82) {
@@ -4553,11 +4587,13 @@ async function syncVoiceRoomOverHttp(payload = null) {
     }
     renderVoiceRoom();
     renderHomeVoiceEntry();
+    renderVoiceInviteAlert();
   } catch (error) {
     lastVoiceError = error?.message || "voice http offline";
     if (!voiceSocket || voiceSocket.readyState !== WebSocket.OPEN) voiceSocketStatus = "offline";
     renderVoiceRoom();
     renderHomeVoiceEntry();
+    renderVoiceInviteAlert();
   }
 }
 
@@ -4708,6 +4744,7 @@ function syncVoiceRoomsFromServer(rooms) {
   notifyNewVoiceInvites(newInvites);
   renderVoiceRoom();
   renderHomeVoiceEntry();
+  renderVoiceInviteAlert();
   connectVoiceRoomMedia();
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "baza-ios-app-v62";
+const CACHE_NAME = "baza-ios-app-v63";
 const APP_ASSETS = [
   "ios-app.html",
   "ios-app.css",
