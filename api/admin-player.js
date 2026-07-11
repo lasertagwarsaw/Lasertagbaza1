@@ -115,7 +115,11 @@ module.exports = async function handler(request, response) {
   }
 
   const normalizedRanking = await writePlayerRanking(ranking);
-  updateRankingHtml(normalizedRanking);
+  try {
+    updateRankingHtml(normalizedRanking);
+  } catch {
+    // Vercel serverless files are read-only; the live page refreshes from /api/ranking-feed.
+  }
 
   response.status(200).json({
     ok: true,
