@@ -2146,6 +2146,7 @@ function renderVoiceRoom(options = {}) {
   const room = currentVoiceRoom();
   const pendingInvites = pendingVoiceInvites();
   const transportStatus = voiceTransportStatus();
+  const transportAvailable = hasNativeVoiceRtc() || hasBrowserVoiceRtc();
   const selectedBefore = voiceRoomPanel.querySelector("[data-voice-invite-select]")?.value || "";
   const fingerprint = JSON.stringify({
     registered,
@@ -2173,7 +2174,9 @@ function renderVoiceRoom(options = {}) {
   }
 
   const voiceStatus =
-    transportStatus === "connected"
+    !room && transportAvailable
+      ? t("voiceReady")
+      : transportStatus === "connected"
       ? t("voiceReady")
       : transportStatus === "connecting"
         ? t("voiceConnecting")
