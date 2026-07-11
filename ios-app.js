@@ -803,6 +803,8 @@ let nativeVoiceRtcMicEnabled = false;
 let nativeVoiceRemoteAudioTracks = 0;
 let nativeVoiceRemoteParticipants = 0;
 let nativeVoiceRequestSequence = 0;
+let nativeVoiceConnectPromise = null;
+let nativeVoiceDisconnectedAt = 0;
 let browserVoiceRtcStatus = "offline";
 let browserVoiceRtcRoomId = "";
 let browserVoiceRtcPlayer = "";
@@ -811,6 +813,9 @@ let browserVoiceRoom = null;
 let browserVoiceConnectPromise = null;
 let voiceRoomRenderFingerprint = "";
 let voiceActionPending = false;
+let voiceRoomMissingSince = 0;
+const VOICE_ROOM_MISSING_GRACE_MS = 12000;
+const VOICE_RECONNECT_STATUS_GRACE_MS = 6000;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const browserVoiceAudioNodes = new Map();
@@ -2695,7 +2700,17 @@ function hasBrowserVoiceRtc() {
 }
 
 function voiceTransportStatus() {
-  if (hasNativeVoiceRtc()) return nativeVoiceRtcStatus;
+  if (hasNativeVoiceRtc()) {
+    if (
+      nativeVoiceRtcStatus === "offline" &&
+      currentVoiceRoom() &&
+      nativeVoiceDisconnectedAt &&
+      Date.now() - nativeVoiceDisconnectedAt < VOICE_RECONNECT_STATUS_GRACE_MS
+    ) {
+      return "connecting";
+    }
+    return nativeVoiceRtcStatus;
+  }
   if (hasBrowserVoiceRtc()) return browserVoiceRtcStatus;
   return "offline";
 }
@@ -2732,12 +2747,13 @@ function sendNativeVoiceRtcCommand(type, payload = {}, timeoutMs = 15000) {
 
 async function ensureNativeVoiceRoom(room) {
   if (!hasNativeVoiceRtc() || !room) return false;
-  if (nativeVoiceRtcStatus === "connected" && nativeVoiceRtcRoomId === room.id) return true;
+  if (["connected", "connecting"].includes(nativeVoiceRtcStatus) && nativeVoiceRtcRoomId === room.id) return true;
+  if (nativeVoiceConnectPromise && nativeVoiceRtcRoomId === room.id) return nativeVoiceConnectPromise;
   nativeVoiceRtcStatus = "connecting";
   nativeVoiceRtcRoomId = room.id;
   renderVoiceRoom();
   renderHomeVoiceEntry();
-  await sendNativeVoiceRtcCommand(
+  nativeVoiceConnectPromise = sendNativeVoiceRtcCommand(
     "liveKitJoin",
     {
       roomId: room.id,
@@ -2745,8 +2761,12 @@ async function ensureNativeVoiceRoom(room) {
       tokenEndpoint: appApiUrl("/api/voice-room"),
     },
     20000,
-  );
-  return true;
+  )
+    .then(() => true)
+    .finally(() => {
+      nativeVoiceConnectPromise = null;
+    });
+  return nativeVoiceConnectPromise;
 }
 
 async function setNativeVoiceMicrophone(enabled) {
@@ -2757,6 +2777,8 @@ async function setNativeVoiceMicrophone(enabled) {
 
 function leaveNativeVoiceRoom() {
   if (!hasNativeVoiceRtc()) return Promise.resolve();
+  nativeVoiceConnectPromise = null;
+  nativeVoiceDisconnectedAt = 0;
   nativeVoiceRtcStatus = "offline";
   nativeVoiceRtcRoomId = "";
   nativeVoiceRtcMicEnabled = false;
@@ -2920,7 +2942,11 @@ async function setBrowserVoiceMicrophone(enabled) {
 
 window.__bazaNativeVoiceEvent = (event) => {
   if (!event || typeof event !== "object") return;
-  if (event.status) nativeVoiceRtcStatus = String(event.status);
+  if (event.status) {
+    nativeVoiceRtcStatus = String(event.status);
+    if (nativeVoiceRtcStatus === "connected") nativeVoiceDisconnectedAt = 0;
+    if (nativeVoiceRtcStatus === "offline" && !nativeVoiceDisconnectedAt) nativeVoiceDisconnectedAt = Date.now();
+  }
   if (event.roomId) nativeVoiceRtcRoomId = String(event.roomId);
   if (typeof event.micEnabled === "boolean") nativeVoiceRtcMicEnabled = event.micEnabled;
   if (Number.isFinite(Number(event.remoteAudioTracks))) nativeVoiceRemoteAudioTracks = Number(event.remoteAudioTracks);
@@ -5109,17 +5135,37 @@ function prepareVoiceRoomForSync(room) {
 function syncVoiceRoomsFromServer(rooms) {
   if (!Array.isArray(rooms)) return;
   const previousInvites = new Set(pendingVoiceInvites().map(pendingVoiceInviteKey));
-  state.voiceRooms = rooms;
   const currentName = normalizePlayerName(playerName());
-  const activeRoom = rooms.find(
+  const previousRooms = state.voiceRooms || [];
+  const previousActiveRoom = previousRooms.find(
     (room) =>
       room.id === state.activeVoiceRoomId &&
       room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName),
   );
-  const roomForPlayer =
+  let nextRooms = rooms;
+  let activeRoom = rooms.find(
+    (room) =>
+      room.id === state.activeVoiceRoomId &&
+      room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName),
+  );
+  let roomForPlayer =
     activeRoom || rooms.find((room) => room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName));
+
+  if (!roomForPlayer && previousActiveRoom) {
+    if (!voiceRoomMissingSince) voiceRoomMissingSince = Date.now();
+    if (Date.now() - voiceRoomMissingSince < VOICE_ROOM_MISSING_GRACE_MS) {
+      nextRooms = [previousActiveRoom, ...rooms.filter((room) => room.id !== previousActiveRoom.id)];
+      activeRoom = previousActiveRoom;
+      roomForPlayer = previousActiveRoom;
+    }
+  } else {
+    voiceRoomMissingSince = 0;
+  }
+
+  state.voiceRooms = nextRooms;
   if (roomForPlayer) state.activeVoiceRoomId = roomForPlayer.id;
   if (!roomForPlayer && state.activeVoiceRoomId) {
+    voiceRoomMissingSince = 0;
     state.activeVoiceRoomId = "";
     closeVoicePeers();
     stopVoiceStream();

@@ -1,9 +1,9 @@
-const CACHE_NAME = "baza-ios-app-v71";
+const CACHE_NAME = "baza-ios-app-v72";
 const APP_ASSETS = [
   "ios-app.html",
   "ios-app.css",
   "ios-app.js",
-  "vendor/livekit-client.umd.js?v=71",
+  "vendor/livekit-client.umd.js?v=72",
   "manifest.webmanifest",
   "assets/baza-hero.jpg",
   "assets/laser-arena-hero.png",
