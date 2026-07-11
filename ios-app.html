@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="BAZA Club App — iOS app for Lasertag Club BAZA games, player ranking, news, chat, teams and points."
+    />
+    <meta name="theme-color" content="#050505" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BAZA" />
+    <title>BAZA Club App — iOS</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/tournament-icon.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="ios-app.css?v=59" />
+  </head>
+  <body>
+    <main class="ios-shell" aria-label="BAZA Club App">
+      <section class="app-screen">
+        <header class="app-topbar">
+          <a class="brand-mark" href="https://www.lasertagbaza.pl/" aria-label="Back to BAZA site" data-site-home data-i18n-attr="aria-label:backToSite">
+            <svg viewBox="0 0 38 38" aria-hidden="true">
+              <path d="M4 4h30L19 34 4 4Z" />
+              <path d="m11 10 8 16 8-16H11Z" />
+            </svg>
+            <span>BAZA</span>
+          </a>
+          <button class="icon-button" type="button" data-open-view="profile" aria-label="Open profile" data-i18n-attr="aria-label:openProfile">
+            <span data-avatar-mini>BX</span>
+          </button>
+        </header>
+
+        <div class="app-scroll">
+          <div class="environment-warning" data-env-warning hidden>
+            <strong data-i18n="fileModeTitle">Open through local server</strong>
+            <span data-i18n="fileModeText">File mode can block site sync.</span>
+            <a href="http://localhost:4177/ios-app.html?v=59" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+          </div>
+
+          <section class="app-view active" data-view="home" aria-label="Home" data-i18n-attr="aria-label:home">
+            <div class="home-stats-panel">
+              <div class="quick-stats" aria-label="Player stats" data-i18n-attr="aria-label:playerStats">
+                <div>
+                  <strong data-points-total>0</strong>
+                  <span data-i18n="points">points</span>
+                </div>
+                <div>
+                  <strong data-signed-count>0</strong>
+                  <span data-i18n="bookings">bookings</span>
+                </div>
+                <div>
+                  <strong data-news-count>0</strong>
+                  <span data-i18n="newsShort">news</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title compact-title first-section">
+              <div>
+                <span data-i18n="startActions">Start</span>
+                <h2 data-i18n="startActions">Start</h2>
+              </div>
+            </div>
+            <div class="quick-action-grid">
+              <button class="action-card main-action" type="button" data-open-view="games">
+                <span aria-hidden="true">＋</span>
+                <b data-i18n="quickBooking">Quick booking</b>
+                <em data-i18n="games">Games</em>
+              </button>
+              <button class="action-card" type="button" data-open-view="profile">
+                <span aria-hidden="true">●</span>
+                <b data-i18n="profile">Profile</b>
+                <em data-i18n="accountAccess">Account</em>
+              </button>
+              <button class="action-card" type="button" data-open-voice-room>
+                <span class="home-room-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+                    <path d="M6 10v1a6 6 0 0 0 12 0v-1" />
+                    <path d="M12 17v4" />
+                    <path d="M8 21h8" />
+                  </svg>
+                </span>
+                <b data-i18n="voiceRoom">Voice room</b>
+                <em data-home-voice-status>Offline</em>
+              </button>
+              <button class="action-card" type="button" data-open-view="news">
+                <span aria-hidden="true">✦</span>
+                <b data-i18n="news">News</b>
+                <em data-i18n="clubUpdates">Updates</em>
+              </button>
+            </div>
+
+            <div class="home-team-card" data-home-team></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="nextGame">Next game</span>
+                <h2 data-i18n="quickBooking">Quick booking</h2>
+              </div>
+            </div>
+            <div class="featured-game" data-featured-game></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="rankingFromSite">Ranking from the site</span>
+                <h2 data-i18n="topPlayers">Top players</h2>
+              </div>
+            </div>
+            <div class="ranking-filters" data-ranking-filters>
+              <button class="active" type="button" data-ranking-filter="all" data-i18n="rankingFilterAll">All</button>
+              <button type="button" data-ranking-filter="top" data-i18n="rankingFilterTop">Top</button>
+              <button type="button" data-ranking-filter="team" data-i18n="rankingFilterTeam">Team</button>
+              <button type="button" data-ranking-filter="me" data-i18n="rankingFilterMe">Me</button>
+            </div>
+            <div class="ranking-strip" data-ranking-list></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="playerChat">Player chat</span>
+                <h2 data-i18n="quickChat">Quick chat</h2>
+              </div>
+            </div>
+            <div class="chat-panel">
+              <div class="chat-feed" data-chat-feed></div>
+              <form class="chat-compose" data-chat-form>
+                <input name="message" type="text" maxlength="120" placeholder="Write to players" data-i18n-attr="placeholder:chatPlaceholder" required />
+                <button type="submit" aria-label="Send message" data-i18n-attr="aria-label:sendMessage">↗</button>
+              </form>
+            </div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="clubFeed">Club feed</span>
+                <h2 data-i18n="freshNews">Fresh news</h2>
+              </div>
+              <button class="text-button" type="button" data-toggle-home-news data-i18n="showAll">Show all</button>
+            </div>
+            <div class="mini-feed" data-mini-feed></div>
+          </section>
+
+          <section class="app-view" data-view="games" aria-label="Games" data-i18n-attr="aria-label:games">
+            <div class="page-heading">
+              <p class="overline">Open games</p>
+              <h1 data-i18n="gamesTitle">Book a game</h1>
+              <p data-i18n="gamesLead">Choose a date, check free spots and add yourself to the roster in one tap.</p>
+            </div>
+
+            <div class="reward-strip">
+              <strong data-i18n="gameReward">+25 points</strong>
+              <span data-i18n="gameRewardText">for the first booking on each game</span>
+            </div>
+
+            <div class="sync-panel">
+              <div>
+                <span data-i18n="syncStatus">Site sync</span>
+                <strong data-sync-status>Ready</strong>
+              </div>
+              <button class="text-button" type="button" data-refresh-roster data-i18n="refreshRoster">Refresh players</button>
+            </div>
+
+            <div class="game-list" data-game-list></div>
+          </section>
+
+          <section class="app-view" data-view="news" aria-label="News" data-i18n-attr="aria-label:news">
+            <div class="page-heading">
+              <p class="overline">Club news</p>
+              <h1 data-i18n="newsTitle">BAZA news</h1>
+              <p data-i18n="newsLead">News from the website appears here automatically. You can also add a short club update.</p>
+            </div>
+
+            <div class="section-title compact-title first-section">
+              <div>
+                <span data-i18n="clubFeed">Club feed</span>
+                <h2 data-i18n="freshNews">Fresh news</h2>
+              </div>
+            </div>
+            <div class="news-feed" data-news-feed></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="add">Add</span>
+                <h2 data-i18n="publishNews">Publish and get +10</h2>
+              </div>
+            </div>
+            <form class="news-form" data-news-form>
+              <label>
+                <span data-i18n="newsHeadline">Headline</span>
+                <input name="title" type="text" maxlength="64" placeholder="Wednesday Counter-Strike game" data-i18n-attr="placeholder:newsTitlePlaceholder" required />
+              </label>
+              <label>
+                <span data-i18n="newsBody">News text</span>
+                <textarea name="body" rows="4" maxlength="220" placeholder="Time, format, who it is for, and where to ask questions." data-i18n-attr="placeholder:newsBodyPlaceholder" required></textarea>
+              </label>
+              <button class="primary-button" type="submit" data-i18n="publishNews">Publish and get +10</button>
+            </form>
+          </section>
+
+          <section class="app-view article-view" data-view="article" aria-label="Article" data-i18n-attr="aria-label:article">
+            <button class="text-button back-button" type="button" data-back-from-article data-i18n="back">Back</button>
+            <article class="article-reader" data-article-reader></article>
+          </section>
+
+          <section class="app-view voice-view" data-view="voice" aria-label="Voice room" data-i18n-attr="aria-label:voiceRoom">
+            <button class="text-button back-button" type="button" data-voice-back data-i18n="back">Back</button>
+            <div class="page-heading voice-heading">
+              <p class="overline" data-i18n="liveAudio">Live audio</p>
+              <h1 data-i18n="voiceRoom">Voice room</h1>
+              <p data-i18n="voiceLead">Create a room, invite up to 5 players and talk with low-latency audio.</p>
+            </div>
+            <div class="voice-room-panel" data-voice-room></div>
+            <div class="voice-audio-stage" data-voice-audio></div>
+          </section>
+
+          <section class="app-view" data-view="profile" aria-label="Profile" data-i18n-attr="aria-label:profile">
+            <div class="profile-hero">
+              <label class="avatar-picker" aria-label="Change avatar" data-i18n-attr="aria-label:changeAvatar">
+                <input data-avatar-input type="file" accept="image/*" />
+                <span class="avatar-image" data-avatar-large>BX</span>
+                <b data-i18n="change">Change</b>
+              </label>
+              <div>
+                <p class="overline" data-i18n="profilePanel">Player panel</p>
+                <h1 data-profile-name>BAZA player</h1>
+                <span data-profile-level>Rookie</span>
+                <div class="profile-actions">
+                  <button class="profile-login-button" type="button" data-profile-login-action data-i18n="loginProfile">Login</button>
+                  <button class="profile-register-button" type="button" data-profile-register-action data-i18n="registerProfile">Register</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title compact-title first-section">
+              <div>
+                <span data-i18n="accountAccess">Account</span>
+                <h2 data-i18n="accountAccess">Account</h2>
+              </div>
+            </div>
+            <form class="profile-form" data-profile-form>
+              <label>
+                <span data-i18n="nickname">Player nickname</span>
+                <input name="nickname" type="text" maxlength="24" placeholder="NOKA / SVED / ..." required />
+              </label>
+              <label>
+                <span data-i18n="contact">Phone or Telegram</span>
+                <input name="contact" type="text" maxlength="48" placeholder="+48 ... / @username" required />
+              </label>
+              <label>
+                <span data-i18n="password">Password</span>
+                <input name="password" type="password" minlength="2" maxlength="32" autocomplete="new-password" placeholder="A1" required />
+                <em data-i18n="passwordHint">Min. 2 letters/numbers and one uppercase letter.</em>
+              </label>
+              <button class="primary-button" type="submit" data-i18n="saveProfile">Save profile</button>
+            </form>
+            <form class="login-form" data-login-form hidden>
+              <label>
+                <span data-i18n="nickname">Player nickname</span>
+                <input name="loginNickname" type="text" maxlength="24" autocomplete="username" required />
+              </label>
+              <label>
+                <span data-i18n="password">Password</span>
+                <input name="loginPassword" type="password" maxlength="32" autocomplete="current-password" required />
+              </label>
+              <button class="primary-button" type="submit" data-i18n="loginProfile">Login</button>
+            </form>
+            <div class="welcome-message" data-welcome-message hidden data-i18n="welcomeGame">Добро пожаловать в игру!</div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="playerStats">Player stats</span>
+                <h2 data-i18n="personalProgress">Progress</h2>
+              </div>
+            </div>
+            <div class="panel-grid">
+              <article class="panel-tile">
+                <span data-i18n="points">points</span>
+                <strong data-points-total>0</strong>
+              </article>
+              <article class="panel-tile">
+                <span data-i18n="games">games</span>
+                <strong data-signed-count>0</strong>
+              </article>
+              <article class="panel-tile">
+                <span data-i18n="newsShort">news</span>
+                <strong data-news-count>0</strong>
+              </article>
+              <article class="panel-tile">
+                <span data-i18n="rank">rank</span>
+                <strong data-rank-label>Rookie</strong>
+              </article>
+            </div>
+
+            <div class="profile-sync-card" data-profile-sync></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="playerTools">Player tools</span>
+                <h2 data-i18n="playerTools">Player tools</h2>
+              </div>
+            </div>
+            <div class="points-transfer-card" data-points-transfer></div>
+
+            <div class="team-panel" data-team-panel>
+              <div class="section-title compact-title">
+                <div>
+                  <span data-i18n="captainTools">Captain tools</span>
+                  <h2 data-i18n="createTeam">Create a team</h2>
+                </div>
+              </div>
+              <form class="team-form" data-team-form>
+                <label>
+                  <span data-i18n="teamName">Team name</span>
+                  <input name="teamName" type="text" maxlength="32" placeholder="BAZA Alpha" required />
+                </label>
+                <div>
+                  <span class="form-label" data-i18n="choosePlayers">Choose registered players</span>
+                  <div class="player-picker" data-player-picker></div>
+                </div>
+                <button class="primary-button" type="submit" data-i18n="sendInvites">Send team invitations</button>
+              </form>
+              <div class="team-status" data-team-status></div>
+            </div>
+
+            <div class="notifications-panel">
+              <div class="section-title compact-title">
+                <div>
+                  <span data-i18n="notifications">Notifications</span>
+                  <h2 data-i18n="teamConfirmations">Team confirmations</h2>
+                </div>
+              </div>
+              <div class="notification-list" data-notification-list></div>
+            </div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="achievements">Achievements</span>
+                <h2 data-i18n="achievements">Achievements</h2>
+              </div>
+            </div>
+            <div class="achievement-grid" data-achievements></div>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="gameHistory">Game history</span>
+                <h2 data-i18n="gameHistory">Game history</h2>
+              </div>
+            </div>
+            <ol class="game-history-list" data-game-history></ol>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="history">History</span>
+                <h2 data-i18n="pointsHistory">Points activity</h2>
+              </div>
+            </div>
+            <ol class="activity-list" data-activity-list></ol>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="securitySettings">Security</span>
+                <h2 data-i18n="securitySettings">Security</h2>
+              </div>
+            </div>
+            <form class="password-change-form" data-password-change-form hidden>
+              <label>
+                <span data-i18n="currentPassword">Current password</span>
+                <input name="currentPassword" type="password" maxlength="32" autocomplete="current-password" required />
+              </label>
+              <label>
+                <span data-i18n="newPassword">New password</span>
+                <input name="newPassword" type="password" minlength="2" maxlength="32" autocomplete="new-password" placeholder="A1" required />
+                <em data-i18n="passwordHint">Min. 2 letters/numbers and one uppercase letter.</em>
+              </label>
+              <button class="primary-button" type="submit" data-i18n="changePassword">Change password</button>
+            </form>
+
+            <div class="section-title compact-title">
+              <div>
+                <span data-i18n="appSettings">Settings</span>
+                <h2 data-i18n="appSettings">Settings</h2>
+              </div>
+            </div>
+            <div class="profile-language-panel">
+              <label>
+                <span data-i18n="language">Language</span>
+                <select name="language" data-language-select>
+                  <option value="en">English</option>
+                  <option value="ru">Русский</option>
+                  <option value="pl">Polski</option>
+                </select>
+              </label>
+            </div>
+
+            <button class="hard-reset-button" type="button" data-hard-reset data-i18n="hardReset">Hard reset</button>
+
+            <div class="admin-panel" data-admin-panel hidden></div>
+          </section>
+        </div>
+
+        <nav class="tab-bar" aria-label="App navigation" data-i18n-attr="aria-label:appNavigation">
+          <button class="active" type="button" data-tab="home" aria-label="Home" data-i18n-attr="aria-label:home">
+            <span>⌂</span>
+            <b data-i18n="home">Home</b>
+          </button>
+          <button type="button" data-tab="games" aria-label="Games" data-i18n-attr="aria-label:games">
+            <span>＋</span>
+            <b data-i18n="games">Games</b>
+          </button>
+          <button type="button" data-tab="news" aria-label="News" data-i18n-attr="aria-label:news">
+            <span>✦</span>
+            <b data-i18n="news">News</b>
+          </button>
+          <button type="button" data-tab="profile" aria-label="Profile" data-i18n-attr="aria-label:profile">
+            <span>●</span>
+            <b data-i18n="profile">Profile</b>
+          </button>
+        </nav>
+      </section>
+    </main>
+
+    <div class="app-toast" data-toast role="status" aria-live="polite"></div>
+    <script src="ios-app.js?v=59"></script>
+  </body>
+</html>
