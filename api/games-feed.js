@@ -3,6 +3,8 @@ const { readSiteSignups } = require("./_site-signups");
 const signupHandler = require("./telegram-signup");
 
 const timeZone = "Europe/Warsaw";
+const WEATHER_URL =
+  "https://api.open-meteo.com/v1/forecast?latitude=52.2297&longitude=21.0122&hourly=temperature_2m,weather_code&timezone=Europe%2FWarsaw&forecast_days=8";
 const gameDefinitions = {
   wednesday: {
     id: "wednesday",
@@ -144,6 +146,26 @@ const buildGamesFeed = async () => {
   };
 };
 
+const sendWeatherFeed = async (response) => {
+  try {
+    const weatherResponse = await fetch(WEATHER_URL, {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!weatherResponse.ok) {
+      throw new Error(`Weather API responded with ${weatherResponse.status}`);
+    }
+
+    response.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=3600");
+    response.status(200).json(await weatherResponse.json());
+  } catch (error) {
+    response.status(502).json({
+      error: "Weather forecast is unavailable",
+      reason: error.message,
+    });
+  }
+};
+
 module.exports = async function handler(request, response) {
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -166,6 +188,11 @@ module.exports = async function handler(request, response) {
   }
 
   try {
+    if (request.query?.service === "weather") {
+      await sendWeatherFeed(response);
+      return;
+    }
+
     const feed = await buildGamesFeed();
     response.setHeader("Cache-Control", "no-store, max-age=0");
     response.status(200).json(feed);
