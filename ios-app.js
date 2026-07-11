@@ -3,7 +3,11 @@ const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
 const PUBLIC_APP_ORIGIN = "https://www.lasertagbaza.pl";
-const VOICE_HTTP_POLL_MS = 1800;
+const VOICE_HTTP_POLL_MS = 280;
+const VOICE_RELAY_CHUNK_MS = 220;
+const VOICE_RELAY_RESTART_MS = 20;
+const VOICE_RELAY_MAX_QUEUE = 4;
+const VOICE_RELAY_MAX_AGE_MS = 2500;
 const ADMIN_ACCOUNT = {
   nickname: "Ruslan",
   password: "Ruslan2026",
@@ -2576,6 +2580,13 @@ function sendNativeVoiceInviteNotification(invite) {
   return true;
 }
 
+function sendNativeVoiceAudioActive(active) {
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (!handler?.postMessage) return false;
+  handler.postMessage({ type: "voiceAudioActive", active: Boolean(active) });
+  return true;
+}
+
 function resizeImageDataUrl(dataUrl, maxSize = 420, quality = 0.82) {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -4837,9 +4848,10 @@ function startVoiceRelayRecorder() {
   if (!room || !voiceStream || !("MediaRecorder" in window)) return;
   if (voiceRelayRecorder && voiceRelayRecorder.state !== "inactive") return;
   voiceRelayActive = true;
+  sendNativeVoiceAudioActive(true);
   try {
     voiceRelayMimeType = supportedVoiceRelayMimeType();
-    const options = voiceRelayMimeType ? { mimeType: voiceRelayMimeType, audioBitsPerSecond: 24000 } : { audioBitsPerSecond: 24000 };
+    const options = voiceRelayMimeType ? { mimeType: voiceRelayMimeType, audioBitsPerSecond: 28000 } : { audioBitsPerSecond: 28000 };
     voiceRelayRecorder = new MediaRecorder(voiceStream, options);
     voiceRelayRecorder.addEventListener("dataavailable", async (event) => {
       if (!event.data || event.data.size < 120 || event.data.size > 90_000) return;
@@ -4868,7 +4880,7 @@ function startVoiceRelayRecorder() {
       () => {
         voiceRelayRecorder = null;
         if (voiceRelayActive && voiceStream && currentVoiceRoom()) {
-          setTimeout(startVoiceRelayRecorder, 80);
+          setTimeout(startVoiceRelayRecorder, VOICE_RELAY_RESTART_MS);
         }
       },
       { once: true },
@@ -4876,7 +4888,7 @@ function startVoiceRelayRecorder() {
     voiceRelayRecorder.start();
     setTimeout(() => {
       if (voiceRelayRecorder?.state === "recording") voiceRelayRecorder.stop();
-    }, 900);
+    }, VOICE_RELAY_CHUNK_MS);
   } catch (error) {
     voiceRelayRecorder = null;
     lastVoiceError = error?.message || "audio relay unavailable";
@@ -4885,6 +4897,7 @@ function startVoiceRelayRecorder() {
 
 function stopVoiceRelayRecorder() {
   voiceRelayActive = false;
+  sendNativeVoiceAudioActive(false);
   if (!voiceRelayRecorder) return;
   try {
     if (voiceRelayRecorder.state !== "inactive") voiceRelayRecorder.stop();
@@ -4899,8 +4912,12 @@ function handleVoiceRelayChunk(chunk) {
   voiceRelaySeenChunks.add(chunk.id);
   voiceAudioCursor = chunk.createdAt || voiceAudioCursor;
   if (!chunk.data || normalizePlayerName(chunk.source) === normalizePlayerName(playerName())) return;
+  if (Date.now() - new Date(chunk.createdAt || 0).getTime() > VOICE_RELAY_MAX_AGE_MS) return;
   voiceRelayQueue.push(chunk);
   voiceRelayQueue.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  if (voiceRelayQueue.length > VOICE_RELAY_MAX_QUEUE) {
+    voiceRelayQueue.splice(0, voiceRelayQueue.length - VOICE_RELAY_MAX_QUEUE);
+  }
   playNextVoiceRelayChunk();
 }
 
