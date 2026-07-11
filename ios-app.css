@@ -75,6 +75,7 @@ select,
 textarea {
   -webkit-user-select: text;
   user-select: text;
+  font-size: 16px;
 }
 
 button {
@@ -1331,6 +1332,7 @@ a {
   color: var(--paper);
   background: transparent;
   outline: none;
+  font-size: 16px;
 }
 
 .chat-compose button {
@@ -1488,6 +1490,7 @@ a {
   color: var(--paper);
   background: rgba(255, 255, 255, 0.08);
   outline: none;
+  font-size: 16px;
 }
 
 .news-form input,
@@ -2008,6 +2011,7 @@ a {
   color: var(--paper);
   background: rgba(255, 255, 255, 0.08);
   outline: none;
+  font-size: 16px;
 }
 
 .team-chat-compose button {

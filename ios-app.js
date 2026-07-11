@@ -3944,6 +3944,7 @@ async function loadPlayerChat({ silent = true } = {}) {
 }
 
 function connectPlayerChatSocket() {
+  if (appApiOrigin().includes("lasertagbaza.pl")) return;
   if (!("WebSocket" in window) || (playerChatSocket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(playerChatSocket.readyState))) return;
   try {
     playerChatSocket = new WebSocket(playerChatSocketUrl());

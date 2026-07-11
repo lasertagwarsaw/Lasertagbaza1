@@ -82,15 +82,18 @@ module.exports = async function handler(request, response) {
     ranking.players.push(nextPlayer);
   }
 
-  if (body.passwordHash) {
+  profiles.profiles = profiles.profiles || {};
+  const existingProfile = profiles.profiles[id];
+  if (body.passwordHash || existingProfile) {
     profiles.profiles = profiles.profiles || {};
     profiles.profiles[id] = {
+      ...(existingProfile || {}),
       id,
       nickname,
-      passwordHash: cleanText(body.passwordHash, 120),
-      contact: cleanText(body.contact, 80) || "admin-created",
+      passwordHash: body.passwordHash ? cleanText(body.passwordHash, 120) : existingProfile?.passwordHash || "",
+      contact: cleanText(body.contact, 80) || existingProfile?.contact || "admin-created",
       points,
-      createdAt: profiles.profiles[id]?.createdAt || body.createdAt || new Date().toISOString(),
+      createdAt: existingProfile?.createdAt || body.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     await writePlayerProfiles(profiles);
