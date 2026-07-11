@@ -2173,14 +2173,9 @@ function renderVoiceRoom(options = {}) {
     return;
   }
 
-  const voiceStatus =
-    !room && transportAvailable
-      ? t("voiceReady")
-      : transportStatus === "connected"
-      ? t("voiceReady")
-      : transportStatus === "connecting"
-        ? t("voiceConnecting")
-        : t("voiceServerOffline");
+  let voiceStatus = t("voiceServerOffline");
+  if ((!room && transportAvailable) || transportStatus === "connected") voiceStatus = t("voiceReady");
+  if (transportStatus === "connecting") voiceStatus = t("voiceConnecting");
   if (!room) {
     const voiceRoomAllowed = canCreateVoiceRoom();
     voiceRoomPanel.innerHTML = `
