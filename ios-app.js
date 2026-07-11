@@ -2459,6 +2459,7 @@ function noNotificationsText() {
 function render() {
   applySiteLinks();
   applyLanguage();
+  ensureVoiceInviteSync();
   renderEnvironmentWarning();
   renderStats();
   renderGames();
@@ -2986,6 +2987,7 @@ function logoutPlayer() {
   if (wasAdmin) {
     state.profile = cloneData(defaultState.profile);
   }
+  stopVoiceHttpSync();
   saveState();
   render();
   showToast(localizedToast("logout"));
@@ -4559,11 +4561,25 @@ async function syncVoiceRoomOverHttp(payload = null) {
   }
 }
 
+function stopVoiceHttpSync() {
+  clearInterval(voiceHttpTimer);
+  voiceHttpTimer = null;
+  voiceSocketStatus = "offline";
+}
+
 function startVoiceHttpSync() {
   if (voiceHttpTimer || !isCurrentUserRegistered()) return;
   syncVoiceRoomOverHttp({ type: "hello", player: playerName() });
   syncVoiceRoomOverHttp();
   voiceHttpTimer = setInterval(() => syncVoiceRoomOverHttp(), VOICE_HTTP_POLL_MS);
+}
+
+function ensureVoiceInviteSync() {
+  if (isCurrentUserRegistered()) {
+    startVoiceHttpSync();
+  } else if (voiceHttpTimer) {
+    stopVoiceHttpSync();
+  }
 }
 
 function sendVoiceHttp(payload) {
@@ -5072,6 +5088,7 @@ window.__bazaVoiceDebug = voiceDebugSnapshot;
 
 function hardResetApp() {
   clearTimeout(welcomeTimer);
+  stopVoiceHttpSync();
   localStorage.removeItem(STORAGE_KEY);
   state = cloneData(defaultState);
   if (profileForm) profileForm.hidden = false;

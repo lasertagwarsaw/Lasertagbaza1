@@ -2,7 +2,7 @@
   "name": "BAZA Club App",
   "short_name": "BAZA",
   "description": "iOS app for Lasertag Club BAZA players, games, news, avatars and points.",
-  "start_url": "ios-app.html?v=61",
+  "start_url": "ios-app.html?v=62",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",
