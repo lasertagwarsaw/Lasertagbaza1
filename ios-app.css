@@ -778,29 +778,9 @@ a {
   text-transform: uppercase;
 }
 
-.voice-player-list {
-  max-height: 188px;
-  display: grid;
-  gap: 8px;
-  overflow: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.voice-player-list .text-button {
-  min-height: 42px;
-  justify-content: flex-start;
-  padding: 0 12px;
-  border-color: rgba(126, 233, 255, 0.22);
-  background: rgba(126, 233, 255, 0.08);
-  color: var(--paper);
-  text-align: left;
-}
-
-.voice-player-list .text-button.selected {
-  border-color: rgba(198, 255, 0, 0.75);
-  background: rgba(198, 255, 0, 0.16);
-  color: var(--acid);
+.voice-error {
+  margin: 0 0 10px;
+  color: #ff9b8f;
 }
 
 .voice-invite-requests {

@@ -176,7 +176,14 @@ const mergeRoom = (state, inputRoom) => {
   const room = normalizeRoom(inputRoom);
   if (!room.owner) return;
   const owner = normalizeName(room.owner);
-  state.rooms = (state.rooms || []).filter((item) => item.id !== room.id && normalizeName(item.owner) !== owner);
+  const participantNames = new Set((room.participants || []).map((participant) => normalizeName(participant.name)));
+  state.rooms = (state.rooms || [])
+    .filter((item) => item.id !== room.id && normalizeName(item.owner) !== owner)
+    .filter((item) => !participantNames.has(normalizeName(item.owner)))
+    .map((item) => ({
+      ...item,
+      participants: (item.participants || []).filter((participant) => !participantNames.has(normalizeName(participant.name))),
+    }));
   state.rooms.unshift(room);
 };
 
@@ -276,28 +283,9 @@ module.exports = async function handler(request, response) {
   const body = request.body || {};
 
   if (request.method === "GET") {
-    markClient(state, query.player);
-    const player = normalizeName(query.player);
-    const after = cleanText(query.after, 90);
-    const afterAudio = cleanText(query.afterAudio, 90);
-    const signals = (state.signals || []).filter((signal) => {
-      if (player && normalizeName(signal.target) !== player) return false;
-      if (!after) return true;
-      return new Date(signal.createdAt).getTime() > new Date(after).getTime();
-    });
-    const roomIds = participantRoomIds(state, player);
-    const audioChunks = (state.audioChunks || []).filter((chunk) => {
-      if (!roomIds.has(chunk.roomId)) return false;
-      if (normalizeName(chunk.source) === player) return false;
-      if (!afterAudio) return true;
-      return new Date(chunk.createdAt).getTime() > new Date(afterAudio).getTime();
-    });
-    const nextState = await writeVoiceState(state);
     response.status(200).json({
       ok: true,
-      rooms: roomsWithOnlineState(nextState),
-      signals,
-      audioChunks,
+      rooms: roomsWithOnlineState(state),
       serverTime: new Date().toISOString(),
     });
     return;
@@ -336,11 +324,16 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  markClient(state, body.player || body.source || body.room?.owner);
+  if (["hello", "mic", "signal", "audio-chunk"].includes(body.type)) {
+    response.status(200).json({
+      ok: true,
+      rooms: roomsWithOnlineState(state),
+      serverTime: new Date().toISOString(),
+    });
+    return;
+  }
 
-  if (body.type === "hello") {
-    // Presence is updated above.
-  } else if (body.type === "sync-room") {
+  if (body.type === "sync-room") {
     mergeRoom(state, body.room);
   } else if (body.type === "delete-room") {
     deleteRoom(state, body.roomId, body.player);
@@ -348,12 +341,6 @@ module.exports = async function handler(request, response) {
     leaveRoom(state, body.roomId, body.player);
   } else if (body.type === "decline-invite") {
     declineInvite(state, body.roomId, body.player);
-  } else if (body.type === "mic") {
-    updateMic(state, body.roomId, body.player, body.micEnabled);
-  } else if (body.type === "signal") {
-    addSignal(state, body);
-  } else if (body.type === "audio-chunk") {
-    addAudioChunk(state, body);
   }
 
   const nextState = await writeVoiceState(state);

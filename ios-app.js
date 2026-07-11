@@ -3,7 +3,7 @@ const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
 const PUBLIC_APP_ORIGIN = "https://www.lasertagbaza.pl";
-const VOICE_HTTP_POLL_MS = 280;
+const VOICE_HTTP_POLL_MS = 1000;
 const VOICE_RELAY_CHUNK_MS = 220;
 const VOICE_RELAY_RESTART_MS = 20;
 const VOICE_RELAY_MAX_QUEUE = 4;
@@ -797,10 +797,11 @@ let voiceRelayMimeType = "";
 let voiceRelayActive = false;
 let voiceRelayPlaying = false;
 let voiceRelayLastChunkAt = "";
-let selectedVoiceInviteMember = "";
 let nativeVoiceRtcStatus = "offline";
 let nativeVoiceRtcRoomId = "";
 let nativeVoiceRtcMicEnabled = false;
+let nativeVoiceRemoteAudioTracks = 0;
+let nativeVoiceRemoteParticipants = 0;
 let nativeVoiceRequestSequence = 0;
 let browserVoiceRtcStatus = "offline";
 let browserVoiceRtcRoomId = "";
@@ -808,6 +809,8 @@ let browserVoiceRtcPlayer = "";
 let browserVoiceRtcMicEnabled = false;
 let browserVoiceRoom = null;
 let browserVoiceConnectPromise = null;
+let voiceRoomRenderFingerprint = "";
+let voiceActionPending = false;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const browserVoiceAudioNodes = new Map();
@@ -2128,13 +2131,30 @@ function renderAdminLog() {
 
 function shouldDeferVoiceRoomRender() {
   const active = document.activeElement;
-  return Boolean(active?.closest?.("[data-voice-invite-form], [data-voice-room-form]"));
+  return Boolean(active && voiceRoomPanel?.contains(active));
 }
 
 function renderVoiceRoom(options = {}) {
   if (!voiceRoomPanel) return;
   if (!options.force && shouldDeferVoiceRoomRender()) return;
   const registered = isCurrentUserRegistered();
+  const room = currentVoiceRoom();
+  const pendingInvites = pendingVoiceInvites();
+  const transportStatus = voiceTransportStatus();
+  const selectedBefore = voiceRoomPanel.querySelector("[data-voice-invite-select]")?.value || "";
+  const fingerprint = JSON.stringify({
+    registered,
+    room,
+    pendingInvites: pendingInvites.map((invite) => invite.room.id),
+    transportStatus,
+    micEnabled: voiceTransportMicEnabled(),
+    audioCount: voiceTransportAudioCount(),
+    actionPending: voiceActionPending,
+    lastVoiceError,
+  });
+  if (!options.force && fingerprint === voiceRoomRenderFingerprint) return;
+  voiceRoomRenderFingerprint = fingerprint;
+
   if (!registered) {
     voiceRoomPanel.innerHTML = `
       <div class="voice-status-card">
@@ -2147,16 +2167,13 @@ function renderVoiceRoom(options = {}) {
     return;
   }
 
-  const room = currentVoiceRoom();
-  const transportStatus = voiceTransportStatus();
   const voiceStatus =
-    transportStatus === "connected" || transportStatus === "online"
+    transportStatus === "connected"
       ? t("voiceReady")
       : transportStatus === "connecting"
         ? t("voiceConnecting")
         : t("voiceServerOffline");
   if (!room) {
-    const pendingInvites = pendingVoiceInvites();
     const voiceRoomAllowed = canCreateVoiceRoom();
     voiceRoomPanel.innerHTML = `
       <div class="voice-status-card">
@@ -2189,7 +2206,7 @@ function renderVoiceRoom(options = {}) {
           <span>${escapeHtml(t("roomName"))}</span>
           <input name="roomName" type="text" maxlength="32" placeholder="BAZA Voice" ${voiceRoomAllowed ? "" : "disabled"} />
         </label>
-        <button class="primary-button" type="submit" ${voiceRoomAllowed ? "" : "disabled"}>${escapeHtml(t("createVoiceRoom"))}</button>
+        <button class="primary-button" type="submit" ${voiceRoomAllowed && !voiceActionPending ? "" : "disabled"}>${escapeHtml(t("createVoiceRoom"))}</button>
       </form>
     `;
     return;
@@ -2198,30 +2215,30 @@ function renderVoiceRoom(options = {}) {
   const owner = normalizePlayerName(room.owner) === normalizePlayerName(playerName());
   const participants = room.participants || [];
   const invitations = (room.invitations || []).filter((invite) => invite.status === "pending");
-  const currentParticipant = participants.find((participant) => normalizePlayerName(participant.name) === normalizePlayerName(playerName()));
   const invitedCount = Math.max(participants.length - 1, 0) + invitations.length;
   const canInvite = owner && invitedCount < 5;
+  const localMicEnabled = voiceTransportMicEnabled();
+  const remoteAudioCount = voiceTransportAudioCount();
+  const connectionReady = transportStatus === "connected";
   const availablePlayers = registeredPlayers().filter(
     (name) =>
       !participants.some((participant) => normalizePlayerName(participant.name) === normalizePlayerName(name)) &&
       !invitations.some((invite) => normalizePlayerName(invite.name) === normalizePlayerName(name)),
   );
-  if (!availablePlayers.some((name) => normalizePlayerName(name) === normalizePlayerName(selectedVoiceInviteMember))) {
-    selectedVoiceInviteMember = "";
-  }
 
   voiceRoomPanel.innerHTML = `
     <div class="voice-status-card">
       <b>${escapeHtml(t("voiceConnection"))}</b>
-      <span>${escapeHtml(voiceStatus)}</span>
+      <span>${escapeHtml(voiceStatus)}${remoteAudioCount ? ` · audio ${remoteAudioCount}` : ""}</span>
     </div>
+    ${lastVoiceError ? `<p class="empty-note voice-error">${escapeHtml(lastVoiceError)}</p>` : ""}
     <div class="voice-room-card">
       <div class="voice-room-head">
         <div>
           <b>${escapeHtml(room.name)}</b>
           <span>${escapeHtml(room.owner)} / ${invitedCount}/5</span>
         </div>
-        <button class="primary-button" type="button" data-voice-mic>${escapeHtml(currentParticipant?.micEnabled ? t("micOn") : t("micOff"))}</button>
+        <button class="primary-button" type="button" data-voice-mic ${connectionReady && !voiceActionPending ? "" : "disabled"}>${escapeHtml(localMicEnabled ? t("micOn") : t("micOff"))}</button>
       </div>
       <div class="voice-participants">
         ${participants
@@ -2230,7 +2247,6 @@ function renderVoiceRoom(options = {}) {
               <article>
                 <span>${escapeHtml(initials(participant.name))}</span>
                 <b>${escapeHtml(participant.name)}</b>
-                <em class="${participant.micEnabled ? "talking" : participant.online ? "online" : ""}">${escapeHtml(participant.micEnabled ? t("micOn") : participant.online ? t("online") : t("offline"))}</em>
                 ${owner && normalizePlayerName(participant.name) !== normalizePlayerName(room.owner) ? `<button class="text-button" type="button" data-voice-remove="${escapeHtml(participant.name)}">${escapeHtml(t("removePlayer"))}</button>` : ""}
               </article>
             `,
@@ -2252,28 +2268,24 @@ function renderVoiceRoom(options = {}) {
       ${
         canInvite
           ? `<div class="voice-invite-form" data-voice-invite-form>
-              <span>${escapeHtml(t("voiceInvite"))}</span>
-              <div class="voice-player-list">
-                ${
-                  availablePlayers.length
-                    ? availablePlayers
-                        .map((name) => {
-                          const active = normalizePlayerName(name) === normalizePlayerName(selectedVoiceInviteMember);
-                          return `<button class="text-button ${active ? "selected" : ""}" type="button" data-voice-invite-pick="${escapeHtml(name)}">${escapeHtml(name)}</button>`;
-                        })
-                        .join("")
-                    : `<p class="empty-note">${escapeHtml(t("transferNoPlayers"))}</p>`
-                }
-              </div>
-              <button class="primary-button" type="button" data-voice-invite-confirm ${selectedVoiceInviteMember ? "" : "disabled"}>
-                ${escapeHtml(selectedVoiceInviteMember ? `${t("addToRoom")}: ${selectedVoiceInviteMember}` : t("selectPlayer"))}
-              </button>
+              <label>
+                <span>${escapeHtml(t("voiceInvite"))}</span>
+                <select data-voice-invite-select ${availablePlayers.length ? "" : "disabled"}>
+                  <option value="">${escapeHtml(t("selectPlayer"))}</option>
+                  ${availablePlayers.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}
+                </select>
+              </label>
+              <button class="primary-button" type="button" data-voice-invite-confirm ${availablePlayers.length && !voiceActionPending ? "" : "disabled"}>${escapeHtml(t("addToRoom"))}</button>
             </div>`
           : `<p class="empty-note">${escapeHtml(owner ? t("roomLimit") : t("voiceInvite"))}</p>`
       }
-      <button class="text-button" type="button" data-voice-leave>${escapeHtml(t("leaveVoiceRoom"))}</button>
+      <button class="text-button" type="button" data-voice-leave ${voiceActionPending ? "disabled" : ""}>${escapeHtml(t("leaveVoiceRoom"))}</button>
     </div>
   `;
+  const inviteSelect = voiceRoomPanel.querySelector("[data-voice-invite-select]");
+  if (inviteSelect && availablePlayers.some((name) => normalizePlayerName(name) === normalizePlayerName(selectedBefore))) {
+    inviteSelect.value = selectedBefore;
+  }
 }
 
 function currentVoiceRoom() {
@@ -2284,6 +2296,39 @@ function currentVoiceRoom() {
     rooms.find((room) => room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName)) ||
     null
   );
+}
+
+async function leaveOtherVoiceRooms(exceptRoomId = "") {
+  const currentName = normalizePlayerName(playerName());
+  const memberships = (state.voiceRooms || []).filter(
+    (room) =>
+      room.id !== exceptRoomId &&
+      room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName),
+  );
+  for (const room of memberships) {
+    const owner = normalizePlayerName(room.owner) === currentName;
+    await syncVoiceRoomOverHttp({
+      type: owner ? "delete-room" : "leave-room",
+      roomId: room.id,
+      player: playerName(),
+    });
+  }
+  if (memberships.length) {
+    await leaveNativeVoiceRoom();
+    await leaveBrowserVoiceRoom();
+  }
+}
+
+async function runVoiceAction(action) {
+  if (voiceActionPending) return;
+  voiceActionPending = true;
+  renderVoiceRoom({ force: true });
+  try {
+    await action();
+  } finally {
+    voiceActionPending = false;
+    renderVoiceRoom({ force: true });
+  }
 }
 
 function pendingVoiceInvites() {
@@ -2652,7 +2697,19 @@ function hasBrowserVoiceRtc() {
 function voiceTransportStatus() {
   if (hasNativeVoiceRtc()) return nativeVoiceRtcStatus;
   if (hasBrowserVoiceRtc()) return browserVoiceRtcStatus;
-  return voiceSocketStatus;
+  return "offline";
+}
+
+function voiceTransportMicEnabled() {
+  if (hasNativeVoiceRtc()) return nativeVoiceRtcMicEnabled;
+  if (hasBrowserVoiceRtc()) return browserVoiceRtcMicEnabled;
+  return false;
+}
+
+function voiceTransportAudioCount() {
+  if (hasNativeVoiceRtc()) return nativeVoiceRemoteAudioTracks;
+  if (hasBrowserVoiceRtc()) return browserVoiceAudioNodes.size;
+  return 0;
 }
 
 function sendNativeVoiceRtcCommand(type, payload = {}, timeoutMs = 15000) {
@@ -2703,6 +2760,8 @@ function leaveNativeVoiceRoom() {
   nativeVoiceRtcStatus = "offline";
   nativeVoiceRtcRoomId = "";
   nativeVoiceRtcMicEnabled = false;
+  nativeVoiceRemoteAudioTracks = 0;
+  nativeVoiceRemoteParticipants = 0;
   return sendNativeVoiceRtcCommand("liveKitLeave", {}, 8000).catch(() => {});
 }
 
@@ -2752,6 +2811,7 @@ function attachBrowserVoiceAudio(track, publication, participant) {
   voiceAudioStage.appendChild(element);
   track.attach(element);
   browserVoiceAudioNodes.set(key, { track, element });
+  renderVoiceRoom();
   element.play().catch((error) => {
     lastVoiceError = error?.message || "audio playback blocked";
   });
@@ -2768,6 +2828,7 @@ function detachBrowserVoiceAudio(track, publication) {
   }
   attached.element.remove();
   browserVoiceAudioNodes.delete(key);
+  renderVoiceRoom();
 }
 
 async function leaveBrowserVoiceRoom() {
@@ -2862,14 +2923,17 @@ window.__bazaNativeVoiceEvent = (event) => {
   if (event.status) nativeVoiceRtcStatus = String(event.status);
   if (event.roomId) nativeVoiceRtcRoomId = String(event.roomId);
   if (typeof event.micEnabled === "boolean") nativeVoiceRtcMicEnabled = event.micEnabled;
+  if (Number.isFinite(Number(event.remoteAudioTracks))) nativeVoiceRemoteAudioTracks = Number(event.remoteAudioTracks);
+  if (Number.isFinite(Number(event.remoteParticipants))) nativeVoiceRemoteParticipants = Number(event.remoteParticipants);
   if (event.error) lastVoiceError = String(event.error);
   if (event.ok) lastVoiceError = "";
 
   const room = currentVoiceRoom();
   const participant = room?.participants?.find((item) => normalizePlayerName(item.name) === normalizePlayerName(playerName()));
   if (participant && typeof event.micEnabled === "boolean") {
+    const changed = participant.micEnabled !== event.micEnabled;
     participant.micEnabled = event.micEnabled;
-    sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: event.micEnabled });
+    if (changed) sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: event.micEnabled });
   }
 
   const pending = event.requestId ? nativeVoiceRequests.get(event.requestId) : null;
@@ -4177,47 +4241,39 @@ document.addEventListener("click", (event) => {
   const voiceMicButton = event.target.closest("[data-voice-mic]");
   if (voiceMicButton) {
     unlockVoiceAudio();
-    toggleVoiceMic();
+    runVoiceAction(toggleVoiceMic);
     return;
   }
 
   const voiceLeaveButton = event.target.closest("[data-voice-leave]");
   if (voiceLeaveButton) {
-    leaveVoiceRoom();
+    runVoiceAction(leaveVoiceRoom);
     return;
   }
 
   const voiceRemoveButton = event.target.closest("[data-voice-remove]");
   if (voiceRemoveButton) {
-    removeVoiceParticipant(voiceRemoveButton.dataset.voiceRemove);
-    return;
-  }
-
-  const voiceInvitePickButton = event.target.closest("[data-voice-invite-pick]");
-  if (voiceInvitePickButton) {
-    selectedVoiceInviteMember = voiceInvitePickButton.dataset.voiceInvitePick || "";
-    renderVoiceRoom({ force: true });
+    runVoiceAction(() => removeVoiceParticipant(voiceRemoveButton.dataset.voiceRemove));
     return;
   }
 
   const voiceInviteConfirmButton = event.target.closest("[data-voice-invite-confirm]");
-  if (voiceInviteConfirmButton && selectedVoiceInviteMember) {
-    const member = selectedVoiceInviteMember;
-    selectedVoiceInviteMember = "";
-    addVoiceParticipantByName(member);
+  if (voiceInviteConfirmButton) {
+    const member = voiceRoomPanel?.querySelector("[data-voice-invite-select]")?.value || "";
+    if (member) runVoiceAction(() => addVoiceParticipantByName(member));
     return;
   }
 
   const acceptVoiceButton = event.target.closest("[data-voice-accept]");
   if (acceptVoiceButton) {
     unlockVoiceAudio();
-    acceptVoiceInvite(acceptVoiceButton.dataset.voiceAccept);
+    runVoiceAction(() => acceptVoiceInvite(acceptVoiceButton.dataset.voiceAccept));
     return;
   }
 
   const declineVoiceButton = event.target.closest("[data-voice-decline]");
   if (declineVoiceButton) {
-    declineVoiceInvite(declineVoiceButton.dataset.voiceDecline);
+    runVoiceAction(() => declineVoiceInvite(declineVoiceButton.dataset.voiceDecline));
     return;
   }
 
@@ -4900,36 +4956,23 @@ async function syncVoiceRoomOverHttp(payload = null) {
           body: JSON.stringify(payload),
         }
       : { cache: "no-store" };
-    const url = payload
-      ? voiceHttpApiUrl()
-      : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}${voiceSignalCursor ? `&after=${encodeURIComponent(voiceSignalCursor)}` : ""}${
-          voiceAudioCursor ? `&afterAudio=${encodeURIComponent(voiceAudioCursor)}` : ""
-        }`;
+    const url = payload ? voiceHttpApiUrl() : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}`;
     const response = await fetch(url, options);
     if (!response.ok) throw new Error("voice http failed");
     const data = await response.json();
     voiceSocketStatus = "online";
     if (Array.isArray(data.rooms)) syncVoiceRoomsFromServer(data.rooms);
-    if (Array.isArray(data.signals)) {
-      data.signals.forEach((signal) => {
-        if (!signal?.id || voiceHttpSeenSignals.has(signal.id)) return;
-        voiceHttpSeenSignals.add(signal.id);
-        voiceSignalCursor = signal.createdAt || voiceSignalCursor;
-        handleWebRtcSignal({ type: "signal", ...signal });
-      });
-    }
-    if (Array.isArray(data.audioChunks)) {
-      data.audioChunks.forEach(handleVoiceRelayChunk);
-    }
     renderVoiceRoom();
     renderHomeVoiceEntry();
     renderVoiceInviteAlert();
+    return data;
   } catch (error) {
     lastVoiceError = error?.message || "voice http offline";
     if (!voiceSocket || voiceSocket.readyState !== WebSocket.OPEN) voiceSocketStatus = "offline";
     renderVoiceRoom();
     renderHomeVoiceEntry();
     renderVoiceInviteAlert();
+    return null;
   }
 }
 
@@ -5068,7 +5111,13 @@ function syncVoiceRoomsFromServer(rooms) {
   const previousInvites = new Set(pendingVoiceInvites().map(pendingVoiceInviteKey));
   state.voiceRooms = rooms;
   const currentName = normalizePlayerName(playerName());
-  const roomForPlayer = rooms.find((room) => room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName));
+  const activeRoom = rooms.find(
+    (room) =>
+      room.id === state.activeVoiceRoomId &&
+      room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName),
+  );
+  const roomForPlayer =
+    activeRoom || rooms.find((room) => room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName));
   if (roomForPlayer) state.activeVoiceRoomId = roomForPlayer.id;
   if (!roomForPlayer && state.activeVoiceRoomId) {
     state.activeVoiceRoomId = "";
@@ -5378,16 +5427,9 @@ async function connectVoiceRoomMedia() {
     });
     return;
   }
-  if (voiceSocketStatus !== "online") return;
-  const currentName = normalizePlayerName(playerName());
-  const remoteParticipants = (room.participants || []).filter(
-    (participant) => normalizePlayerName(participant.name) !== currentName && participant.online && (voiceStream || participant.micEnabled),
-  );
-  for (const participant of remoteParticipants) {
-    const peer = createVoicePeer(participant.name);
-    addLocalVoiceTracks(peer.pc);
-    negotiateVoicePeer(peer);
-  }
+  lastVoiceError = "LiveKit is unavailable. Update the app and reopen it.";
+  renderVoiceRoom();
+  renderHomeVoiceEntry();
 }
 
 function sendVoiceSignal(target, signal) {
@@ -5483,7 +5525,7 @@ function closeVoicePeers() {
   [...voicePeers.keys()].forEach((key) => closeVoicePeer(key));
 }
 
-function createVoiceRoom(form) {
+async function createVoiceRoom(form) {
   if (!isCurrentUserRegistered()) {
     showToast(localizedToast("registerFirst"));
     return;
@@ -5493,6 +5535,7 @@ function createVoiceRoom(form) {
     renderVoiceRoom();
     return;
   }
+  await leaveOtherVoiceRooms();
   const formData = new FormData(form);
   const name = String(formData.get("roomName") || "").trim() || `${playerName()} voice`;
   const room = {
@@ -5510,12 +5553,16 @@ function createVoiceRoom(form) {
   state.activeVoiceRoomId = room.id;
   saveState();
   renderVoiceRoom({ force: true });
-  syncCurrentVoiceRoom();
+  const synced = await syncVoiceRoomOverHttp({ type: "sync-room", room: prepareVoiceRoomForSync(room) });
+  if (!synced) {
+    lastVoiceError = "Could not create the room on the server";
+    renderVoiceRoom({ force: true });
+    return;
+  }
   connectVoiceRoomMedia();
-  showToast(localizedToast("adminSaved"));
 }
 
-function addVoiceParticipantByName(memberName) {
+async function addVoiceParticipantByName(memberName) {
   const room = currentVoiceRoom();
   if (!room || normalizePlayerName(room.owner) !== normalizePlayerName(playerName())) return;
   const member = String(memberName || "").trim();
@@ -5532,31 +5579,35 @@ function addVoiceParticipantByName(memberName) {
   }
   saveState();
   renderVoiceRoom({ force: true });
-  syncCurrentVoiceRoom();
+  await syncVoiceRoomOverHttp({ type: "sync-room", room: prepareVoiceRoomForSync(room) });
 }
 
 function addVoiceParticipant(form) {
   addVoiceParticipantByName(new FormData(form).get("member"));
 }
 
-function removeVoiceParticipant(name) {
+async function removeVoiceParticipant(name) {
   const room = currentVoiceRoom();
   if (!room || normalizePlayerName(room.owner) !== normalizePlayerName(playerName())) return;
   room.participants = room.participants.filter((participant) => normalizePlayerName(participant.name) !== normalizePlayerName(name));
   room.invitations = (room.invitations || []).filter((invite) => normalizePlayerName(invite.name) !== normalizePlayerName(name));
-  closeVoicePeer(name);
   saveState();
   renderVoiceRoom({ force: true });
-  syncCurrentVoiceRoom();
+  await syncVoiceRoomOverHttp({ type: "sync-room", room: prepareVoiceRoomForSync(room) });
 }
 
-function acceptVoiceInvite(roomId) {
+async function acceptVoiceInvite(roomId) {
   unlockVoiceAudio();
   if (!isCurrentUserRegistered()) return;
-  const room = (state.voiceRooms || []).find((item) => item.id === roomId);
+  let room = (state.voiceRooms || []).find((item) => item.id === roomId);
   if (!room) return;
   const currentName = normalizePlayerName(playerName());
-  const invite = room.invitations?.find((item) => item.status === "pending" && normalizePlayerName(item.name) === currentName);
+  let invite = room.invitations?.find((item) => item.status === "pending" && normalizePlayerName(item.name) === currentName);
+  if (!invite || room.participants.length >= 6) return;
+  await leaveOtherVoiceRooms(roomId);
+  room = (state.voiceRooms || []).find((item) => item.id === roomId);
+  if (!room) return;
+  invite = room.invitations?.find((item) => item.status === "pending" && normalizePlayerName(item.name) === currentName);
   if (!invite || room.participants.length >= 6) return;
   room.invitations = (room.invitations || []).filter((item) => normalizePlayerName(item.name) !== currentName);
   if (!room.participants.some((participant) => normalizePlayerName(participant.name) === currentName)) {
@@ -5566,12 +5617,17 @@ function acceptVoiceInvite(roomId) {
   saveState();
   setView("voice");
   renderVoiceRoom({ force: true });
-  syncVoiceRoom(room);
+  const synced = await syncVoiceRoomOverHttp({ type: "sync-room", room: prepareVoiceRoomForSync(room) });
+  if (!synced) {
+    lastVoiceError = "Could not join the room";
+    renderVoiceRoom({ force: true });
+    return;
+  }
   connectVoiceRoomMedia();
-  if (!hasNativeVoiceRtc()) resumeRemoteVoiceAudio();
+  resumeRemoteVoiceAudio();
 }
 
-function declineVoiceInvite(roomId) {
+async function declineVoiceInvite(roomId) {
   if (!isCurrentUserRegistered()) return;
   const room = (state.voiceRooms || []).find((item) => item.id === roomId);
   if (!room) return;
@@ -5579,25 +5635,24 @@ function declineVoiceInvite(roomId) {
   room.invitations = (room.invitations || []).filter((item) => normalizePlayerName(item.name) !== currentName);
   saveState();
   renderVoiceRoom({ force: true });
-  sendVoiceSocket({ type: "decline-invite", roomId: room.id, player: playerName() });
+  await syncVoiceRoomOverHttp({ type: "decline-invite", roomId: room.id, player: playerName() });
 }
 
-function leaveVoiceRoom() {
+async function leaveVoiceRoom() {
   const room = currentVoiceRoom();
   if (!room) return;
   stopVoiceStream();
   const currentName = normalizePlayerName(playerName());
   if (normalizePlayerName(room.owner) === currentName) {
     state.voiceRooms = (state.voiceRooms || []).filter((item) => item.id !== room.id);
-    sendVoiceSocket({ type: "delete-room", roomId: room.id, player: playerName() });
+    await syncVoiceRoomOverHttp({ type: "delete-room", roomId: room.id, player: playerName() });
   } else {
     room.participants = room.participants.filter((participant) => normalizePlayerName(participant.name) !== currentName);
-    sendVoiceSocket({ type: "leave-room", roomId: room.id, player: playerName() });
+    await syncVoiceRoomOverHttp({ type: "leave-room", roomId: room.id, player: playerName() });
   }
   state.activeVoiceRoomId = "";
-  closeVoicePeers();
-  leaveNativeVoiceRoom();
-  leaveBrowserVoiceRoom();
+  await leaveNativeVoiceRoom();
+  await leaveBrowserVoiceRoom();
   sendNativeVoiceAudioActive(false);
   saveState();
   renderVoiceRoom({ force: true });
@@ -5615,7 +5670,7 @@ async function toggleVoiceMic() {
       const nativeReady = await requestNativeVoiceAudioReady();
       if (!nativeReady) throw new Error("Microphone permission denied in iPhone settings");
       await ensureNativeVoiceRoom(room);
-      const nextEnabled = !participant.micEnabled;
+      const nextEnabled = !voiceTransportMicEnabled();
       participant.micEnabled = await setNativeVoiceMicrophone(nextEnabled);
       saveState();
       renderVoiceRoom();
@@ -5634,7 +5689,7 @@ async function toggleVoiceMic() {
       sendNativeVoiceAudioActive(true);
       await ensureBrowserVoiceRoom(room);
       await browserVoiceRoom?.startAudio?.().catch(() => {});
-      participant.micEnabled = await setBrowserVoiceMicrophone(!participant.micEnabled);
+      participant.micEnabled = await setBrowserVoiceMicrophone(!voiceTransportMicEnabled());
       saveState();
       renderVoiceRoom();
       sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
@@ -5647,32 +5702,9 @@ async function toggleVoiceMic() {
     }
     return;
   }
-  if (participant.micEnabled) {
-    participant.micEnabled = false;
-    stopVoiceStream();
-  } else {
-    try {
-      sendNativeVoiceAudioActive(true);
-      const nativeReady = await requestNativeVoiceAudioReady();
-      if (!nativeReady) throw new Error("Microphone permission denied in iPhone settings");
-      voiceStream = await requestVoiceStream();
-      participant.micEnabled = true;
-      addLocalVoiceTracksToAllPeers();
-      renegotiateVoicePeers();
-      startVoiceRelayRecorder();
-    } catch (error) {
-      sendNativeVoiceAudioActive(false);
-      lastVoiceError = voiceErrorMessage(error);
-      showToast(`${t("micError")} ${lastVoiceError}`.trim().slice(0, 180));
-      return;
-    }
-  }
-  saveState();
+  lastVoiceError = "LiveKit is unavailable. Update the app and reopen it.";
   renderVoiceRoom();
-  sendVoiceSocket({ type: "mic", roomId: room.id, player: playerName(), micEnabled: participant.micEnabled });
-  connectVoiceRoomMedia();
-  if (participant.micEnabled) startVoiceRelayRecorder();
-  resumeRemoteVoiceAudio();
+  showToast(lastVoiceError);
 }
 
 async function requestVoiceStream() {
@@ -5723,14 +5755,17 @@ function addLocalVoiceTracksToAllPeers() {
 
 function voiceDebugSnapshot() {
   return {
-    transport: hasNativeVoiceRtc() ? "livekit-native" : hasBrowserVoiceRtc() ? "livekit-browser" : "legacy-webrtc",
+    transport: hasNativeVoiceRtc() ? "livekit-native" : hasBrowserVoiceRtc() ? "livekit-browser" : "unavailable",
     nativeRtcStatus: nativeVoiceRtcStatus,
     nativeRtcRoomId: nativeVoiceRtcRoomId,
     nativeRtcMicEnabled: nativeVoiceRtcMicEnabled,
+    nativeRemoteAudioTracks: nativeVoiceRemoteAudioTracks,
+    nativeRemoteParticipants: nativeVoiceRemoteParticipants,
     browserRtcStatus: browserVoiceRtcStatus,
     browserRtcRoomId: browserVoiceRtcRoomId,
     browserRtcMicEnabled: browserVoiceRtcMicEnabled,
     browserRemoteAudio: browserVoiceAudioNodes.size,
+    actionPending: voiceActionPending,
     socket: voiceSocketStatus,
     clientId: voiceClientId,
     lastError: lastVoiceError,
@@ -5953,7 +5988,7 @@ document.addEventListener("submit", async (event) => {
   const voiceRoomForm = event.target.closest("[data-voice-room-form]");
   if (voiceRoomForm) {
     event.preventDefault();
-    createVoiceRoom(voiceRoomForm);
+    await runVoiceAction(() => createVoiceRoom(voiceRoomForm));
     return;
   }
 
