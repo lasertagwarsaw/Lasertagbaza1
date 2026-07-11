@@ -40,6 +40,7 @@ const newsFilterButtons = document.querySelectorAll("[data-news-filter]");
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const gameSignupEndpoint = `${localApiBase}/api/games-feed`;
 const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
+const rankingFeedEndpoint = `${localApiBase}/api/ranking-feed`;
 const weatherForecastEndpoint = `${localApiBase}/api/weather`;
 const analyticsEndpoint = `${localApiBase}/api/analytics`;
 const signupStorageKey = "bazaGameSignups";
@@ -1651,6 +1652,86 @@ const getRankedPlayerAvatar = (nickname) => {
   return rankedPlayerAvatarIndex?.get(normalizePlayerNickname(nickname)) || null;
 };
 
+const getJson = (url) =>
+  new Promise((resolve, reject) => {
+    if (typeof fetch === "function") {
+      fetch(url, { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then(resolve)
+        .catch(reject);
+      return;
+    }
+
+    const request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Accept", "application/json");
+    request.onload = () => {
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error(`HTTP ${request.status}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(request.responseText));
+      } catch (error) {
+        reject(error);
+      }
+    };
+    request.onerror = () => reject(new Error("Network error"));
+    request.send();
+  });
+
+const playerCardKey = (card) => normalizePlayerNickname(card.dataset.playerId || card.querySelector("strong")?.textContent || "");
+
+const updatePlayerRankingFromFeed = async () => {
+  if (!playerCarousel) return;
+
+  try {
+    window.bazaRankingFeedStatus = { status: "loading", endpoint: rankingFeedEndpoint };
+    const data = await getJson(rankingFeedEndpoint);
+    const players = Array.isArray(data.players) ? data.players : [];
+    window.bazaRankingFeedStatus = { status: "loaded", endpoint: rankingFeedEndpoint, players: players.length };
+    if (!players.length) return;
+
+    const cardsByKey = new Map();
+    playerCarousel.querySelectorAll(".points-card").forEach((card) => {
+      cardsByKey.set(playerCardKey(card), card);
+    });
+
+    const track = playerCarousel.querySelector(".points-track");
+    const sortedCards = [];
+
+    players.forEach((player, index) => {
+      const nickname = String(player.nickname || player.name || "").trim();
+      const card = cardsByKey.get(normalizePlayerNickname(player.id)) || cardsByKey.get(normalizePlayerNickname(nickname));
+      if (!card || !nickname) return;
+
+      const rank = Number(player.rank || index + 1);
+      const points = Number(player.points || 0);
+      const rankNode = card.querySelector("b");
+      const nameNode = card.querySelector("strong");
+      const pointsNode = card.querySelector(":scope > span:last-child");
+
+      card.dataset.playerRank = String(rank);
+      card.dataset.playerPoints = String(points);
+      if (rankNode) rankNode.textContent = String(rank).padStart(2, "0");
+      if (nameNode) nameNode.textContent = nickname;
+      if (pointsNode) pointsNode.textContent = `${points} pkt`;
+      sortedCards.push(card);
+    });
+    window.bazaRankingFeedStatus = { status: "applied", endpoint: rankingFeedEndpoint, players: players.length, cards: sortedCards.length };
+
+    if (track && sortedCards.length) {
+      sortedCards.forEach((card) => track.append(card));
+    }
+  } catch {
+    window.bazaRankingFeedStatus = { status: "error", endpoint: rankingFeedEndpoint };
+    // Keep static ranking if the feed is unavailable.
+  }
+};
+
 const renderSignupItems = (list, signups) => {
   list.innerHTML = "";
 
@@ -2604,6 +2685,7 @@ const setupBonusPlayerArticleLinks = () => {
 const initializeSite = async () => {
   await loadExternalCopy();
   buildRankedPlayerAvatarIndex();
+  await updatePlayerRankingFromFeed();
   setupNewsPagination();
   setupBonusPlayerArticleLinks();
   collectTranslatableText();
@@ -2632,6 +2714,7 @@ window.setInterval(() => {
 }, 60 * 1000);
 
 window.setInterval(fetchSharedSignups, 15 * 1000);
+window.setInterval(updatePlayerRankingFromFeed, 5 * 1000);
 
 if (menuButton) {
   menuButton.addEventListener("click", () => {
