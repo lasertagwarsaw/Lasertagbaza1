@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 88;
+const APP_BUILD = 90;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -26,8 +26,7 @@ function appApiOrigin() {
   if (isNativeAppRuntime()) return PUBLIC_APP_ORIGIN;
   const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1" || host === "") {
-    if (window.location.port === "3000") return window.location.origin;
-    return PUBLIC_APP_ORIGIN;
+    return window.location.origin;
   }
   return window.location.origin;
 }
@@ -932,30 +931,40 @@ const additionalCopy = {
     removePhoto: "Remove photo",
     chatLead: "Messages and photos from registered BAZA players.",
     newGameNotification: "New game is open",
+    liveStream: "LIVE STREAM",
+    streamDuringGame: "Live stream is available during the game.",
   },
   pl: {
     addPhoto: "Dodaj zdjęcie",
     removePhoto: "Usuń zdjęcie",
     chatLead: "Wiadomości i zdjęcia zarejestrowanych graczy BAZA.",
     newGameNotification: "Otwarto zapisy na nową grę",
+    liveStream: "TRANSMISJA NA ŻYWO",
+    streamDuringGame: "Transmisja jest dostępna podczas gry.",
   },
   ru: {
     addPhoto: "Добавить фото",
     removePhoto: "Удалить фото",
     chatLead: "Сообщения и фотографии зарегистрированных игроков BAZA.",
     newGameNotification: "Открыта запись на новую игру",
+    liveStream: "ПРЯМОЙ ЭФИР",
+    streamDuringGame: "Эфир доступен во время игры.",
   },
   uk: {
     addPhoto: "Додати фото",
     removePhoto: "Видалити фото",
     chatLead: "Повідомлення та фотографії зареєстрованих гравців BAZA.",
     newGameNotification: "Відкрито запис на нову гру",
+    liveStream: "ПРЯМИЙ ЕФІР",
+    streamDuringGame: "Ефір доступний під час гри.",
   },
   be: {
     addPhoto: "Дадаць фота",
     removePhoto: "Выдаліць фота",
     chatLead: "Паведамленні і фатаграфіі зарэгістраваных гульцоў BAZA.",
     newGameNotification: "Адкрыты запіс на новую гульню",
+    liveStream: "ПРАМЫ ЭФІР",
+    streamDuringGame: "Эфір даступны падчас гульні.",
   },
 };
 
@@ -4503,7 +4512,7 @@ function renderArticle() {
   }
 
   const cacheKey = articleCacheKey(item);
-  const cachedBody = item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
+  const cachedBody = localize(item.contentByLanguage) || item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
   const canShowSourceBody = true;
   const isLoading = canShowSourceBody && articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
   const body = canShowSourceBody && hasFullArticleBody(item, cachedBody) ? cachedBody : "";
@@ -4519,7 +4528,7 @@ function renderArticle() {
 
 async function loadArticleBody(item) {
   const cacheKey = articleCacheKey(item);
-  const cachedBody = item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
+  const cachedBody = localize(item.contentByLanguage) || item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
   if (hasFullArticleBody(item, cachedBody)) return;
 
   articleLoadingId = item.id;
@@ -4552,7 +4561,7 @@ function articleCacheKey(item) {
 
 function hasFullArticleBody(item, body) {
   const text = String(body || "").replace(/\s+/g, " ").trim();
-  if (item.content && text) return true;
+  if ((item.content || item.contentByLanguage) && text) return true;
   const summary = localize(item.body).replace(/\s+/g, " ").trim();
   return text.length > Math.max(180, summary.length + 40);
 }
@@ -4672,7 +4681,8 @@ async function loadSiteNews() {
 
 async function loadRemoteNewsFeed() {
   try {
-    const response = await fetch("https://www.lasertagbaza.pl/api/news-feed", { cache: "no-store" });
+    const source = appApiUrl("/api/news-feed");
+    const response = await fetch(source, { cache: "no-store" });
     if (!response.ok) return [];
     const feed = await response.json();
     const sections = Array.isArray(feed.sections) ? feed.sections : [];
@@ -4690,11 +4700,12 @@ async function loadRemoteNewsFeed() {
       image: item.image || "",
       contentUrl: item.contentUrl || "",
       content: item.content || "",
+      contentByLanguage: item.contentByLanguage || {},
       articleKey: item.articleKey || "",
       webSelector: item.webSelector || "",
       site: true,
       sectionId: section.id || "",
-      source: "https://www.lasertagbaza.pl/api/news-feed",
+      source,
     }));
   } catch {
     return [];
@@ -5193,6 +5204,12 @@ document.addEventListener("click", (event) => {
   const removeChatPhotoButton = event.target.closest("[data-remove-chat-photo]");
   if (removeChatPhotoButton) {
     clearChatPhoto();
+    return;
+  }
+
+  const liveStreamButton = event.target.closest("[data-live-stream]");
+  if (liveStreamButton) {
+    showToast(t("streamDuringGame"));
     return;
   }
 

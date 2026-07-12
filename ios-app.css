@@ -3120,9 +3120,25 @@ textarea:focus-visible {
   overflow: hidden;
 }
 
-/* Compact profile, dedicated chat and five-item navigation — v88 */
+/* Compact profile, dedicated chat and four-item navigation - v90 */
 .tab-bar {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.action-card.locked-action {
+  border-color: rgba(255, 255, 255, 0.16);
+  background-image: url("assets/card-news-trophy.jpg");
+  background-position: center;
+  filter: saturate(0.45);
+}
+
+.action-card.locked-action > span {
+  color: var(--muted);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.action-card.locked-action em {
+  color: #d2cfc1;
 }
 
 .tab-bar button {

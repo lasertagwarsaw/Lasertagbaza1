@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="ios-app.css?v=88" />
+    <link rel="stylesheet" href="ios-app.css?v=90" />
   </head>
   <body>
     <main class="ios-shell" aria-label="Lasertag Warszawa">
@@ -40,7 +40,7 @@
           <div class="environment-warning" data-env-warning hidden>
             <strong data-i18n="fileModeTitle">Open through local server</strong>
             <span data-i18n="fileModeText">File mode can block site sync.</span>
-            <a href="http://localhost:4178/ios-app.html?v=88" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+            <a href="http://localhost:4178/ios-app.html?v=90" data-localhost-link data-i18n="openLocalhost">Open app link</a>
           </div>
           <div class="voice-invite-alert" data-voice-invite-alert hidden></div>
 
@@ -71,10 +71,10 @@
                 <b data-i18n="voiceRoom">Voice room</b>
                 <em data-home-voice-status>Offline</em>
               </button>
-              <button class="action-card" type="button" data-open-view="news">
-                <span class="material-symbols-rounded" aria-hidden="true">newspaper</span>
-                <b data-i18n="news">News</b>
-                <em data-i18n="clubUpdates">Updates</em>
+              <button class="action-card locked-action" type="button" data-live-stream data-locked="true">
+                <span class="material-symbols-rounded" aria-hidden="true">live_tv</span>
+                <b data-i18n="liveStream">LIVE STREAM</b>
+                <em data-i18n="offline">Offline</em>
               </button>
             </div>
 
@@ -385,16 +385,12 @@
             <span class="material-symbols-rounded">forum</span>
             <b data-i18n="quickChat">Chat</b>
           </button>
-          <button type="button" data-tab="profile" aria-label="Profile" data-i18n-attr="aria-label:profile">
-            <span class="material-symbols-rounded">person</span>
-            <b data-i18n="profile">Profile</b>
-          </button>
         </nav>
       </section>
     </main>
 
     <div class="app-toast" data-toast role="status" aria-live="polite"></div>
-    <script src="vendor/livekit-client.umd.js?v=88"></script>
-    <script src="ios-app.js?v=88"></script>
+    <script src="vendor/livekit-client.umd.js?v=90"></script>
+    <script src="ios-app.js?v=90"></script>
   </body>
 </html>
