@@ -191,15 +191,23 @@ const mergeRoom = (state, inputRoom) => {
 const deleteRoom = (state, roomId, player) => {
   const id = cleanText(roomId, 90);
   const name = normalizeName(player);
+  const ownedRoom = (state.rooms || []).some((room) => room.id === id && normalizeName(room.owner) === name);
+  if (!ownedRoom) return;
   state.rooms = (state.rooms || []).filter((room) => room.id !== id || normalizeName(room.owner) !== name);
+  state.signals = (state.signals || []).filter((signal) => signal.roomId !== id);
+  state.audioChunks = (state.audioChunks || []).filter((chunk) => chunk.roomId !== id);
 };
 
 const leaveRoom = (state, roomId, player) => {
   const id = cleanText(roomId, 90);
   const name = normalizeName(player);
+  const room = (state.rooms || []).find((item) => item.id === id);
+  if (room && normalizeName(room.owner) === name) {
+    deleteRoom(state, id, player);
+    return;
+  }
   state.rooms = (state.rooms || []).filter((room) => {
     if (room.id !== id) return true;
-    if (normalizeName(room.owner) === name) return false;
     room.participants = (room.participants || []).filter((participant) => normalizeName(participant.name) !== name);
     return true;
   });
