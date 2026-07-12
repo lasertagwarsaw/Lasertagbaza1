@@ -102,7 +102,7 @@ const copy = {
     newsHeadline: "Headline",
     newsLead: "News from the website appears here automatically. You can also add a short club update.",
     newsShort: "news",
-    newsTitle: "BAZA news",
+    newsTitle: "Lasertag Warsaw news",
     newsTitlePlaceholder: "Wednesday Counter-Strike game",
     newPassword: "New password",
     nextGame: "Next game",
@@ -153,7 +153,6 @@ const copy = {
     rankingFilterTeam: "Team",
     rankingFilterTop: "Top",
     refreshRoster: "Refresh players",
-    reportMessage: "Report",
     savePlayer: "Save player",
     saveProfile: "Save profile",
     selectPlayer: "Select player",
@@ -279,7 +278,7 @@ const copy = {
     newsHeadline: "Заголовок",
     newsLead: "Новости с сайта появляются здесь автоматически. Можно добавить короткое клубное объявление.",
     newsShort: "новости",
-    newsTitle: "Новости BAZA",
+    newsTitle: "Новости Lasertag Warsaw",
     newsTitlePlaceholder: "В среду играем Counter-Strike",
     newPassword: "Новый пароль",
     nextGame: "Ближайшая игра",
@@ -330,7 +329,6 @@ const copy = {
     rankingFilterTeam: "Команда",
     rankingFilterTop: "Топ",
     refreshRoster: "Обновить игроков",
-    reportMessage: "Жалоба",
     savePlayer: "Сохранить игрока",
     saveProfile: "Сохранить профиль",
     selectPlayer: "Выбрать игрока",
@@ -456,7 +454,7 @@ const copy = {
     newsHeadline: "Tytuł",
     newsLead: "Aktualności ze strony pojawiają się tutaj automatycznie. Możesz też dodać krótki komunikat.",
     newsShort: "news",
-    newsTitle: "Aktualności BAZA",
+    newsTitle: "Aktualności Lasertag Warsaw",
     newsTitlePlaceholder: "W środę gramy Counter-Strike",
     newPassword: "Nowe hasło",
     nextGame: "Najbliższa gra",
@@ -507,7 +505,6 @@ const copy = {
     rankingFilterTeam: "Drużyna",
     rankingFilterTop: "Top",
     refreshRoster: "Odśwież graczy",
-    reportMessage: "Zgłoś",
     savePlayer: "Zapisz gracza",
     saveProfile: "Zapisz profil",
     selectPlayer: "Wybierz gracza",
@@ -571,7 +568,537 @@ const copy = {
   },
 };
 
-const locales = { en: "en", ru: "ru", pl: "pl" };
+copy.uk = {
+  add: "Додати",
+  addPlayer: "Додати гравця",
+  allGames: "Усі ігри",
+  adminLead: "Приховане керування очками, рангами гравців і запропонованими новинами.",
+  adminLog: "Журнал адміністратора",
+  adminPanelTitle: "Панель адміністратора",
+  adminPasswordLabel: "Пароль адміністратора",
+  accountAccess: "Обліковий запис",
+  adminSaved: "Зміни адміністратора збережено.",
+  approveNews: "Схвалити",
+  appNavigation: "Навігація застосунку",
+  appSettings: "Налаштування",
+  article: "Стаття",
+  achievements: "Досягнення",
+  back: "Назад",
+  backToSite: "Повернутися на сайт Lasertag Warsaw",
+  bookings: "бронювання",
+  captainTools: "Інструменти капітана",
+  change: "Змінити",
+  changeAvatar: "Змінити аватар",
+  changePassword: "Змінити пароль",
+  chatPlaceholder: "Напишіть гравцям",
+  chatLocked: "Чат гравців відкривається від 50 очок.",
+  clearChat: "Очистити чат",
+  choosePlayers: "Виберіть зареєстрованих гравців",
+  clubFeed: "Стрічка клубу",
+  clubUpdates: "Оновлення",
+  contact: "Телефон або Telegram",
+  currentPassword: "Поточний пароль",
+  createTeam: "Створити команду",
+  createPlayerProfile: "Створити профіль гравця",
+  createGame: "Створити гру",
+  confirmCancelText: "Скасувати ваше бронювання на цю гру?",
+  freshNews: "Свіжі новини",
+  fileModeText: "Файловий режим може блокувати синхронізацію із сайтом.",
+  fileModeTitle: "Відкрийте через локальний сервер",
+  gameReward: "+25 очок",
+  gameRewardText: "за перше бронювання кожної гри",
+  gameCapacity: "Кількість місць",
+  gameDate: "Дата гри",
+  gameHistory: "Історія ігор",
+  gameTime: "Час гри",
+  games: "Ігри",
+  gamesLead: "Виберіть дату, перевірте вільні місця та додайте себе до складу одним натисканням.",
+  gamesTitle: "Забронювати гру",
+  history: "Історія",
+  home: "Головна",
+  homeLead: "Зручна панель гравця для відкритих ігор, новин клубу, чату, рейтингу та ваших очок.",
+  homeOverline: "Варшава / застосунок клубу",
+  homeTitle: "Грайте, бронюйте та залишайтеся з Lasertag Warsaw.",
+  hardReset: "Повне скидання",
+  language: "Мова",
+  liveAudio: "Живий звук",
+  loginProfile: "Увійти",
+  loadingArticle: "Завантаження повної статті...",
+  lockedCaptain: "Досягніть рангу Captain за очками, щоб створити команду із зареєстрованих гравців.",
+  logout: "Вийти",
+  news: "Новини",
+  newsBody: "Текст новини",
+  newsBodyPlaceholder: "Час, формат, для кого подія і де поставити запитання.",
+  newsHeadline: "Заголовок",
+  newsLead: "Новини із сайту з'являються тут автоматично. Також можна додати коротке клубне оголошення.",
+  newsShort: "новини",
+  newsTitle: "Новини Lasertag Warsaw",
+  newsTitlePlaceholder: "Гра Counter-Strike у середу",
+  newPassword: "Новий пароль",
+  nextGame: "Наступна гра",
+  nickname: "Нікнейм гравця",
+  notifications: "Сповіщення",
+  offline: "Не в мережі",
+  online: "У мережі",
+  openLocalhost: "Відкрити застосунок",
+  openVoiceRoom: "Відкрити голосову кімнату",
+  openProfile: "Відкрити профіль",
+  password: "Пароль",
+  passwordHint: "Щонайменше 2 літери або цифри та одна велика літера.",
+  playerAdded: "Гравця додано.",
+  playerPassword: "Пароль гравця",
+  playerBlocked: "Гравця заблоковано",
+  playerContact: "Контакт",
+  playerChat: "Чат гравців",
+  playerStats: "Статистика гравця",
+  playerTools: "Інструменти гравця",
+  points: "очки",
+  pointsTransfer: "Передати очки",
+  pointsTransferLocked: "Спочатку зареєструйтеся та заробіть очки.",
+  pointsTransferNote: "Виберіть зареєстрованого гравця та передайте очки зі свого балансу.",
+  pointsHistory: "Історія очок",
+  personalProgress: "Прогрес",
+  proposedNews: "Запропоновані новини",
+  queue: "Черга",
+  profile: "Профіль",
+  profilePanel: "Панель гравця",
+  publishNews: "Опублікувати й отримати +10",
+  quickBooking: "Швидке бронювання",
+  quickChat: "Швидкий чат",
+  rank: "Ранг",
+  rankInput: "Ранг",
+  rankCaptain: "Капітан",
+  rankCasual: "Граю іноді",
+  rankRegular: "Постійний гравець",
+  rankRookie: "Новачок",
+  readNews: "Читати",
+  registerFirst: "Заповніть профіль, щоб зареєструватися як гравець.",
+  removePlayer: "Видалити гравця",
+  registerProfile: "Зареєструватися",
+  registerToBook: "Заповнити профіль",
+  registerToChat: "Заповніть профіль, щоб писати в чат",
+  rankingFromSite: "Рейтинг із сайту",
+  rankingFilterAll: "Усі",
+  rankingFilterMe: "Я",
+  rankingFilterTeam: "Команда",
+  rankingFilterTop: "Топ",
+  refreshRoster: "Оновити гравців",
+  savePlayer: "Зберегти гравця",
+  saveProfile: "Зберегти профіль",
+  selectPlayer: "Вибрати гравця",
+  securitySettings: "Безпека",
+  transferAmount: "Кількість очок",
+  transferNoPlayers: "Немає доступних зареєстрованих гравців.",
+  transferSend: "Передати очки",
+  transferTo: "Гравець",
+  sendInvites: "Надіслати запрошення до команди",
+  sendMessage: "Надіслати повідомлення",
+  showAll: "Показати все",
+  showLess: "Показати менше",
+  startActions: "Старт",
+  syncError: "Помилка синхронізації",
+  syncIdle: "Готово",
+  syncPending: "Синхронізація...",
+  syncStatus: "Синхронізація із сайтом",
+  syncSynced: "Синхронізовано із сайтом",
+  syncPlayer: "Синхронізувати гравця",
+  retrySync: "Повторити синхронізацію",
+  exportPlayers: "Експортувати гравців",
+  manageGames: "Керування іграми",
+  managePlayers: "Керування гравцями",
+  newPlayerName: "Ім'я нового гравця",
+  noPendingNews: "Немає запропонованих новин.",
+  newsApproved: "Новину схвалено.",
+  newsDeleted: "Новину видалено.",
+  newsPending: "Новину надіслано адміністратору на перевірку.",
+  teamConfirmations: "Підтвердження команди",
+  teamDeleted: "Команду видалено.",
+  deleteTeam: "Видалити команду",
+  teamChat: "Чат команди",
+  teamMessagePlaceholder: "Напишіть своїй команді",
+  teamChatSent: "Повідомлення надіслано до чату команди.",
+  teamName: "Назва команди",
+  addToRoom: "Додати до кімнати",
+  createVoiceRoom: "Створити голосову кімнату",
+  leaveVoiceRoom: "Вийти з кімнати",
+  micOff: "Мікрофон вимкнено",
+  micOn: "Мікрофон увімкнено",
+  micError: "Мікрофон недоступний.",
+  noVoiceRoom: "Голосової кімнати ще немає.",
+  roomLimit: "Ліміт кімнати — 5 запрошених гравців.",
+  roomName: "Назва кімнати",
+  voiceInvite: "Запросити гравця",
+  voiceInvitation: "Запрошення до кімнати",
+  voiceInvitationPending: "Очікує підтвердження",
+  acceptVoiceInvite: "Прийняти",
+  declineVoiceInvite: "Відхилити",
+  voiceRoomLocked: "Для створення голосової кімнати потрібно щонайменше 300 очок.",
+  voiceConnected: "Голос підключено",
+  voiceConnection: "Голосове з'єднання",
+  voiceConnecting: "Підключення голосу...",
+  voiceDisconnected: "Голос відключено",
+  voiceLead: "Створіть кімнату, запросіть до 5 гравців і спілкуйтеся з мінімальною затримкою.",
+  voiceReady: "Готово до WebRTC-аудіо",
+  voiceRoom: "Голосова кімната",
+  voiceServerOffline: "Голосовий сервер не в мережі",
+  topPlayers: "Найкращі гравці",
+  welcomeGame: "Ласкаво просимо до гри!",
+};
+
+copy.be = {
+  add: "Дадаць",
+  addPlayer: "Дадаць гульца",
+  allGames: "Усе гульні",
+  adminLead: "Схаванае кіраванне ачкамі, рангамі гульцоў і прапанаванымі навінамі.",
+  adminLog: "Журнал адміністратара",
+  adminPanelTitle: "Панэль адміністратара",
+  adminPasswordLabel: "Пароль адміністратара",
+  accountAccess: "Уліковы запіс",
+  adminSaved: "Змены адміністратара захаваны.",
+  approveNews: "Ухваліць",
+  appNavigation: "Навігацыя праграмы",
+  appSettings: "Налады",
+  article: "Артыкул",
+  achievements: "Дасягненні",
+  back: "Назад",
+  backToSite: "Вярнуцца на сайт Lasertag Warsaw",
+  bookings: "браніраванні",
+  captainTools: "Інструменты капітана",
+  change: "Змяніць",
+  changeAvatar: "Змяніць аватар",
+  changePassword: "Змяніць пароль",
+  chatPlaceholder: "Напішыце гульцам",
+  chatLocked: "Чат гульцоў адкрываецца ад 50 ачкоў.",
+  clearChat: "Ачысціць чат",
+  choosePlayers: "Выберыце зарэгістраваных гульцоў",
+  clubFeed: "Стужка клуба",
+  clubUpdates: "Абнаўленні",
+  contact: "Тэлефон або Telegram",
+  currentPassword: "Бягучы пароль",
+  createTeam: "Стварыць каманду",
+  createPlayerProfile: "Стварыць профіль гульца",
+  createGame: "Стварыць гульню",
+  confirmCancelText: "Скасаваць ваша браніраванне на гэтую гульню?",
+  freshNews: "Свежыя навіны",
+  fileModeText: "Файлавы рэжым можа блакаваць сінхранізацыю з сайтам.",
+  fileModeTitle: "Адкрыйце праз лакальны сервер",
+  gameReward: "+25 ачкоў",
+  gameRewardText: "за першае браніраванне кожнай гульні",
+  gameCapacity: "Колькасць месцаў",
+  gameDate: "Дата гульні",
+  gameHistory: "Гісторыя гульняў",
+  gameTime: "Час гульні",
+  games: "Гульні",
+  gamesLead: "Выберыце дату, праверце вольныя месцы і дадайце сябе ў склад адным націскам.",
+  gamesTitle: "Забраніраваць гульню",
+  history: "Гісторыя",
+  home: "Галоўная",
+  homeLead: "Зручная панэль гульца для адкрытых гульняў, навін клуба, чата, рэйтынгу і вашых ачкоў.",
+  homeOverline: "Варшава / праграма клуба",
+  homeTitle: "Гуляйце, браніруйце і заставайцеся з Lasertag Warsaw.",
+  hardReset: "Поўны скід",
+  language: "Мова",
+  liveAudio: "Жывы гук",
+  loginProfile: "Увайсці",
+  loadingArticle: "Загрузка поўнага артыкула...",
+  lockedCaptain: "Дасягніце рангу Captain па ачках, каб стварыць каманду з зарэгістраваных гульцоў.",
+  logout: "Выйсці",
+  news: "Навіны",
+  newsBody: "Тэкст навіны",
+  newsBodyPlaceholder: "Час, фармат, для каго падзея і дзе задаць пытанні.",
+  newsHeadline: "Загаловак",
+  newsLead: "Навіны з сайта з'яўляюцца тут аўтаматычна. Таксама можна дадаць кароткую клубную абвестку.",
+  newsShort: "навіны",
+  newsTitle: "Навіны Lasertag Warsaw",
+  newsTitlePlaceholder: "Гульня Counter-Strike у сераду",
+  newPassword: "Новы пароль",
+  nextGame: "Наступная гульня",
+  nickname: "Нікнэйм гульца",
+  notifications: "Апавяшчэнні",
+  offline: "Не ў сетцы",
+  online: "У сетцы",
+  openLocalhost: "Адкрыць праграму",
+  openVoiceRoom: "Адкрыць галасавы пакой",
+  openProfile: "Адкрыць профіль",
+  password: "Пароль",
+  passwordHint: "Не менш за 2 літары або лічбы і адна вялікая літара.",
+  playerAdded: "Гулец дададзены.",
+  playerPassword: "Пароль гульца",
+  playerBlocked: "Гулец заблакаваны",
+  playerContact: "Кантакт",
+  playerChat: "Чат гульцоў",
+  playerStats: "Статыстыка гульца",
+  playerTools: "Інструменты гульца",
+  points: "ачкі",
+  pointsTransfer: "Перадаць ачкі",
+  pointsTransferLocked: "Спачатку зарэгіструйцеся і зарабіце ачкі.",
+  pointsTransferNote: "Выберыце зарэгістраванага гульца і перадайце ачкі са свайго балансу.",
+  pointsHistory: "Гісторыя ачкоў",
+  personalProgress: "Прагрэс",
+  proposedNews: "Прапанаваныя навіны",
+  queue: "Чарга",
+  profile: "Профіль",
+  profilePanel: "Панэль гульца",
+  publishNews: "Апублікаваць і атрымаць +10",
+  quickBooking: "Хуткае браніраванне",
+  quickChat: "Хуткі чат",
+  rank: "Ранг",
+  rankInput: "Ранг",
+  rankCaptain: "Капітан",
+  rankCasual: "Гуляю часам",
+  rankRegular: "Пастаянны гулец",
+  rankRookie: "Навічок",
+  readNews: "Чытаць",
+  registerFirst: "Запоўніце профіль, каб зарэгістравацца як гулец.",
+  removePlayer: "Выдаліць гульца",
+  registerProfile: "Зарэгістравацца",
+  registerToBook: "Запоўніць профіль",
+  registerToChat: "Запоўніце профіль, каб пісаць у чат",
+  rankingFromSite: "Рэйтынг з сайта",
+  rankingFilterAll: "Усе",
+  rankingFilterMe: "Я",
+  rankingFilterTeam: "Каманда",
+  rankingFilterTop: "Топ",
+  refreshRoster: "Абнавіць гульцоў",
+  savePlayer: "Захаваць гульца",
+  saveProfile: "Захаваць профіль",
+  selectPlayer: "Выбраць гульца",
+  securitySettings: "Бяспека",
+  transferAmount: "Колькасць ачкоў",
+  transferNoPlayers: "Няма даступных зарэгістраваных гульцоў.",
+  transferSend: "Перадаць ачкі",
+  transferTo: "Гулец",
+  sendInvites: "Адправіць запрашэнні ў каманду",
+  sendMessage: "Адправіць паведамленне",
+  showAll: "Паказаць усё",
+  showLess: "Паказаць менш",
+  startActions: "Старт",
+  syncError: "Памылка сінхранізацыі",
+  syncIdle: "Гатова",
+  syncPending: "Сінхранізацыя...",
+  syncStatus: "Сінхранізацыя з сайтам",
+  syncSynced: "Сінхранізавана з сайтам",
+  syncPlayer: "Сінхранізаваць гульца",
+  retrySync: "Паўтарыць сінхранізацыю",
+  exportPlayers: "Экспартаваць гульцоў",
+  manageGames: "Кіраванне гульнямі",
+  managePlayers: "Кіраванне гульцамі",
+  newPlayerName: "Імя новага гульца",
+  noPendingNews: "Няма прапанаваных навін.",
+  newsApproved: "Навіна ўхвалена.",
+  newsDeleted: "Навіна выдалена.",
+  newsPending: "Навіна адпраўлена адміністратару на праверку.",
+  teamConfirmations: "Пацвярджэнні каманды",
+  teamDeleted: "Каманда выдалена.",
+  deleteTeam: "Выдаліць каманду",
+  teamChat: "Чат каманды",
+  teamMessagePlaceholder: "Напішыце сваёй камандзе",
+  teamChatSent: "Паведамленне адпраўлена ў чат каманды.",
+  teamName: "Назва каманды",
+  addToRoom: "Дадаць у пакой",
+  createVoiceRoom: "Стварыць галасавы пакой",
+  leaveVoiceRoom: "Выйсці з пакоя",
+  micOff: "Мікрафон выключаны",
+  micOn: "Мікрафон уключаны",
+  micError: "Мікрафон недаступны.",
+  noVoiceRoom: "Галасавога пакоя яшчэ няма.",
+  roomLimit: "Ліміт пакоя — 5 запрошаных гульцоў.",
+  roomName: "Назва пакоя",
+  voiceInvite: "Запрасіць гульца",
+  voiceInvitation: "Запрашэнне ў пакой",
+  voiceInvitationPending: "Чакае пацвярджэння",
+  acceptVoiceInvite: "Прыняць",
+  declineVoiceInvite: "Адхіліць",
+  voiceRoomLocked: "Для стварэння галасавога пакоя трэба не менш за 300 ачкоў.",
+  voiceConnected: "Голас падключаны",
+  voiceConnection: "Галасавое злучэнне",
+  voiceConnecting: "Падключэнне голасу...",
+  voiceDisconnected: "Голас адключаны",
+  voiceLead: "Стварыце пакой, запрасіце да 5 гульцоў і размаўляйце з мінімальнай затрымкай.",
+  voiceReady: "Гатова да WebRTC-аўдыё",
+  voiceRoom: "Галасавы пакой",
+  voiceServerOffline: "Галасавы сервер не ў сетцы",
+  topPlayers: "Лепшыя гульцы",
+  welcomeGame: "Сардэчна запрашаем у гульню!",
+};
+
+const locales = { en: "en", pl: "pl", be: "be", uk: "uk", ru: "ru" };
+
+const newsCopy = {
+  "noka-review-2026-07-10": {
+    title: {
+      en: "The 11th generation through the tournament winner's eyes",
+      pl: "11. generacja oczami zwycięzcy turnieju",
+      be: "11-е пакаленне вачыма пераможцы турніру",
+      uk: "11-те покоління очима переможця турніру",
+      ru: "11-е поколение глазами победителя турнира",
+    },
+    body: {
+      en: "Noka talks about adaptation, strong opponents and why the new equipment makes players think differently again.",
+      pl: "Noka opowiada o adaptacji, wysokim poziomie rywali i o tym, dlaczego nowe wyposażenie ponownie zmusza do myślenia podczas gry.",
+      be: "Noka распавядае пра адаптацыю, высокі ўзровень сапернікаў і пра тое, чаму новае абсталяванне зноў прымушае думаць падчас гульні.",
+      uk: "Noka розповідає про адаптацію, високий рівень суперників і про те, чому нове обладнання знову змушує думати під час гри.",
+      ru: "Noka рассказывает об адаптации, высоком уровне соперников и о том, почему новое оборудование снова заставляет думать во время игры.",
+    },
+  },
+  "agent-review-2026-07-10": {
+    title: {
+      en: "The July 5 tournament through the eyes of an Old Skufs player",
+      pl: "Turniej 5 lipca oczami gracza Old Skufs",
+      be: "Турнір 5 ліпеня вачыма гульца Old Skufs",
+      uk: "Турнір 5 липня очима гравця Old Skufs",
+      ru: "Турнир 5 июля глазами игрока Old Skufs",
+    },
+    body: {
+      en: "AGENT talks about the organization, Old Skufs' performance, the strongest rivals and the tournament's sporting atmosphere.",
+      pl: "AGENT opowiada o organizacji, grze Old Skufs, najmocniejszych rywalach i sportowej atmosferze turnieju.",
+      be: "AGENT распавядае пра арганізацыю, гульню Old Skufs, наймацнейшых сапернікаў і спартыўную атмасферу турніру.",
+      uk: "AGENT розповідає про організацію, гру Old Skufs, найсильніших суперників і спортивну атмосферу турніру.",
+      ru: "AGENT рассказывает об организации, игре Old Skufs, сильнейших соперниках и спортивной атмосфере турнира.",
+    },
+  },
+  "tort-review-2026-07-09": {
+    title: {
+      en: "Review of laser tag competitions in Warsaw",
+      pl: "Przegląd turniejów laser tag w Warszawie",
+      be: "Агляд лазертаг-спаборніцтваў у Варшаве",
+      uk: "Огляд лазертаг-змагань у Варшаві",
+      ru: "Обзор лазертаг-соревнований в Варшаве",
+    },
+    body: {
+      en: "First of all, I want to thank the organizers for what they are doing for laser tag in Warsaw.",
+      pl: "Przede wszystkim chcę podziękować organizatorom za to, co robią dla laser tagu w Warszawie.",
+      be: "У першую чаргу хачу падзякаваць арганізатарам за тое, што яны робяць для лазертага ў Варшаве.",
+      uk: "Насамперед хочу подякувати організаторам за те, що вони роблять для лазертага у Варшаві.",
+      ru: "В первую очередь хочу поблагодарить организаторов за то, что они делают для лазертага в Варшаве.",
+    },
+  },
+  "jak-review-2026-07-07": {
+    title: {
+      en: "A player's review after the Open Lasertag tournament",
+      pl: "Opinia gracza po turnieju Open Lasertag",
+      be: "Водгук гульца пасля турніру Open Lasertag",
+      uk: "Відгук гравця після турніру Open Lasertag",
+      ru: "Мнение игрока после турнира Open Lasertag",
+    },
+    body: {
+      en: "JAK talks about the new equipment, the CS scenario, tournament settings and why some habits have to be learned again.",
+      pl: "JAK opowiada o nowym sprzęcie, scenariuszu CS, ustawieniach turniejowych i o tym, dlaczego niektórych rzeczy trzeba nauczyć się od nowa.",
+      be: "JAK распавядае пра новае абсталяванне, сцэнар CS, турнірныя налады і пра тое, чаму некаторым рэчам трэба навучыцца нанова.",
+      uk: "JAK розповідає про нове обладнання, сценарій CS, турнірні налаштування і про те, чому деяких речей доводиться вчитися заново.",
+      ru: "JAK рассказывает о новом снаряжении, сценарии CS, организации турнира и о том, почему некоторым вещам приходится учиться заново.",
+    },
+  },
+  "technology-upgrade": {
+    title: {
+      en: "A new era of laser paintball at Lasertag Warsaw",
+      pl: "Nowa era laserowego paintballa w Lasertag Warsaw",
+      be: "Новая эра лазернага пейнтбола ў Lasertag Warsaw",
+      uk: "Нова ера лазерного пейнтболу в Lasertag Warsaw",
+      ru: "Новая эра лазерного пейнтбола в Lasertag Warsaw",
+    },
+    body: {
+      en: "The biggest update in our arena's history: real-time statistics, FPS-style sound effects and new game scenarios.",
+      pl: "Największa aktualizacja w historii naszej areny: statystyki w czasie rzeczywistym, efekty dźwiękowe jak w FPS-ach i nowe scenariusze rozgrywek.",
+      be: "Найбуйнейшае абнаўленне ў гісторыі нашай арэны: статыстыка ў рэальным часе, гукавыя эфекты як у FPS і новыя сцэнары гульні.",
+      uk: "Найбільше оновлення в історії нашої арени: статистика в реальному часі, звукові ефекти як у FPS і нові сценарії гри.",
+      ru: "Самое большое обновление в истории нашей арены: статистика в реальном времени, звуковые эффекты в стиле FPS и новые игровые сценарии.",
+    },
+  },
+  "telegram-events": {
+    title: {
+      en: "Away games and tournaments announced in TG",
+      pl: "Wyjazdy i turnieje ogłaszamy w TG",
+      be: "Выезды і турніры абвяшчаем у TG",
+      uk: "Виїзди й турніри оголошуємо в TG",
+      ru: "Анонсируем поездки и турниры в Telegram",
+    },
+    body: {
+      en: "Dates, locations, rules and player lists are published in the club Telegram chat.",
+      pl: "Daty, lokalizacje, regulaminy i listy graczy publikujemy w klubowym czacie Telegram.",
+      be: "Даты, лакацыі, рэгламенты і спісы гульцоў публікуем у клубным Telegram-чаце.",
+      uk: "Дати, локації, регламенти та списки гравців публікуємо в клубному Telegram-чаті.",
+      ru: "Даты, локации, регламент и списки игроков публикуются в Telegram-чате клуба.",
+    },
+  },
+  "sunday-open-game": {
+    title: {
+      en: "Open game for everyone 10+",
+      pl: "Otwarta gra dla wszystkich chętnych 10+",
+      be: "Адкрытая гульня для ўсіх ахвотных 10+",
+      uk: "Відкрита гра для всіх охочих 10+",
+      ru: "Открытая игра для всех желающих 10+",
+    },
+    body: {
+      en: "The easiest entry format for new players, families and people without their own team.",
+      pl: "Najprostszy wejściowy format dla nowych graczy, rodzin i osób bez własnej drużyny.",
+      be: "Самы просты фармат для новых гульцоў, сем'яў і людзей без сваёй каманды.",
+      uk: "Найпростіший формат для нових гравців, сімей і людей без власної команди.",
+      ru: "Самый простой формат для новых игроков, семей и людей без своей команды.",
+    },
+  },
+  "wednesday-counter-strike": {
+    title: {
+      en: "Counter-Strike 6v6 for players 14+",
+      pl: "Counter-Strike 6 na 6 dla graczy 14+",
+      be: "Counter-Strike 6 на 6 для гульцоў 14+",
+      uk: "Counter-Strike 6 на 6 для гравців 14+",
+      ru: "Counter-Strike 6 на 6 для игроков 14+",
+    },
+    body: {
+      en: "Regular Wednesday scenario: two teams, tactical objectives and registration solo or as a squad.",
+      pl: "Stały scenariusz środowy: dwie drużyny, cele taktyczne i zapis solo albo składem.",
+      be: "Пастаянны сцэнар па серадах: дзве каманды, тактычныя мэты і запіс сольна або складам.",
+      uk: "Постійний сценарій щосереди: дві команди, тактичні цілі та запис соло або складом.",
+      ru: "Постоянный сценарий по средам: две команды, тактические цели и запись одному или составом.",
+    },
+  },
+  "fallback-counter": {
+    title: {
+      en: "Wednesday Counter-Strike 6v6",
+      pl: "Środowy Counter-Strike 6v6",
+      be: "Counter-Strike 6v6 у сераду",
+      uk: "Counter-Strike 6v6 у середу",
+      ru: "Counter-Strike 6v6 в среду",
+    },
+    body: {
+      en: "Meet at 18:20, age 14+. You can book solo or with a squad.",
+      pl: "Zbiórka o 18:20, wiek 14+. Możesz zapisać się solo albo ekipą.",
+      be: "Сустрэча а 18:20, узрост 14+. Можна запісацца аднаму або ўсёй камандай.",
+      uk: "Зустріч о 18:20, вік 14+. Можна записатися одному або всією командою.",
+      ru: "Сбор к 18:20, возраст 14+. Можно записаться одному или всей командой.",
+    },
+  },
+  "open-tournament-2026-07-05": {
+    title: {
+      en: "Open Lasertag Tournament — excitement until the final match!",
+      pl: "Turniej Open Lasertag — emocje do ostatniego meczu!",
+      be: "Турнір Open Lasertag — эмоцыі да апошняга матча!",
+      uk: "Турнір Open Lasertag — емоції до останнього матчу!",
+      ru: "Турнир Open Lasertag — эмоции до последнего матча!",
+    },
+    body: {
+      en: "Four five-player teams, a new CS scenario, a close fight to the end and victory for Hard Skill led by Shved.",
+      pl: "Cztery pięcioosobowe drużyny, nowy scenariusz CS, zacięta walka do końca i zwycięstwo Hard Skill prowadzonego przez Shveda.",
+      be: "Чатыры каманды па пяць чалавек, новы сцэнар CS, напружаная барацьба да канца і перамога Hard Skill пад кіраўніцтвам Shveda.",
+      uk: "Чотири команди по п'ять гравців, новий сценарій CS, напружена боротьба до кінця і перемога Hard Skill під керівництвом Shveda.",
+      ru: "Четыре команды по пять человек, новый сценарий CS, напряжённая борьба до конца и победа Hard Skill под руководством Shveda.",
+    },
+  },
+};
+
+const newsImages = {
+  "noka-review-2026-07-10": "assets/update-noka-review.webp",
+  "agent-review-2026-07-10": "assets/update-agent-review.webp",
+  "tort-review-2026-07-09": "assets/player-tort.webp",
+  "jak-review-2026-07-07": "assets/update-jak-review.webp",
+  "technology-upgrade": "assets/photo_2026-07-06_22-53-50.webp",
+  "telegram-events": "assets/update-telegram.webp",
+  "sunday-open-game": "assets/update-sunday.webp",
+  "wednesday-counter-strike": "assets/update-wednesday.webp",
+  "fallback-counter": "assets/update-wednesday.webp",
+  "open-tournament-2026-07-05": "assets/update-open-turniej-2026-07-05.webp",
+};
 
 const rankBaseTiers = [
   { points: 0, name: "New Player" },
@@ -597,14 +1124,16 @@ const defaultGames = [
     scheduleHour: 18,
     scheduleMinute: 30,
     day: "15",
-    month: { en: "Jul", ru: "июл", pl: "lip" },
-    date: { en: "Wednesday, July 15", ru: "Среда, 15 июля", pl: "Środa, 15 lipca" },
+    month: { en: "Jul", pl: "lip", be: "ліп", uk: "лип", ru: "июл" },
+    date: { en: "Wednesday, July 15", pl: "Środa, 15 lipca", be: "Серада, 15 ліпеня", uk: "Середа, 15 липня", ru: "Среда, 15 июля" },
     time: "18:30",
     title: "Counter-Strike 6v6",
     description: {
       en: "Two teams, tactical objectives and fast roster matching for solo players or squads.",
-      ru: "Две команды, тактические цели и быстрый подбор состава для соло игроков или своей команды.",
       pl: "Dwie drużyny, cele taktyczne i szybkie dobieranie składu dla solo graczy albo ekip.",
+      be: "Дзве каманды, тактычныя мэты і хуткі падбор складу для сольных гульцоў або каманд.",
+      uk: "Дві команди, тактичні цілі та швидкий підбір складу для гравців соло або команд.",
+      ru: "Две команды, тактические цели и быстрый подбор состава для соло игроков или своей команды.",
     },
     capacity: 12,
     roster: ["NOKA", "SVED", "PLATAU", "YNWA", "KATYA", "MAX"],
@@ -615,14 +1144,16 @@ const defaultGames = [
     scheduleHour: 18,
     scheduleMinute: 0,
     day: "12",
-    month: { en: "Jul", ru: "июл", pl: "lip" },
-    date: { en: "Sunday, July 12", ru: "Воскресенье, 12 июля", pl: "Niedziela, 12 lipca" },
+    month: { en: "Jul", pl: "lip", be: "ліп", uk: "лип", ru: "июл" },
+    date: { en: "Sunday, July 12", pl: "Niedziela, 12 lipca", be: "Нядзеля, 12 ліпеня", uk: "Неділя, 12 липня", ru: "Воскресенье, 12 июля" },
     time: "18:00",
-    title: { en: "Open game 10+", ru: "Открытая игра 10+", pl: "Gra otwarta 10+" },
+    title: { en: "Open game 10+", pl: "Gra otwarta 10+", be: "Адкрытая гульня 10+", uk: "Відкрита гра 10+", ru: "Открытая игра 10+" },
     description: {
-      en: "An easy format for new players, families and anyone who wants to try BAZA without a team.",
-      ru: "Удобный формат для новых игроков, семей и тех, кто хочет попробовать BAZA без своей команды.",
-      pl: "Prosty format dla nowych graczy, rodzin i osób, które chcą spróbować BAZA bez drużyny.",
+      en: "An easy format for new players, families and anyone who wants to try Lasertag Warsaw without a team.",
+      pl: "Prosty format dla nowych graczy, rodzin i osób, które chcą spróbować Lasertag Warsaw bez drużyny.",
+      be: "Просты фармат для новых гульцоў, сем'яў і ўсіх, хто хоча паспрабаваць Lasertag Warsaw без сваёй каманды.",
+      uk: "Простий формат для нових гравців, сімей і всіх, хто хоче спробувати Lasertag Warsaw без власної команди.",
+      ru: "Удобный формат для новых игроков, семей и тех, кто хочет попробовать Lasertag Warsaw без своей команды.",
     },
     capacity: 20,
     roster: ["JAKUB", "SPICA", "BEN", "KIRA", "AGENT", "TORT", "W1LASER"],
@@ -630,14 +1161,16 @@ const defaultGames = [
   {
     id: "away-telegram-july",
     day: "TG",
-    month: { en: "away", ru: "выезд", pl: "wyjazd" },
-    date: { en: "Date in Telegram", ru: "Дата в Telegram", pl: "Data w Telegramie" },
-    time: { en: "by signup", ru: "по записи", pl: "wg zapisów" },
-    title: { en: "Away game", ru: "Выездовая игра", pl: "Gra wyjazdowa" },
+    month: { en: "away", pl: "wyjazd", be: "выезд", uk: "виїзд", ru: "выезд" },
+    date: { en: "Date in Telegram", pl: "Data w Telegramie", be: "Дата ў Telegram", uk: "Дата в Telegram", ru: "Дата в Telegram" },
+    time: { en: "by signup", pl: "wg zapisów", be: "па запісе", uk: "за записом", ru: "по записи" },
+    title: { en: "Away game", pl: "Gra wyjazdowa", be: "Выязная гульня", uk: "Виїзна гра", ru: "Выездовая игра" },
     description: {
       en: "The organizer publishes the meeting point, format and exact time in the club Telegram.",
-      ru: "Организатор публикует место сбора, формат и точное время в клубном Telegram.",
       pl: "Organizator publikuje miejsce zbiórki, format i dokładny czas w klubowym Telegramie.",
+      be: "Арганізатар публікуе месца сустрэчы, фармат і дакладны час у клубным Telegram.",
+      uk: "Організатор публікує місце зустрічі, формат і точний час у клубному Telegram.",
+      ru: "Организатор публикует место сбора, формат и точное время в клубном Telegram.",
     },
     capacity: 16,
     roster: ["PASHA", "KOMETA", "JINN"],
@@ -679,11 +1212,13 @@ const playerRanking = [
 const defaultNews = [
   {
     id: "fallback-counter",
-    title: { en: "Wednesday Counter-Strike 6v6", ru: "В среду играем Counter-Strike 6v6", pl: "Środa Counter-Strike 6v6" },
+    title: { en: "Wednesday Counter-Strike 6v6", pl: "Środa Counter-Strike 6v6", be: "У сераду Counter-Strike 6v6", uk: "У середу Counter-Strike 6v6", ru: "В среду играем Counter-Strike 6v6" },
     body: {
       en: "Meet at 18:20, age 14+. You can book solo or with a squad.",
-      ru: "Сбор к 18:20, возраст 14+. Можно записаться одному или всей командой.",
       pl: "Zbiórka o 18:20, wiek 14+. Możesz zapisać się solo albo ekipą.",
+      be: "Сустрэча а 18:20, узрост 14+. Можна запісацца аднаму або ўсёй камандай.",
+      uk: "Зустріч о 18:20, вік 14+. Можна записатися одному або всією командою.",
+      ru: "Сбор к 18:20, возраст 14+. Можно записаться одному или всей командой.",
     },
     author: "Club Bot",
     createdAt: "2026-07-10T08:30:00.000Z",
@@ -698,8 +1233,10 @@ const defaultChat = [
     system: true,
     body: {
       en: "Wednesday roster is open. Captains can assemble teams in the profile panel.",
-      ru: "Запись на среду открыта. Капитаны могут собрать команду в личной панели.",
       pl: "Zapisy na środę są otwarte. Kapitanowie mogą złożyć drużynę w panelu profilu.",
+      be: "Запіс на сераду адкрыты. Капітаны могуць сабраць каманду ў панэлі профілю.",
+      uk: "Запис на середу відкрито. Капітани можуть зібрати команду в панелі профілю.",
+      ru: "Запись на среду открыта. Капитаны могут собрать команду в личной панели.",
     },
     createdAt: "2026-07-10T08:35:00.000Z",
   },
@@ -708,8 +1245,10 @@ const defaultChat = [
     author: "NOKA",
     body: {
       en: "I am in for 18:30.",
-      ru: "Я на 18:30 в игре.",
       pl: "Jestem na 18:30.",
+      be: "Я ў гульні а 18:30.",
+      uk: "Я у грі о 18:30.",
+      ru: "Я на 18:30 в игре.",
     },
     createdAt: "2026-07-10T08:42:00.000Z",
   },
@@ -721,7 +1260,7 @@ const defaultState = {
     language: "en",
   },
   profile: {
-    nickname: "BAZA player",
+    nickname: "Warsaw player",
     contact: "",
     level: "rookie",
     avatar: "",
@@ -755,14 +1294,13 @@ const defaultState = {
   },
   articleCache: {},
   chat: defaultChat,
-  reports: [],
   voiceRooms: [],
   activeVoiceRoomId: "",
   activities: [
     {
       id: "welcome",
-      title: { en: "Welcome to BAZA App", ru: "Добро пожаловать в BAZA App", pl: "Witaj w BAZA App" },
-      label: { en: "start", ru: "старт", pl: "start" },
+      title: { en: "Welcome to Lasertag Warsaw", pl: "Witaj w Lasertag Warsaw", be: "Сардэчна запрашаем у Lasertag Warsaw", uk: "Ласкаво просимо до Lasertag Warsaw", ru: "Добро пожаловать в Lasertag Warsaw" },
+      label: { en: "start", pl: "start", be: "старт", uk: "старт", ru: "старт" },
       points: 0,
       createdAt: new Date().toISOString(),
     },
@@ -867,9 +1405,81 @@ const voiceAudioStage = document.querySelector("[data-voice-audio]");
 const homeVoiceStatus = document.querySelector("[data-home-voice-status]");
 const voiceInviteAlert = document.querySelector("[data-voice-invite-alert]");
 const envWarning = document.querySelector("[data-env-warning]");
+const homeStatsPanel = document.querySelector("[data-home-stats]");
 const homeTeam = document.querySelector("[data-home-team]");
 const achievementsList = document.querySelector("[data-achievements]");
 const gameHistoryList = document.querySelector("[data-game-history]");
+
+let uiAudioContext = null;
+let uiAudioEnabled = false;
+let lastScrollFeedbackAt = 0;
+const scrollFeedbackPositions = new WeakMap();
+
+function nativeHaptic(style = "light") {
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (handler?.postMessage) {
+    handler.postMessage({ type: "haptic", style });
+    return;
+  }
+  if (navigator.vibrate) navigator.vibrate(style === "medium" ? 16 : 8);
+}
+
+function ensureUiAudio() {
+  if (uiAudioContext) return uiAudioContext;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return null;
+  uiAudioContext = new AudioContext();
+  return uiAudioContext;
+}
+
+function playUiTone(kind = "press") {
+  if (!uiAudioEnabled) return;
+  const context = ensureUiAudio();
+  if (!context) return;
+  if (context.state === "suspended") context.resume().catch(() => {});
+  const now = context.currentTime;
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = kind === "scroll" ? "sine" : "square";
+  oscillator.frequency.setValueAtTime(kind === "scroll" ? 760 : 330, now);
+  if (kind !== "scroll") oscillator.frequency.exponentialRampToValueAtTime(520, now + 0.045);
+  gain.gain.setValueAtTime(kind === "scroll" ? 0.012 : 0.035, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + (kind === "scroll" ? 0.025 : 0.065));
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + (kind === "scroll" ? 0.028 : 0.07));
+}
+
+document.addEventListener(
+  "pointerdown",
+  (event) => {
+    const control = event.target.closest("button, a, [role='button']");
+    if (!control || control.disabled || control.getAttribute("aria-disabled") === "true") return;
+    uiAudioEnabled = true;
+    ensureUiAudio();
+    playUiTone("press");
+    nativeHaptic(control.classList.contains("primary-button") ? "medium" : "light");
+  },
+  { capture: true },
+);
+
+document.addEventListener(
+  "scroll",
+  (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || !target.matches(".app-scroll, .chat-feed, .ranking-strip, .home-roster")) return;
+    const position = Math.round((target.scrollTop || 0) + (target.scrollLeft || 0));
+    const previous = scrollFeedbackPositions.get(target) ?? position;
+    const now = performance.now();
+    if (Math.abs(position - previous) < 44 || now - lastScrollFeedbackAt < 90) return;
+    scrollFeedbackPositions.set(target, position);
+    lastScrollFeedbackAt = now;
+    playUiTone("scroll");
+    nativeHaptic("selection");
+  },
+  { capture: true, passive: true },
+);
 
 saveState();
 
@@ -891,10 +1501,11 @@ function loadState() {
     };
     const resetOldProfiles = saved.admin?.resetVersion !== ADMIN_RESET_VERSION;
     const migratedProfile = resetOldProfiles ? cloneData(defaultState.profile) : { ...defaultState.profile, ...saved.profile };
+    if (normalizePlayerName(migratedProfile.nickname) === "baza player") migratedProfile.nickname = defaultState.profile.nickname;
     migratedProfile.level = normalizeLevel(migratedProfile.level);
     migratedProfile.saved =
       Boolean(migratedProfile.saved) ||
-      (normalizePlayerName(migratedProfile.nickname) !== "baza player" && Boolean(String(migratedProfile.contact || "").trim()));
+      (!isPlaceholderPlayerName(migratedProfile.nickname) && Boolean(String(migratedProfile.contact || "").trim()));
     const migratedAuth = {
       ...defaultState.auth,
       ...(resetOldProfiles ? {} : saved.auth || {}),
@@ -921,7 +1532,6 @@ function loadState() {
       sync: { ...defaultState.sync, ...(saved.sync || {}) },
       articleCache: saved.articleCache && typeof saved.articleCache === "object" ? saved.articleCache : {},
       chat: Array.isArray(saved.chat) ? saved.chat : cloneData(defaultChat),
-      reports: Array.isArray(saved.reports) ? saved.reports : [],
       voiceRooms: Array.isArray(saved.voiceRooms) ? saved.voiceRooms : [],
       activeVoiceRoomId: saved.activeVoiceRoomId || "",
       activities: Array.isArray(saved.activities) ? saved.activities : cloneData(defaultState.activities),
@@ -991,6 +1601,10 @@ function localize(value) {
   return value == null ? "" : String(value);
 }
 
+function localizedText(values) {
+  return values?.[currentLanguage()] || values?.en || "";
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => {
     const entities = {
@@ -1015,7 +1629,7 @@ function initials(name) {
 }
 
 function playerName() {
-  return state.profile.nickname.trim() || "BAZA player";
+  return state.profile.nickname.trim() || "Warsaw player";
 }
 
 function signedGameIds() {
@@ -1129,6 +1743,10 @@ function normalizePlayerName(name) {
     .toLowerCase();
 }
 
+function isPlaceholderPlayerName(name) {
+  return ["baza player", "warsaw player"].includes(normalizePlayerName(name));
+}
+
 function staticRegisteredPlayerNames() {
   const names = new Set(currentPlayerRanking().map((player) => player.name));
   defaultGames.forEach((game) => game.roster.forEach((name) => names.add(name)));
@@ -1177,7 +1795,7 @@ function isCurrentUserRegistered() {
   return (
     Boolean(state.profile.saved) &&
     Boolean(state.auth.loggedIn) &&
-    normalizePlayerName(nickname) !== "baza player" &&
+    !isPlaceholderPlayerName(nickname) &&
     Boolean(state.profile.contact.trim()) &&
     !isPlayerBlocked(nickname)
   );
@@ -1294,16 +1912,20 @@ function dateId(date) {
 function monthLabel(date) {
   return {
     en: new Intl.DateTimeFormat("en", { month: "short" }).format(date),
-    ru: new Intl.DateTimeFormat("ru", { month: "short" }).format(date).replace(".", ""),
     pl: new Intl.DateTimeFormat("pl", { month: "short" }).format(date).replace(".", ""),
+    be: new Intl.DateTimeFormat("be", { month: "short" }).format(date).replace(".", ""),
+    uk: new Intl.DateTimeFormat("uk", { month: "short" }).format(date).replace(".", ""),
+    ru: new Intl.DateTimeFormat("ru", { month: "short" }).format(date).replace(".", ""),
   };
 }
 
 function gameDateLabel(date) {
   return {
     en: new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(date),
-    ru: new Intl.DateTimeFormat("ru", { weekday: "long", month: "long", day: "numeric" }).format(date),
     pl: new Intl.DateTimeFormat("pl", { weekday: "long", month: "long", day: "numeric" }).format(date),
+    be: new Intl.DateTimeFormat("be", { weekday: "long", month: "long", day: "numeric" }).format(date),
+    uk: new Intl.DateTimeFormat("uk", { weekday: "long", month: "long", day: "numeric" }).format(date),
+    ru: new Intl.DateTimeFormat("ru", { weekday: "long", month: "long", day: "numeric" }).format(date),
   };
 }
 
@@ -1333,6 +1955,7 @@ function renderAvatar(target, size = "small") {
 }
 
 function renderStats() {
+  if (homeStatsPanel) homeStatsPanel.hidden = !isCurrentUserRegistered();
   document.querySelectorAll("[data-points-total]").forEach((node) => {
     node.textContent = totalPoints();
   });
@@ -1431,47 +2054,57 @@ function gameCard(game, isCompact = false) {
 function buttonLabel(kind) {
   const labels = {
     en: { sign: "Book and get +25", cancel: "Remove booking", register: "Complete profile" },
-    ru: { sign: "Записаться и получить +25", cancel: "Убрать запись", register: "Заполнить профиль" },
     pl: { sign: "Zapisz się i odbierz +25", cancel: "Usuń zapis", register: "Uzupełnij profil" },
+    be: { sign: "Запісацца і атрымаць +25", cancel: "Скасаваць запіс", register: "Запоўніць профіль" },
+    uk: { sign: "Записатися й отримати +25", cancel: "Скасувати запис", register: "Заповнити профіль" },
+    ru: { sign: "Записаться и получить +25", cancel: "Убрать запись", register: "Заполнить профиль" },
   };
-  return labels[currentLanguage()][kind];
+  return (labels[currentLanguage()] || labels.en)[kind];
 }
 
 function spotsText(spotsLeft) {
   const labels = {
     en: `players, ${spotsLeft} free`,
-    ru: `игроков, свободно ${spotsLeft}`,
     pl: `graczy, wolne ${spotsLeft}`,
+    be: `гульцоў, вольна ${spotsLeft}`,
+    uk: `гравців, вільно ${spotsLeft}`,
+    ru: `игроков, свободно ${spotsLeft}`,
   };
-  return labels[currentLanguage()];
+  return localizedText(labels);
 }
 
 function rosterLabel() {
-  return { en: "Player roster", ru: "Список игроков", pl: "Lista graczy" }[currentLanguage()];
+  return localizedText({ en: "Player roster", pl: "Lista graczy", be: "Спіс гульцоў", uk: "Список гравців", ru: "Список игроков" });
 }
 
 function emptyRosterText() {
-  return {
+  return localizedText({
     en: "No registered bookings yet.",
-    ru: "Пока нет записанных игроков.",
     pl: "Brak zapisanych graczy.",
-  }[currentLanguage()];
+    be: "Пакуль няма запісаных гульцоў.",
+    uk: "Поки немає записаних гравців.",
+    ru: "Пока нет записанных игроков.",
+  });
 }
 
 function emptyChatText() {
-  return {
+  return localizedText({
     en: "No player messages yet.",
-    ru: "Пока нет сообщений игроков.",
     pl: "Brak wiadomości graczy.",
-  }[currentLanguage()];
+    be: "Пакуль няма паведамленняў гульцоў.",
+    uk: "Поки немає повідомлень гравців.",
+    ru: "Пока нет сообщений игроков.",
+  });
 }
 
 function deleteMessageLabel() {
-  return {
+  return localizedText({
     en: "Delete message",
-    ru: "Удалить сообщение",
     pl: "Usuń wiadomość",
-  }[currentLanguage()];
+    be: "Выдаліць паведамленне",
+    uk: "Видалити повідомлення",
+    ru: "Удалить сообщение",
+  });
 }
 
 function renderGames() {
@@ -1546,6 +2179,18 @@ function safeNewsUrl(item) {
   return /^https?:\/\//i.test(url) || url.startsWith("/") ? url : "";
 }
 
+function localizedNewsTitle(item) {
+  return localize(newsCopy[item.id]?.title || item.title);
+}
+
+function localizedNewsBody(item) {
+  return localize(newsCopy[item.id]?.body || item.body);
+}
+
+function newsImage(item) {
+  return newsImages[item.id] || item.image || "assets/card-news-trophy.jpg";
+}
+
 function allNewsItems() {
   return combinedNews();
 }
@@ -1556,9 +2201,12 @@ function findNewsItem(id) {
 
 function renderMiniNews(item) {
   const content = `
-    <b>${escapeHtml(localize(item.title))}</b>
-    <span>${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</span>
-    <em>${escapeHtml(t("readNews"))}</em>
+    <img class="mini-news-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" loading="lazy" decoding="async" />
+    <span class="mini-news-copy">
+      <b>${escapeHtml(localizedNewsTitle(item))}</b>
+      <span>${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</span>
+      <em>${escapeHtml(t("readNews"))}</em>
+    </span>
   `;
 
   return `
@@ -1570,15 +2218,18 @@ function renderMiniNews(item) {
 
 function renderFullNews(item) {
   const content = `
+    <img class="news-card-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" loading="lazy" decoding="async" />
+    <div class="news-card-copy">
     <div class="news-topline">
       <div>
         <time datetime="${escapeHtml(item.createdAt)}">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</time>
-        <h3>${escapeHtml(localize(item.title))}</h3>
+        <h3>${escapeHtml(localizedNewsTitle(item))}</h3>
       </div>
       ${item.site ? '<span class="news-badge">site</span>' : item.system ? "" : '<span class="news-badge">+10</span>'}
     </div>
-    <p>${escapeHtml(localize(item.body))}</p>
+    <p>${escapeHtml(localizedNewsBody(item))}</p>
     <strong class="read-news-link">${escapeHtml(t("readNews"))}</strong>
+    </div>
   `;
 
   return `
@@ -1661,7 +2312,6 @@ function renderChat() {
                 <b>${escapeHtml(message.author)}</b>
                 <span>${formatDate(message.createdAt)}</span>
                 ${message.author === playerName() || isAdmin() ? `<button type="button" data-delete-chat="${escapeHtml(message.id)}" aria-label="${escapeHtml(deleteMessageLabel())}">×</button>` : ""}
-                ${!message.system && message.author !== playerName() ? `<button type="button" data-report-chat="${escapeHtml(message.id)}">${escapeHtml(t("reportMessage"))}</button>` : ""}
               </div>
               <p>${escapeHtml(localize(message.body))}</p>
             </article>
@@ -1832,17 +2482,19 @@ function syncStatusText() {
 }
 
 function emptyGameHistoryText() {
-  return {
+  return localizedText({
     en: "No games yet.",
-    ru: "Пока нет игр.",
     pl: "Brak gier.",
-  }[currentLanguage()];
+    be: "Пакуль няма гульняў.",
+    uk: "Поки немає ігор.",
+    ru: "Пока нет игр.",
+  });
 }
 
 function renderProfileForm() {
   if (!profileForm) return;
   const hasCompleteProfile = Boolean(isAdmin() || (state.profile.saved && hasProfilePassword()));
-  profileForm.elements.nickname.value = normalizePlayerName(state.profile.nickname) === "baza player" && !state.profile.contact.trim() ? "" : state.profile.nickname;
+  profileForm.elements.nickname.value = isPlaceholderPlayerName(state.profile.nickname) && !state.profile.contact.trim() ? "" : state.profile.nickname;
   profileForm.elements.contact.value = state.profile.contact;
   if (profileForm.elements.password) profileForm.elements.password.value = "";
   profileForm.hidden = hasCompleteProfile;
@@ -2512,61 +3164,73 @@ function renderTeamTools() {
 }
 
 function emptyTeamText() {
-  return {
+  return localizedText({
     en: "No team yet.",
-    ru: "Команда еще не создана.",
     pl: "Nie utworzono jeszcze drużyny.",
-  }[currentLanguage()];
+    be: "Каманда яшчэ не створана.",
+    uk: "Команду ще не створено.",
+    ru: "Команда еще не создана.",
+  });
 }
 
 function emptyTeamChatText() {
-  return {
+  return localizedText({
     en: "Team chat is empty.",
-    ru: "Чат команды пока пуст.",
     pl: "Chat drużyny jest pusty.",
-  }[currentLanguage()];
+    be: "Чат каманды пакуль пусты.",
+    uk: "Чат команди поки порожній.",
+    ru: "Чат команды пока пуст.",
+  });
 }
 
 function teamLabel(kind) {
   const labels = {
     en: { team: "Team", captain: "Captain" },
-    ru: { team: "Команда", captain: "Капитан" },
     pl: { team: "Drużyna", captain: "Kapitan" },
+    be: { team: "Каманда", captain: "Капітан" },
+    uk: { team: "Команда", captain: "Капітан" },
+    ru: { team: "Команда", captain: "Капитан" },
   };
-  return labels[currentLanguage()][kind];
+  return (labels[currentLanguage()] || labels.en)[kind];
 }
 
 function statusLabel(status) {
   const labels = {
     en: { pending: "pending", confirmed: "confirmed", declined: "declined" },
-    ru: { pending: "ждет", confirmed: "подтвердил", declined: "отказ" },
     pl: { pending: "czeka", confirmed: "potwierdzone", declined: "odmowa" },
+    be: { pending: "чакае", confirmed: "пацверджана", declined: "адмоўлена" },
+    uk: { pending: "очікує", confirmed: "підтверджено", declined: "відхилено" },
+    ru: { pending: "ждет", confirmed: "подтвердил", declined: "отказ" },
   };
-  return labels[currentLanguage()][status] || status;
+  return (labels[currentLanguage()] || labels.en)[status] || status;
 }
 
 function inviteText(teamName) {
-  return {
+  return localizedText({
     en: `Invitation to join ${teamName}`,
-    ru: `Приглашение вступить в ${teamName}`,
     pl: `Zaproszenie do drużyny ${teamName}`,
-  }[currentLanguage()];
+    be: `Запрашэнне далучыцца да ${teamName}`,
+    uk: `Запрошення приєднатися до ${teamName}`,
+    ru: `Приглашение вступить в ${teamName}`,
+  });
 }
 
 function confirmLabel() {
-  return { en: "Confirm", ru: "Подтвердить", pl: "Potwierdź" }[currentLanguage()];
+  return localizedText({ en: "Confirm", pl: "Potwierdź", be: "Пацвердзіць", uk: "Підтвердити", ru: "Подтвердить" });
 }
 
 function declineLabel() {
-  return { en: "Decline", ru: "Отклонить", pl: "Odrzuć" }[currentLanguage()];
+  return localizedText({ en: "Decline", pl: "Odrzuć", be: "Адхіліць", uk: "Відхилити", ru: "Отклонить" });
 }
 
 function noNotificationsText() {
-  return {
+  return localizedText({
     en: "No pending team invitations.",
-    ru: "Нет ожидающих командных приглашений.",
     pl: "Brak oczekujących zaproszeń do drużyny.",
-  }[currentLanguage()];
+    be: "Няма чаканых запрашэнняў у каманду.",
+    uk: "Немає запрошень до команди, що очікують.",
+    ru: "Нет ожидающих командных приглашений.",
+  });
 }
 
 function render() {
@@ -3112,11 +3776,6 @@ function localizedToast(key) {
       ru: "Сообщение удалено.",
       pl: "Wiadomość usunięta.",
     },
-    reported: {
-      en: "Report sent to club admin.",
-      ru: "Жалоба отправлена администратору клуба.",
-      pl: "Zgłoszenie wysłane do administratora klubu.",
-    },
     teamChat: {
       en: "Message sent to team chat.",
       ru: "Сообщение отправлено в чат команды.",
@@ -3183,7 +3842,76 @@ function localizedToast(key) {
       pl: "Najpierw uzupełnij profil.",
     },
   };
-  return labels[key][currentLanguage()];
+  const additionalLabels = {
+    be: {
+      signed: "Вы ў спісе. Дададзена +25 ачкоў.",
+      canceled: "Браніраванне скасавана. Ачкі пералічаны.",
+      news: "Навіна дададзена. Налічана +10 ачкоў.",
+      profile: "Профіль захаваны.",
+      login: "Уваход выкананы.",
+      logout: "Вы выйшлі з уліковага запісу.",
+      loginError: "Няправільны нікнэйм або пароль.",
+      passwordChanged: "Пароль зменены.",
+      passwordError: "Пароль павінен мець не менш за 2 літары або лічбы і адну вялікую літару.",
+      saveError: "Не ўдалося захаваць профіль. Паспрабуйце меншую выяву аватара.",
+      avatar: "Аватар абноўлены.",
+      teamCreated: "Запрашэнні адпраўлены. Гульцы павінны пацвердзіць далучэнне.",
+      needCaptain: "Стварыць каманду можа толькі гулец з рангам Captain.",
+      chooseMember: "Выберыце хаця б аднаго зарэгістраванага гульца.",
+      confirmed: "Запрашэнне пацверджана.",
+      declined: "Запрашэнне адхілена.",
+      chat: "Паведамленне адпраўлена ў чат гульцоў.",
+      chatDeleted: "Паведамленне выдалена.",
+      teamChat: "Паведамленне адпраўлена ў чат каманды.",
+      teamDeleted: "Каманда выдалена.",
+      hardReset: "Завадскія налады адноўлены.",
+      adminSaved: "Змены адміністратара захаваны.",
+      playerAdded: "Гулец дададзены.",
+      newsApproved: "Навіна ўхвалена да публікацыі.",
+      newsDeleted: "Прапанаваная навіна выдалена.",
+      newsPending: "Навіна адпраўлена адміністратару на праверку.",
+      transferSuccess: "Ачкі перададзены і сінхранізаваны.",
+      transferQueued: "Ачкі перададзены лакальна. Сінхранізацыя з сайтам паўторыцца.",
+      transferNotEnough: "Недастаткова ачкоў.",
+      transferInvalid: "Выберыце зарэгістраванага гульца.",
+      registerFirst: "Спачатку запоўніце профіль.",
+    },
+    uk: {
+      signed: "Ви у списку. Додано +25 очок.",
+      canceled: "Бронювання скасовано. Очки перераховано.",
+      news: "Новину додано. Нараховано +10 очок.",
+      profile: "Профіль збережено.",
+      login: "Вхід виконано.",
+      logout: "Ви вийшли з облікового запису.",
+      loginError: "Неправильний нікнейм або пароль.",
+      passwordChanged: "Пароль змінено.",
+      passwordError: "Пароль має містити щонайменше 2 літери або цифри та одну велику літеру.",
+      saveError: "Не вдалося зберегти профіль. Спробуйте менше зображення аватара.",
+      avatar: "Аватар оновлено.",
+      teamCreated: "Запрошення надіслано. Гравці мають підтвердити приєднання.",
+      needCaptain: "Створити команду може лише гравець із рангом Captain.",
+      chooseMember: "Виберіть хоча б одного зареєстрованого гравця.",
+      confirmed: "Запрошення підтверджено.",
+      declined: "Запрошення відхилено.",
+      chat: "Повідомлення надіслано до чату гравців.",
+      chatDeleted: "Повідомлення видалено.",
+      teamChat: "Повідомлення надіслано до чату команди.",
+      teamDeleted: "Команду видалено.",
+      hardReset: "Заводські налаштування відновлено.",
+      adminSaved: "Зміни адміністратора збережено.",
+      playerAdded: "Гравця додано.",
+      newsApproved: "Новину схвалено до публікації.",
+      newsDeleted: "Запропоновану новину видалено.",
+      newsPending: "Новину надіслано адміністратору на перевірку.",
+      transferSuccess: "Очки передано та синхронізовано.",
+      transferQueued: "Очки передано локально. Синхронізація із сайтом повториться.",
+      transferNotEnough: "Недостатньо очок.",
+      transferInvalid: "Виберіть зареєстрованого гравця.",
+      registerFirst: "Спочатку заповніть профіль.",
+    },
+  };
+  const language = currentLanguage();
+  return additionalLabels[language]?.[key] || labels[key]?.[language] || labels[key]?.en || "";
 }
 
 function addActivity(title, label, points) {
@@ -3449,8 +4177,10 @@ function signGame(gameId) {
   addActivity(
     {
       en: `Game booking: ${localize(game.title)}`,
-      ru: `Запись на игру: ${localize(game.title)}`,
       pl: `Zapis na grę: ${localize(game.title)}`,
+      be: `Запіс на гульню: ${localize(game.title)}`,
+      uk: `Запис на гру: ${localize(game.title)}`,
+      ru: `Запись на игру: ${localize(game.title)}`,
     },
     `${localize(game.date)} / ${localize(game.time)}`,
     25,
@@ -3471,10 +4201,12 @@ function cancelGame(gameId) {
   addActivity(
     {
       en: `Booking cancelled: ${localize(game.title)}`,
-      ru: `Отмена записи: ${localize(game.title)}`,
       pl: `Anulowano zapis: ${localize(game.title)}`,
+      be: `Браніраванне скасавана: ${localize(game.title)}`,
+      uk: `Бронювання скасовано: ${localize(game.title)}`,
+      ru: `Отмена записи: ${localize(game.title)}`,
     },
-    { en: "points removed for this game", ru: "пункты за эту игру сняты", pl: "punkty za tę grę zdjęte" },
+    { en: "points removed for this game", pl: "punkty za tę grę zdjęte", be: "ачкі за гэтую гульню зняты", uk: "очки за цю гру знято", ru: "пункты за эту игру сняты" },
     -25,
   );
   saveState();
@@ -3523,19 +4255,21 @@ function renderArticle() {
 
   const cacheKey = articleCacheKey(item);
   const cachedBody = state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
-  const isLoading = articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
-  const body = hasFullArticleBody(item, cachedBody) ? cachedBody : "";
+  const canShowSourceBody = currentLanguage() === "pl" || !newsCopy[item.id];
+  const isLoading = canShowSourceBody && articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
+  const body = canShowSourceBody && hasFullArticleBody(item, cachedBody) ? cachedBody : "";
   articleReader.innerHTML = `
-    ${item.image ? `<img class="article-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(localize(item.title))}" />` : ""}
+    <img class="article-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" />
     <div class="article-meta">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</div>
-    <h1>${escapeHtml(localize(item.title))}</h1>
-    <p class="article-summary">${escapeHtml(localize(item.body))}</p>
+    <h1>${escapeHtml(localizedNewsTitle(item))}</h1>
+    <p class="article-summary">${escapeHtml(localizedNewsBody(item))}</p>
     ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
     ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
   `;
 }
 
 async function loadArticleBody(item) {
+  if (currentLanguage() !== "pl" && newsCopy[item.id]) return;
   const cacheKey = articleCacheKey(item);
   const cachedBody = state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
   if (hasFullArticleBody(item, cachedBody)) return;
@@ -3666,12 +4400,14 @@ async function loadSiteNews() {
         const lead = sourceNode.querySelector("p")?.textContent?.trim() || "";
         const articleText = card.querySelector(".update-article-body p")?.textContent?.trim();
         const label = sourceNode.querySelector("span")?.textContent?.trim() || "BAZA";
+        const newsId = card.dataset.newsId || card.querySelector("[data-news-key]")?.dataset.newsKey;
         return {
-          id: `site-bazie-${index}-${title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`,
+          id: newsId || `site-bazie-${index}-${title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`,
           title,
           body: articleText || lead,
           author: label,
           createdAt: new Date(Date.UTC(2026, 6, 10, 18 - index, 0, 0)).toISOString(),
+          image: sourceNode.querySelector("img")?.getAttribute("src") || "",
           site: true,
           source,
         };
@@ -3742,12 +4478,14 @@ async function loadLegacySiteNews() {
       const title = card.querySelector("h3")?.textContent?.trim() || "BAZA update";
       const body = card.querySelector("p")?.textContent?.trim() || "";
       const label = card.querySelector("span")?.textContent?.trim() || "BAZA";
+      const newsId = card.dataset.newsId || card.querySelector("[data-news-key]")?.dataset.newsKey;
       return {
-        id: `site-${index}-${title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`,
+        id: newsId || `site-${index}-${title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`,
         title,
         body,
         author: label,
         createdAt: new Date(Date.UTC(2026, 6, 10, 9 + index, 0, 0)).toISOString(),
+        image: card.querySelector("img")?.getAttribute("src") || "",
         site: true,
       };
     });
@@ -4210,12 +4948,6 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  const reportChatButton = event.target.closest("[data-report-chat]");
-  if (reportChatButton) {
-    reportChatMessage(reportChatButton.dataset.reportChat);
-    return;
-  }
-
   const publishNewsButton = event.target.closest("[data-admin-publish-news]");
   if (publishNewsButton) {
     approveAdminNews(publishNewsButton.dataset.adminPublishNews);
@@ -4494,25 +5226,6 @@ async function deleteOwnChatMessage(messageId) {
   showToast(localizedToast("chatDeleted"));
 }
 
-function reportChatMessage(messageId) {
-  const message = state.chat.find((item) => item.id === messageId);
-  if (!message || message.author === playerName()) return;
-  state.reports = state.reports || [];
-  state.reports.unshift({
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    type: "chat",
-    messageId,
-    author: message.author,
-    reporter: playerName(),
-    body: localize(message.body),
-    createdAt: new Date().toISOString(),
-    status: "pending",
-  });
-  state.reports = state.reports.slice(0, 100);
-  saveState();
-  showToast(localizedToast("reported"));
-}
-
 async function transferPlayerPoints(form) {
   if (!isCurrentUserRegistered()) {
     showToast(localizedToast("registerFirst"));
@@ -4548,8 +5261,10 @@ async function transferPlayerPoints(form) {
   addActivity(
     {
       en: `Transferred ${amount} points to ${recipient}`,
-      ru: `Передано ${amount} пунктов игроку ${recipient}`,
       pl: `Przekazano ${amount} punktów graczowi ${recipient}`,
+      be: `Перададзена ${amount} ачкоў гульцу ${recipient}`,
+      uk: `Передано ${amount} очок гравцеві ${recipient}`,
+      ru: `Передано ${amount} пунктов игроку ${recipient}`,
     },
     "points transfer",
     -amount,
@@ -5894,8 +6609,10 @@ newsForm?.addEventListener("submit", (event) => {
     addActivity(
       {
         en: `News published: ${title}`,
-        ru: `Новость опубликована: ${title}`,
         pl: `News opublikowany: ${title}`,
+        be: `Навіна апублікавана: ${title}`,
+        uk: `Новину опубліковано: ${title}`,
+        ru: `Новость опубликована: ${title}`,
       },
       "club news",
       10,

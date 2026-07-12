@@ -5,34 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta
       name="description"
-      content="BAZA Club App — iOS app for Lasertag Club BAZA games, player ranking, news, chat, teams and points."
+      content="Lasertag Warszawa — iOS app for games, player ranking, news, chat, teams and points."
     />
     <meta name="theme-color" content="#050505" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="BAZA" />
-    <title>BAZA Club App — iOS</title>
+    <meta name="apple-mobile-web-app-title" content="Lasertag Warszawa" />
+    <title>Lasertag Warszawa</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="assets/tournament-icon.jpeg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/app-icon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/app-icon-180.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="ios-app.css?v=72" />
+    <link rel="stylesheet" href="ios-app.css?v=84" />
   </head>
   <body>
-    <main class="ios-shell" aria-label="BAZA Club App">
+    <main class="ios-shell" aria-label="Lasertag Warszawa">
       <section class="app-screen">
         <header class="app-topbar">
-          <a class="brand-mark" href="https://www.lasertagbaza.pl/" aria-label="Back to BAZA site" data-site-home data-i18n-attr="aria-label:backToSite">
-            <svg viewBox="0 0 38 38" aria-hidden="true">
-              <path d="M4 4h30L19 34 4 4Z" />
-              <path d="m11 10 8 16 8-16H11Z" />
-            </svg>
-            <span>BAZA</span>
-          </a>
+          <div class="brand-mark" aria-label="Lasertag Warsaw">
+            <img src="assets/lasertag-warsaw-mark.png" alt="" />
+            <strong>Lasertag Warsaw</strong>
+          </div>
           <button class="icon-button" type="button" data-open-view="profile" aria-label="Open profile" data-i18n-attr="aria-label:openProfile">
             <span data-avatar-mini>BX</span>
           </button>
@@ -42,59 +40,39 @@
           <div class="environment-warning" data-env-warning hidden>
             <strong data-i18n="fileModeTitle">Open through local server</strong>
             <span data-i18n="fileModeText">File mode can block site sync.</span>
-            <a href="http://localhost:4178/ios-app.html?v=72" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+            <a href="http://localhost:4178/ios-app.html?v=84" data-localhost-link data-i18n="openLocalhost">Open app link</a>
           </div>
           <div class="voice-invite-alert" data-voice-invite-alert hidden></div>
 
           <section class="app-view active" data-view="home" aria-label="Home" data-i18n-attr="aria-label:home">
-            <div class="home-stats-panel">
+            <div class="home-stats-panel" data-home-stats hidden>
               <div class="quick-stats" aria-label="Player stats" data-i18n-attr="aria-label:playerStats">
                 <div>
+                  <span class="material-symbols-rounded stat-icon" aria-hidden="true">target</span>
                   <strong data-points-total>0</strong>
-                  <span data-i18n="points">points</span>
+                  <span class="stat-label" data-i18n="points">points</span>
                 </div>
                 <div>
+                  <span class="material-symbols-rounded stat-icon" aria-hidden="true">flag</span>
                   <strong data-signed-count>0</strong>
-                  <span data-i18n="bookings">bookings</span>
+                  <span class="stat-label" data-i18n="bookings">bookings</span>
                 </div>
                 <div>
+                  <span class="material-symbols-rounded stat-icon" aria-hidden="true">newspaper</span>
                   <strong data-news-count>0</strong>
-                  <span data-i18n="newsShort">news</span>
+                  <span class="stat-label" data-i18n="newsShort">news</span>
                 </div>
               </div>
             </div>
 
-            <div class="section-title compact-title first-section">
-              <div>
-                <span data-i18n="startActions">Start</span>
-                <h2 data-i18n="startActions">Start</h2>
-              </div>
-            </div>
             <div class="quick-action-grid">
-              <button class="action-card main-action" type="button" data-open-view="games">
-                <span aria-hidden="true">＋</span>
-                <b data-i18n="quickBooking">Quick booking</b>
-                <em data-i18n="games">Games</em>
-              </button>
-              <button class="action-card" type="button" data-open-view="profile">
-                <span aria-hidden="true">●</span>
-                <b data-i18n="profile">Profile</b>
-                <em data-i18n="accountAccess">Account</em>
-              </button>
               <button class="action-card" type="button" data-open-voice-room>
-                <span class="home-room-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
-                    <path d="M6 10v1a6 6 0 0 0 12 0v-1" />
-                    <path d="M12 17v4" />
-                    <path d="M8 21h8" />
-                  </svg>
-                </span>
+                <span class="material-symbols-rounded home-room-icon" aria-hidden="true">mic</span>
                 <b data-i18n="voiceRoom">Voice room</b>
                 <em data-home-voice-status>Offline</em>
               </button>
               <button class="action-card" type="button" data-open-view="news">
-                <span aria-hidden="true">✦</span>
+                <span class="material-symbols-rounded" aria-hidden="true">newspaper</span>
                 <b data-i18n="news">News</b>
                 <em data-i18n="clubUpdates">Updates</em>
               </button>
@@ -104,8 +82,7 @@
 
             <div class="section-title compact-title">
               <div>
-                <span data-i18n="nextGame">Next game</span>
-                <h2 data-i18n="quickBooking">Quick booking</h2>
+                <h2 data-i18n="nextGame">Next game</h2>
               </div>
             </div>
             <div class="featured-game" data-featured-game></div>
@@ -174,7 +151,7 @@
           <section class="app-view" data-view="news" aria-label="News" data-i18n-attr="aria-label:news">
             <div class="page-heading">
               <p class="overline">Club news</p>
-              <h1 data-i18n="newsTitle">BAZA news</h1>
+              <h1 data-i18n="newsTitle">Lasertag Warsaw news</h1>
               <p data-i18n="newsLead">News from the website appears here automatically. You can also add a short club update.</p>
             </div>
 
@@ -230,7 +207,7 @@
               </label>
               <div>
                 <p class="overline" data-i18n="profilePanel">Player panel</p>
-                <h1 data-profile-name>BAZA player</h1>
+                <h1 data-profile-name>Warsaw player</h1>
                 <span data-profile-level>Rookie</span>
                 <div class="profile-actions">
                   <button class="profile-login-button" type="button" data-profile-login-action data-i18n="loginProfile">Login</button>
@@ -239,12 +216,6 @@
               </div>
             </div>
 
-            <div class="section-title compact-title first-section">
-              <div>
-                <span data-i18n="accountAccess">Account</span>
-                <h2 data-i18n="accountAccess">Account</h2>
-              </div>
-            </div>
             <form class="profile-form" data-profile-form>
               <label>
                 <span data-i18n="nickname">Player nickname</span>
@@ -274,12 +245,6 @@
             </form>
             <div class="welcome-message" data-welcome-message hidden data-i18n="welcomeGame">Добро пожаловать в игру!</div>
 
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="playerStats">Player stats</span>
-                <h2 data-i18n="personalProgress">Progress</h2>
-              </div>
-            </div>
             <div class="panel-grid">
               <article class="panel-tile">
                 <span data-i18n="points">points</span>
@@ -301,12 +266,6 @@
 
             <div class="profile-sync-card" data-profile-sync></div>
 
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="playerTools">Player tools</span>
-                <h2 data-i18n="playerTools">Player tools</h2>
-              </div>
-            </div>
             <div class="points-transfer-card" data-points-transfer></div>
 
             <div class="team-panel" data-team-panel>
@@ -319,7 +278,7 @@
               <form class="team-form" data-team-form>
                 <label>
                   <span data-i18n="teamName">Team name</span>
-                  <input name="teamName" type="text" maxlength="32" placeholder="BAZA Alpha" required />
+                  <input name="teamName" type="text" maxlength="32" placeholder="Warsaw Alpha" required />
                 </label>
                 <div>
                   <span class="form-label" data-i18n="choosePlayers">Choose registered players</span>
@@ -330,15 +289,7 @@
               <div class="team-status" data-team-status></div>
             </div>
 
-            <div class="notifications-panel">
-              <div class="section-title compact-title">
-                <div>
-                  <span data-i18n="notifications">Notifications</span>
-                  <h2 data-i18n="teamConfirmations">Team confirmations</h2>
-                </div>
-              </div>
-              <div class="notification-list" data-notification-list></div>
-            </div>
+            <div data-notification-list hidden></div>
 
             <div class="section-title compact-title">
               <div>
@@ -347,22 +298,6 @@
               </div>
             </div>
             <div class="achievement-grid" data-achievements></div>
-
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="gameHistory">Game history</span>
-                <h2 data-i18n="gameHistory">Game history</h2>
-              </div>
-            </div>
-            <ol class="game-history-list" data-game-history></ol>
-
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="history">History</span>
-                <h2 data-i18n="pointsHistory">Points activity</h2>
-              </div>
-            </div>
-            <ol class="activity-list" data-activity-list></ol>
 
             <div class="section-title compact-title">
               <div>
@@ -394,8 +329,10 @@
                 <span data-i18n="language">Language</span>
                 <select name="language" data-language-select>
                   <option value="en">English</option>
-                  <option value="ru">Русский</option>
                   <option value="pl">Polski</option>
+                  <option value="be">Беларуская</option>
+                  <option value="uk">Українська</option>
+                  <option value="ru">Русский</option>
                 </select>
               </label>
             </div>
@@ -408,19 +345,19 @@
 
         <nav class="tab-bar" aria-label="App navigation" data-i18n-attr="aria-label:appNavigation">
           <button class="active" type="button" data-tab="home" aria-label="Home" data-i18n-attr="aria-label:home">
-            <span>⌂</span>
+            <span class="material-symbols-rounded">home</span>
             <b data-i18n="home">Home</b>
           </button>
           <button type="button" data-tab="games" aria-label="Games" data-i18n-attr="aria-label:games">
-            <span>＋</span>
+            <span class="material-symbols-rounded">target</span>
             <b data-i18n="games">Games</b>
           </button>
           <button type="button" data-tab="news" aria-label="News" data-i18n-attr="aria-label:news">
-            <span>✦</span>
+            <span class="material-symbols-rounded">newspaper</span>
             <b data-i18n="news">News</b>
           </button>
           <button type="button" data-tab="profile" aria-label="Profile" data-i18n-attr="aria-label:profile">
-            <span>●</span>
+            <span class="material-symbols-rounded">person</span>
             <b data-i18n="profile">Profile</b>
           </button>
         </nav>
@@ -428,7 +365,7 @@
     </main>
 
     <div class="app-toast" data-toast role="status" aria-live="polite"></div>
-    <script src="vendor/livekit-client.umd.js?v=72"></script>
-    <script src="ios-app.js?v=72"></script>
+    <script src="vendor/livekit-client.umd.js?v=84"></script>
+    <script src="ios-app.js?v=84"></script>
   </body>
 </html>

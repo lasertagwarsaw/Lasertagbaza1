@@ -1,17 +1,23 @@
 {
-  "name": "BAZA Club App",
-  "short_name": "BAZA",
-  "description": "iOS app for Lasertag Club BAZA players, games, news, avatars and points.",
-  "start_url": "ios-app.html?v=72",
+  "name": "Lasertag Warszawa",
+  "short_name": "Lasertag Warszawa",
+  "description": "Lasertag Warszawa app for players, games, news, avatars and points.",
+  "start_url": "ios-app.html?v=84",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "assets/tournament-icon.jpeg",
+      "src": "assets/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/app-icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
