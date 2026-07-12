@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 98;
+const APP_BUILD = 99;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1583,17 +1583,39 @@ function playUiTone(kind = "press") {
   if (!context) return;
   if (context.state === "suspended") context.resume().catch(() => {});
   const now = context.currentTime;
+  if (kind !== "scroll") {
+    const duration = 0.018;
+    const frameCount = Math.max(1, Math.floor(context.sampleRate * duration));
+    const buffer = context.createBuffer(1, frameCount, context.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let index = 0; index < frameCount; index += 1) {
+      const envelope = Math.pow(1 - index / frameCount, 5);
+      samples[index] = (Math.random() * 2 - 1) * envelope;
+    }
+    const source = context.createBufferSource();
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    source.buffer = buffer;
+    filter.type = "highpass";
+    filter.frequency.setValueAtTime(1800, now);
+    gain.gain.setValueAtTime(0.075, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(context.destination);
+    source.start(now);
+    return;
+  }
   const oscillator = context.createOscillator();
   const gain = context.createGain();
-  oscillator.type = kind === "scroll" ? "sine" : "square";
-  oscillator.frequency.setValueAtTime(kind === "scroll" ? 760 : 330, now);
-  if (kind !== "scroll") oscillator.frequency.exponentialRampToValueAtTime(520, now + 0.045);
-  gain.gain.setValueAtTime(kind === "scroll" ? 0.012 : 0.035, now);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + (kind === "scroll" ? 0.025 : 0.065));
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(760, now);
+  gain.gain.setValueAtTime(0.012, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
   oscillator.connect(gain);
   gain.connect(context.destination);
   oscillator.start(now);
-  oscillator.stop(now + (kind === "scroll" ? 0.028 : 0.07));
+  oscillator.stop(now + 0.028);
 }
 
 document.addEventListener(
@@ -3543,32 +3565,6 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
 }
 
-let tapAudioContext = null;
-
-function playTapSound() {
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    tapAudioContext = tapAudioContext || new AudioContextClass();
-    if (tapAudioContext.state === "suspended") tapAudioContext.resume();
-    const oscillator = tapAudioContext.createOscillator();
-    const gain = tapAudioContext.createGain();
-    const now = tapAudioContext.currentTime;
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(880, now);
-    oscillator.frequency.exponentialRampToValueAtTime(520, now + 0.055);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.055, now + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
-    oscillator.connect(gain);
-    gain.connect(tapAudioContext.destination);
-    oscillator.start(now);
-    oscillator.stop(now + 0.08);
-  } catch {
-    // Decorative tap sound should never block the action.
-  }
-}
-
 function showWelcomeMessage() {
   if (!profileForm || !welcomeMessage) return;
   clearTimeout(welcomeTimer);
@@ -5469,9 +5465,6 @@ document.addEventListener("selectstart", (event) => {
 });
 
 document.addEventListener("click", async (event) => {
-  const soundTarget = event.target.closest("button, a, .avatar-picker, [role='button']");
-  if (soundTarget) playTapSound();
-
   const removeChatPhotoButton = event.target.closest("[data-remove-chat-photo]");
   if (removeChatPhotoButton) {
     clearChatPhoto();
