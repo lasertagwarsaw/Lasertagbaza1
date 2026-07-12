@@ -1,5 +1,5 @@
-const rankingFeed = require("../data/ranking-feed.json");
 const { readSiteSignups } = require("./_site-signups");
+const { readPlayerRanking } = require("./_player-ranking");
 const signupHandler = require("./telegram-signup");
 
 const timeZone = "Europe/Warsaw";
@@ -36,10 +36,6 @@ const normalizeNickname = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]/gi, "")
     .toLowerCase();
-
-const playersByNickname = new Map(
-  rankingFeed.players.map((player) => [normalizeNickname(player.nickname), player]),
-);
 
 const getWarsawParts = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -86,7 +82,7 @@ const getNextGameStart = (game, now = new Date()) => {
   };
 };
 
-const enrichSignup = (signup) => {
+const enrichSignup = (signup, playersByNickname) => {
   const rankedPlayer = playersByNickname.get(normalizeNickname(signup.nickname));
   return {
     id: signup.id,
@@ -102,7 +98,11 @@ const enrichSignup = (signup) => {
 
 const buildGamesFeed = async () => {
   const state = await readSiteSignups();
-  const signups = state.signups.map(enrichSignup);
+  const ranking = await readPlayerRanking();
+  const playersByNickname = new Map(
+    ranking.players.map((player) => [normalizeNickname(player.nickname || player.name), player]),
+  );
+  const signups = state.signups.map((signup) => enrichSignup(signup, playersByNickname));
   const games = Object.values(gameDefinitions)
     .map((game) => {
       const schedule = getNextGameStart(game);

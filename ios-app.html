@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="ios-app.css?v=90" />
+    <link rel="stylesheet" href="ios-app.css?v=93" />
   </head>
   <body>
     <main class="ios-shell" aria-label="Lasertag Warszawa">
@@ -40,7 +40,7 @@
           <div class="environment-warning" data-env-warning hidden>
             <strong data-i18n="fileModeTitle">Open through local server</strong>
             <span data-i18n="fileModeText">File mode can block site sync.</span>
-            <a href="http://localhost:4178/ios-app.html?v=90" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+            <a href="http://localhost:4178/ios-app.html?v=93" data-localhost-link data-i18n="openLocalhost">Open app link</a>
           </div>
           <div class="voice-invite-alert" data-voice-invite-alert hidden></div>
 
@@ -118,19 +118,6 @@
               <p data-i18n="gamesLead">Choose a date, check free spots and add yourself to the roster in one tap.</p>
             </div>
 
-            <div class="reward-strip">
-              <strong data-i18n="gameReward">+25 points</strong>
-              <span data-i18n="gameRewardText">for the first booking on each game</span>
-            </div>
-
-            <div class="sync-panel">
-              <div>
-                <span data-i18n="syncStatus">Site sync</span>
-                <strong data-sync-status>Ready</strong>
-              </div>
-              <button class="text-button" type="button" data-refresh-roster data-i18n="refreshRoster">Refresh players</button>
-            </div>
-
             <div class="game-list" data-game-list></div>
           </section>
 
@@ -151,20 +138,32 @@
 
             <div class="section-title compact-title">
               <div>
-                <span data-i18n="add">Add</span>
-                <h2 data-i18n="publishNews">Publish and get +10</h2>
+                <span data-i18n="playerNews">Player news</span>
+                <h2 data-i18n="newsProposalTitle">Share club news</h2>
               </div>
+              <button class="text-button" type="button" data-toggle-news-proposal data-i18n="suggestNews">Suggest news</button>
             </div>
-            <form class="news-form" data-news-form>
+            <form class="news-form news-proposal-form" data-news-form hidden>
               <label>
                 <span data-i18n="newsHeadline">Headline</span>
-                <input name="title" type="text" maxlength="64" placeholder="Wednesday Counter-Strike game" data-i18n-attr="placeholder:newsTitlePlaceholder" required />
+                <input name="title" type="text" maxlength="80" placeholder="Wednesday Counter-Strike game" data-i18n-attr="placeholder:newsTitlePlaceholder" required />
               </label>
               <label>
                 <span data-i18n="newsBody">News text</span>
-                <textarea name="body" rows="4" maxlength="220" placeholder="Time, format, who it is for, and where to ask questions." data-i18n-attr="placeholder:newsBodyPlaceholder" required></textarea>
+                <textarea name="body" rows="6" maxlength="3000" placeholder="Time, format, who it is for, and where to ask questions." data-i18n-attr="placeholder:newsBodyPlaceholder" required></textarea>
               </label>
-              <button class="primary-button" type="submit" data-i18n="publishNews">Publish and get +10</button>
+              <label class="news-media-picker">
+                <span data-i18n="newsMedia">Photo or short video</span>
+                <input
+                  name="media"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm,image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+                  data-news-media-input
+                />
+              </label>
+              <p class="news-media-hint" data-i18n="newsMediaHint">JPG, PNG, WebP or MP4, MOV, WebM up to 15 seconds.</p>
+              <div class="news-media-preview" data-news-media-preview hidden></div>
+              <button class="primary-button" type="submit" data-i18n="sendForReview">Send to Ruslan for review</button>
             </form>
           </section>
 
@@ -390,7 +389,7 @@
     </main>
 
     <div class="app-toast" data-toast role="status" aria-live="polite"></div>
-    <script src="vendor/livekit-client.umd.js?v=90"></script>
-    <script src="ios-app.js?v=90"></script>
+    <script src="vendor/livekit-client.umd.js?v=93"></script>
+    <script src="ios-app.js?v=93"></script>
   </body>
 </html>

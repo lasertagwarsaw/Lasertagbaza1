@@ -39,7 +39,7 @@ const readBody = (request) =>
     let body = "";
     request.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 1_000_000) {
+      if (body.length > 3_200_000) {
         reject(new Error("Request body too large"));
         request.destroy();
       }
@@ -156,6 +156,11 @@ const server = http.createServer(async (request, response) => {
 
     if (request.url.startsWith("/api/news-feed")) {
       await callApi(request, response, path.join(root, "api", "news-feed.js"));
+      return;
+    }
+
+    if (request.url.startsWith("/api/news-proposals")) {
+      await callApi(request, response, path.join(root, "api", "news-proposals.js"));
       return;
     }
 

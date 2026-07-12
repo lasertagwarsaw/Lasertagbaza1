@@ -1,6 +1,20 @@
 const { appendTelegramFeed } = require("./_telegram-feed");
 const { readSiteSignups, addSiteSignup, removeSiteSignup } = require("./_site-signups");
 const { assertHumanSubmission, enforceRateLimit } = require("./_request-guard");
+const { setPointAward } = require("./_points-awards");
+const { readPlayerProfiles } = require("./_player-profiles");
+
+const normalizeName = (value) => String(value || "").trim().toLowerCase();
+const registeredPlayerMatches = async (nickname, playerProof) => {
+  if (!playerProof) return false;
+  const profiles = await readPlayerProfiles();
+  return Object.values(profiles.profiles || {}).some(
+    (profile) =>
+      normalizeName(profile.nickname) === normalizeName(nickname) &&
+      Boolean(profile.passwordHash) &&
+      String(profile.passwordHash) === String(playerProof),
+  );
+};
 
 const setCorsHeaders = (response) => {
   response.setHeader("Access-Control-Allow-Origin", "*");
@@ -48,11 +62,21 @@ module.exports = async function handler(request, response) {
 
     try {
       const siteState = await removeSiteSignup({ id, game, nickname });
+      const award = siteState.removed
+        ? await setPointAward({
+            eventId: `game:${id}`,
+            nickname,
+            points: 25,
+            active: false,
+            reason: `game booking cancelled: ${game}`,
+          })
+        : null;
       response.status(200).json({
         ok: true,
         storage: siteState.storage,
         signups: siteState.signups,
         cycleStart: siteState.cycleStart,
+        ranking: award?.ranking || null,
       });
     } catch (error) {
       response.status(500).json({ error: "Cancellation failed", reason: error.message });
@@ -81,7 +105,7 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  const { id, game, gameLabel, nickname, phone, note, createdAt } = body;
+  const { id, game, gameLabel, nickname, phone, note, createdAt, playerProof } = body;
 
   if (!["wednesday", "sunday"].includes(game) || !gameLabel || !nickname || !phone) {
     response.status(400).json({ error: "Missing signup fields" });
@@ -99,6 +123,22 @@ module.exports = async function handler(request, response) {
       error: error.statusCode === 409 ? "Game capacity reached" : "Signup storage unavailable",
     });
     return;
+  }
+  let ranking = null;
+  if (siteState.added && (await registeredPlayerMatches(nickname, playerProof))) {
+    try {
+      ranking = (
+        await setPointAward({
+          eventId: `game:${id}`,
+          nickname,
+          points: 25,
+          active: true,
+          reason: `game booking: ${game}`,
+        })
+      ).ranking;
+    } catch (error) {
+      console.warn("[telegram-signup] point award failed:", error.message);
+    }
   }
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -135,5 +175,6 @@ module.exports = async function handler(request, response) {
     telegram: telegramResult,
     signups: siteState.signups,
     cycleStart: siteState.cycleStart,
+    ranking,
   });
 };

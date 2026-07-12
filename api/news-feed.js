@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const newsFeed = require("../data/news-feed.json");
+const { readNewsProposals } = require("./_news-proposals");
 
 const pagePath = path.join(__dirname, "..", "index.html");
 const scriptPath = path.join(__dirname, "..", "script.js");
@@ -128,6 +129,32 @@ const withFullArticles = (sections) => {
   }));
 };
 
+const approvedPlayerNewsSection = async () => {
+  const state = await readNewsProposals({ includeMedia: true });
+  const items = state.proposals
+    .filter((item) => item.status === "published")
+    .map((item) => ({
+      id: item.id,
+      articleKey: item.id,
+      title: item.title,
+      summary: item.body.slice(0, 220),
+      author: item.author,
+      publishedAt: String(item.publishedAt || item.createdAt).slice(0, 10),
+      createdAt: item.publishedAt || item.createdAt,
+      image: item.media?.type === "image" ? item.media.data : "assets/card-news-trophy.jpg",
+      media: item.media || null,
+      content: item.body,
+      contentByLanguage: {},
+      playerSubmitted: true,
+    }));
+
+  return {
+    id: "player-news",
+    labels: { pl: "Wiadomości graczy", en: "Player news", ru: "Новости игроков", uk: "Новини гравців", be: "Навіны гульцоў" },
+    items,
+  };
+};
+
 module.exports = async function handler(request, response) {
   if (request.method !== "GET") {
     response.status(405).json({ error: "Method not allowed" });
@@ -135,19 +162,28 @@ module.exports = async function handler(request, response) {
   }
 
   const sectionId = String(request.query?.section || "").trim();
+  const wantsPlayerNews = sectionId === "player-news";
   const sections = sectionId
     ? newsFeed.sections.filter((section) => section.id === sectionId)
     : newsFeed.sections;
 
-  if (sectionId && !sections.length) {
+  if (sectionId && !sections.length && !wantsPlayerNews) {
     response.status(404).json({
       error: "Unknown news section",
-      availableSections: newsFeed.sections.map((section) => section.id),
+      availableSections: ["player-news", ...newsFeed.sections.map((section) => section.id)],
     });
     return;
   }
 
+  const playerNews = await approvedPlayerNewsSection();
+  const fullSections = withFullArticles(sections);
+  const responseSections = wantsPlayerNews
+    ? [playerNews]
+    : !sectionId && playerNews.items.length
+      ? [playerNews, ...fullSections]
+      : fullSections;
+
   response.setHeader("Access-Control-Allow-Origin", "*");
-  response.setHeader("Cache-Control", "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400");
-  response.status(200).json({ ...newsFeed, schemaVersion: 3, sections: withFullArticles(sections) });
+  response.setHeader("Cache-Control", "no-store, max-age=0");
+  response.status(200).json({ ...newsFeed, schemaVersion: 4, sections: responseSections });
 };

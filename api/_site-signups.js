@@ -94,7 +94,7 @@ const addSiteSignup = async (signup) => {
   const state = await readSiteSignups();
   const id = cleanText(signup.id || String(Date.now()), 80);
 
-  if (state.signups.some((item) => item.id === id)) return state;
+  if (state.signups.some((item) => item.id === id)) return { ...state, added: false };
 
   const capacity = gameCapacities[signup.game];
   const gameSignups = state.signups.filter((item) => item.game === signup.game);
@@ -112,7 +112,7 @@ const addSiteSignup = async (signup) => {
     createdAt: signup.createdAt || new Date().toISOString(),
   });
   const storage = await writeSiteSignups(state);
-  return { ...state, storage };
+  return { ...state, storage, added: true };
 };
 
 const removeSiteSignup = async ({ id, game, nickname }) => {
@@ -135,7 +135,7 @@ const removeSiteSignup = async ({ id, game, nickname }) => {
   });
 
   const storage = before === state.signups.length ? state.storage || { ok: true } : await writeSiteSignups(state);
-  return { ...state, storage };
+  return { ...state, storage, removed: before !== state.signups.length };
 };
 
 module.exports = { readSiteSignups, addSiteSignup, removeSiteSignup, getCurrentSignupCycleStart };

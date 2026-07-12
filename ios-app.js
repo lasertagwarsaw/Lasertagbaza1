@@ -1,11 +1,16 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 90;
+const APP_BUILD = 93;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
 const CHAT_IMAGE_MAX_BYTES = 95000;
 const CHAT_IMAGE_MAX_SIDE = 960;
+const NEWS_IMAGE_MAX_BYTES = 220000;
+const NEWS_IMAGE_MAX_SIDE = 1400;
+const NEWS_VIDEO_MAX_BYTES = 1500000;
+const NEWS_VIDEO_MAX_SECONDS = 15;
 const GAME_FEED_POLL_MS = 5 * 60 * 1000;
+const RANKING_POLL_MS = 15 * 1000;
 const PUBLIC_APP_ORIGIN = "https://www.lasertagbaza.pl";
 const VOICE_HTTP_POLL_MS = 1000;
 const VOICE_RELAY_CHUNK_MS = 220;
@@ -135,7 +140,7 @@ const copy = {
     queue: "Queue",
     profile: "Profile",
     profilePanel: "Player panel",
-    publishNews: "Publish and get +10",
+    publishNews: "Publish and get +30",
     quickBooking: "Quick booking",
     quickChat: "Quick chat",
     rank: "Rank",
@@ -311,7 +316,7 @@ const copy = {
     queue: "Очередь",
     profile: "Профиль",
     profilePanel: "Личная панель",
-    publishNews: "Опубликовать и получить +10",
+    publishNews: "Опубликовать и получить +30",
     quickBooking: "Быстрая запись",
     quickChat: "Быстрый чат",
     rank: "Ранг",
@@ -487,7 +492,7 @@ const copy = {
     queue: "Kolejka",
     profile: "Profil",
     profilePanel: "Panel gracza",
-    publishNews: "Opublikuj i odbierz +10",
+    publishNews: "Opublikuj i odbierz +30",
     quickBooking: "Szybki zapis",
     quickChat: "Szybki chat",
     rank: "Ranga",
@@ -665,7 +670,7 @@ copy.uk = {
   queue: "Черга",
   profile: "Профіль",
   profilePanel: "Панель гравця",
-  publishNews: "Опублікувати й отримати +10",
+  publishNews: "Опублікувати й отримати +30",
   quickBooking: "Швидке бронювання",
   quickChat: "Швидкий чат",
   rank: "Ранг",
@@ -842,7 +847,7 @@ copy.be = {
   queue: "Чарга",
   profile: "Профіль",
   profilePanel: "Панэль гульца",
-  publishNews: "Апублікаваць і атрымаць +10",
+  publishNews: "Апублікаваць і атрымаць +30",
   quickBooking: "Хуткае браніраванне",
   quickChat: "Хуткі чат",
   rank: "Ранг",
@@ -933,6 +938,18 @@ const additionalCopy = {
     newGameNotification: "New game is open",
     liveStream: "LIVE STREAM",
     streamDuringGame: "Live stream is available during the game.",
+    playerNews: "Player news",
+    newsProposalTitle: "Share club news",
+    suggestNews: "Suggest news",
+    newsMedia: "Photo or short video",
+    newsMediaHint: "JPG, PNG, WebP or MP4, MOV, WebM up to 15 seconds and 1.5 MB.",
+    sendForReview: "Send to Ruslan for review",
+    mediaTooLarge: "The file is too large. Use a smaller photo or video up to 1.5 MB.",
+    videoTooLong: "The video must be no longer than 15 seconds.",
+    unsupportedMedia: "Use JPG, PNG, WebP, MP4, MOV or WebM.",
+    removeMedia: "Remove media",
+    rewardAfterApproval: "+30 points after approval",
+    deleteProposal: "Delete proposal",
   },
   pl: {
     addPhoto: "Dodaj zdjęcie",
@@ -941,6 +958,18 @@ const additionalCopy = {
     newGameNotification: "Otwarto zapisy na nową grę",
     liveStream: "TRANSMISJA NA ŻYWO",
     streamDuringGame: "Transmisja jest dostępna podczas gry.",
+    playerNews: "Wiadomości graczy",
+    newsProposalTitle: "Podziel się wiadomością klubową",
+    suggestNews: "Zaproponuj news",
+    newsMedia: "Zdjęcie lub krótki film",
+    newsMediaHint: "JPG, PNG, WebP albo MP4, MOV, WebM do 15 sekund i 1,5 MB.",
+    sendForReview: "Wyślij Ruslanowi do akceptacji",
+    mediaTooLarge: "Plik jest za duży. Użyj mniejszego zdjęcia lub filmu do 1,5 MB.",
+    videoTooLong: "Film może mieć maksymalnie 15 sekund.",
+    unsupportedMedia: "Użyj JPG, PNG, WebP, MP4, MOV lub WebM.",
+    removeMedia: "Usuń media",
+    rewardAfterApproval: "+30 punktów po akceptacji",
+    deleteProposal: "Usuń propozycję",
   },
   ru: {
     addPhoto: "Добавить фото",
@@ -949,6 +978,18 @@ const additionalCopy = {
     newGameNotification: "Открыта запись на новую игру",
     liveStream: "ПРЯМОЙ ЭФИР",
     streamDuringGame: "Эфир доступен во время игры.",
+    playerNews: "Новости игроков",
+    newsProposalTitle: "Поделиться новостью клуба",
+    suggestNews: "Предложить новость",
+    newsMedia: "Фото или короткое видео",
+    newsMediaHint: "JPG, PNG, WebP или MP4, MOV, WebM до 15 секунд и 1,5 МБ.",
+    sendForReview: "Отправить Ruslan на проверку",
+    mediaTooLarge: "Файл слишком большой. Выбери меньшее фото или видео до 1,5 МБ.",
+    videoTooLong: "Видео должно быть не длиннее 15 секунд.",
+    unsupportedMedia: "Используй JPG, PNG, WebP, MP4, MOV или WebM.",
+    removeMedia: "Удалить медиа",
+    rewardAfterApproval: "+30 пунктов после публикации",
+    deleteProposal: "Удалить предложение",
   },
   uk: {
     addPhoto: "Додати фото",
@@ -957,6 +998,18 @@ const additionalCopy = {
     newGameNotification: "Відкрито запис на нову гру",
     liveStream: "ПРЯМИЙ ЕФІР",
     streamDuringGame: "Ефір доступний під час гри.",
+    playerNews: "Новини гравців",
+    newsProposalTitle: "Поділитися новиною клубу",
+    suggestNews: "Запропонувати новину",
+    newsMedia: "Фото або коротке відео",
+    newsMediaHint: "JPG, PNG, WebP або MP4, MOV, WebM до 15 секунд і 1,5 МБ.",
+    sendForReview: "Надіслати Ruslan на перевірку",
+    mediaTooLarge: "Файл завеликий. Виберіть менше фото або відео до 1,5 МБ.",
+    videoTooLong: "Відео має бути не довше 15 секунд.",
+    unsupportedMedia: "Використовуйте JPG, PNG, WebP, MP4, MOV або WebM.",
+    removeMedia: "Видалити медіа",
+    rewardAfterApproval: "+30 очок після публікації",
+    deleteProposal: "Видалити пропозицію",
   },
   be: {
     addPhoto: "Дадаць фота",
@@ -965,6 +1018,18 @@ const additionalCopy = {
     newGameNotification: "Адкрыты запіс на новую гульню",
     liveStream: "ПРАМЫ ЭФІР",
     streamDuringGame: "Эфір даступны падчас гульні.",
+    playerNews: "Навіны гульцоў",
+    newsProposalTitle: "Падзяліцца навіной клуба",
+    suggestNews: "Прапанаваць навіну",
+    newsMedia: "Фота або кароткае відэа",
+    newsMediaHint: "JPG, PNG, WebP або MP4, MOV, WebM да 15 секунд і 1,5 МБ.",
+    sendForReview: "Адправіць Ruslan на праверку",
+    mediaTooLarge: "Файл занадта вялікі. Выберыце меншае фота або відэа да 1,5 МБ.",
+    videoTooLong: "Відэа павінна быць не даўжэй за 15 секунд.",
+    unsupportedMedia: "Выкарыстоўвайце JPG, PNG, WebP, MP4, MOV або WebM.",
+    removeMedia: "Выдаліць медыя",
+    rewardAfterApproval: "+30 ачкоў пасля публікацыі",
+    deleteProposal: "Выдаліць прапанову",
   },
 };
 
@@ -1330,6 +1395,7 @@ const defaultState = {
   },
   signups: {},
   news: defaultNews,
+  newsProposals: [],
   siteNews: [],
   siteGames: [],
   seenGameInstances: [],
@@ -1378,8 +1444,11 @@ let voiceSignalCursor = "";
 let voiceAudioCursor = "";
 let chatRefreshTimer = null;
 let gamesRefreshTimer = null;
+let rankingRefreshTimer = null;
 let playerChatSocket = null;
 let chatPendingPhoto = "";
+let newsPendingMedia = null;
+let newsProposalRefreshTimer = null;
 let voiceAudioUnlocked = false;
 let voiceAudioContext = null;
 let voiceRelayRecorder = null;
@@ -1434,6 +1503,9 @@ const rankingFilterButtons = document.querySelectorAll("[data-ranking-filter]");
 const miniFeed = document.querySelector("[data-mini-feed]");
 const newsFeed = document.querySelector("[data-news-feed]");
 const newsForm = document.querySelector("[data-news-form]");
+const newsProposalToggle = document.querySelector("[data-toggle-news-proposal]");
+const newsMediaInput = document.querySelector("[data-news-media-input]");
+const newsMediaPreview = document.querySelector("[data-news-media-preview]");
 const profileForm = document.querySelector("[data-profile-form]");
 const loginForm = document.querySelector("[data-login-form]");
 const passwordChangeForm = document.querySelector("[data-password-change-form]");
@@ -1587,6 +1659,7 @@ function loadState() {
       auth: migratedAuth,
       admin: adminData,
       news: normalizeNewsItems(Array.isArray(saved.news) ? saved.news : cloneData(defaultNews)),
+      newsProposals: Array.isArray(saved.newsProposals) ? saved.newsProposals : [],
       siteNews: Array.isArray(saved.siteNews) ? saved.siteNews : [],
       siteGames: Array.isArray(saved.siteGames) ? saved.siteGames : [],
       seenGameInstances: Array.isArray(saved.seenGameInstances) ? saved.seenGameInstances : [],
@@ -1609,7 +1682,14 @@ function loadState() {
 
 function saveState() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const persistedState = {
+      ...state,
+      newsProposals: (state.newsProposals || []).map((proposal) => ({
+        ...proposal,
+        media: proposal.media ? { ...proposal.media, data: "" } : null,
+      })),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedState));
     return true;
   } catch (error) {
     if (state.profile?.avatar) {
@@ -1716,8 +1796,19 @@ function applySiteLinks() {
   });
 }
 
-function userNews() {
+function localUserNews() {
   return state.news.filter((item) => !item.system && !item.site && item.status !== "pending");
+}
+
+function userNews() {
+  const currentName = normalizePlayerName(playerName());
+  const items = [
+    ...localUserNews(),
+    ...(state.siteNews || []).filter(
+      (item) => item.playerSubmitted && normalizePlayerName(item.author) === currentName,
+    ),
+  ];
+  return [...new Map(items.map((item) => [item.id, item])).values()];
 }
 
 function rankingPlayerByName(name) {
@@ -1736,7 +1827,7 @@ function rankingPointsForCurrentPlayer() {
 
 function combinedNews() {
   const siteItems = state.siteNews || [];
-  const playerItems = userNews();
+  const playerItems = localUserNews();
   const fallbackItems = (state.news || []).filter((item) => item.status !== "pending");
   const items = siteItems.length ? [...siteItems, ...playerItems] : fallbackItems;
   return items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1746,7 +1837,7 @@ function totalPoints() {
   if (isAdmin()) return 10000;
   const rankedPlayer = rankingPlayerByName(playerName());
   const activityPoints = state.activities.reduce((sum, item) => sum + Number(item.points || 0), 0);
-  const derivedPoints = signedGameIds().length * 25 + userNews().length * 10;
+  const derivedPoints = signedGameIds().length * 25 + userNews().length * 30;
   if (rankedPlayer) return Math.max(0, Number(rankedPlayer.points || 0));
   return Math.max(0, Math.max(activityPoints, derivedPoints));
 }
@@ -2155,11 +2246,11 @@ function gameCard(game, isCompact = false) {
 
 function buttonLabel(kind) {
   const labels = {
-    en: { sign: "Book and get +25", cancel: "Remove booking", register: "Complete profile" },
-    pl: { sign: "Zapisz się i odbierz +25", cancel: "Usuń zapis", register: "Uzupełnij profil" },
-    be: { sign: "Запісацца і атрымаць +25", cancel: "Скасаваць запіс", register: "Запоўніць профіль" },
-    uk: { sign: "Записатися й отримати +25", cancel: "Скасувати запис", register: "Заповнити профіль" },
-    ru: { sign: "Записаться и получить +25", cancel: "Убрать запись", register: "Заполнить профиль" },
+    en: { sign: "Book this game", cancel: "Remove booking", register: "Complete profile" },
+    pl: { sign: "Zapisz się", cancel: "Usuń zapis", register: "Uzupełnij profil" },
+    be: { sign: "Запісацца", cancel: "Скасаваць запіс", register: "Запоўніць профіль" },
+    uk: { sign: "Записатися", cancel: "Скасувати запис", register: "Заповнити профіль" },
+    ru: { sign: "Записаться", cancel: "Убрать запись", register: "Заполнить профиль" },
   };
   return (labels[currentLanguage()] || labels.en)[kind];
 }
@@ -2306,7 +2397,31 @@ function localizedNewsBody(item) {
 }
 
 function newsImage(item) {
+  if (item.media?.type === "image" && /^data:image\/(?:jpeg|jpg|png|webp);base64,/i.test(item.media.data || "")) {
+    return item.media.data;
+  }
   return newsImages[item.id] || item.image || "assets/card-news-trophy.jpg";
+}
+
+function safeNewsVideo(item) {
+  const data = String(item.media?.data || "");
+  return item.media?.type === "video" && /^data:video\/(?:mp4|webm|quicktime);base64,/i.test(data) ? data : "";
+}
+
+function renderNewsCardMedia(item) {
+  const video = safeNewsVideo(item);
+  if (video) {
+    return `<video class="news-card-image news-card-video" src="${escapeHtml(video)}" muted playsinline preload="metadata"></video>`;
+  }
+  return `<img class="news-card-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" loading="lazy" decoding="async" />`;
+}
+
+function renderArticleMedia(item) {
+  const video = safeNewsVideo(item);
+  if (video) {
+    return `<video class="article-image article-video" src="${escapeHtml(video)}" controls playsinline preload="metadata"></video>`;
+  }
+  return `<img class="article-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" />`;
 }
 
 function allNewsItems() {
@@ -2336,14 +2451,14 @@ function renderMiniNews(item) {
 
 function renderFullNews(item) {
   const content = `
-    <img class="news-card-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" loading="lazy" decoding="async" />
+    ${renderNewsCardMedia(item)}
     <div class="news-card-copy">
     <div class="news-topline">
       <div>
         <time datetime="${escapeHtml(item.createdAt)}">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</time>
         <h3>${escapeHtml(localizedNewsTitle(item))}</h3>
       </div>
-      ${item.site ? '<span class="news-badge">site</span>' : item.system ? "" : '<span class="news-badge">+10</span>'}
+      ${item.playerSubmitted ? '<span class="news-badge">+30</span>' : item.site ? '<span class="news-badge">site</span>' : item.system ? "" : '<span class="news-badge">+30</span>'}
     </div>
     <p>${escapeHtml(localizedNewsBody(item))}</p>
     <strong class="read-news-link">${escapeHtml(t("readNews"))}</strong>
@@ -2648,7 +2763,7 @@ function renderAdminPanel() {
   }
 
   const players = currentPlayerRanking().filter((player) => normalizePlayerName(player.name) !== normalizePlayerName(ADMIN_ACCOUNT.nickname));
-  const proposedNews = state.news.filter((item) => item.status === "pending");
+  const proposedNews = (state.newsProposals || []).filter((item) => item.status === "pending");
   const pendingMembers = state.team?.members?.filter((member) => member.status === "pending") || [];
   adminPanel.innerHTML = `
     <div class="section-title compact-title">
@@ -3159,12 +3274,21 @@ function adminRankOptions(points) {
 }
 
 function renderAdminNewsForm(item) {
+  const mediaData = String(item.media?.data || "");
+  const mediaPreview = item.media?.type === "video" && mediaData
+    ? `<video class="admin-news-media" src="${escapeHtml(mediaData)}" controls playsinline preload="metadata"></video>`
+    : item.media?.type === "image" && mediaData
+      ? `<img class="admin-news-media" src="${escapeHtml(mediaData)}" alt="${escapeHtml(localize(item.title))}" />`
+      : item.media
+        ? `<p class="admin-news-media-note">${escapeHtml(item.media.fileName || t("newsMedia"))}</p>`
+        : "";
   return `
     <form class="admin-news-card" data-admin-news-form data-news-id="${escapeHtml(item.id)}">
       <div>
         <b>${escapeHtml(item.author || "BAZA")}</b>
         <span>${formatDate(item.createdAt)}</span>
       </div>
+      ${mediaPreview}
       <label>
         <span>${escapeHtml(t("newsHeadline"))}</span>
         <input name="title" type="text" maxlength="64" value="${escapeHtml(localize(item.title))}" />
@@ -3175,9 +3299,10 @@ function renderAdminNewsForm(item) {
       </label>
       <div class="admin-news-actions">
         <button class="primary-button" type="button" data-admin-publish-news="${escapeHtml(item.id)}">${escapeHtml(t("approveNews"))}</button>
-        <button class="text-button" type="button" data-admin-delete-news="${escapeHtml(item.id)}">${escapeHtml(t("newsDeleted"))}</button>
+        <button class="text-button" type="button" data-admin-delete-news="${escapeHtml(item.id)}">${escapeHtml(t("deleteProposal"))}</button>
         <button class="text-button" type="submit">${escapeHtml(t("adminSaved"))}</button>
       </div>
+      <p class="admin-news-reward">${escapeHtml(t("rewardAfterApproval"))}</p>
     </form>
   `;
 }
@@ -3373,6 +3498,7 @@ function render() {
   renderGames();
   renderRanking();
   renderNews();
+  renderNewsMediaPreview();
   renderChat();
   renderHomeTeam();
   renderSyncStatus();
@@ -3910,6 +4036,95 @@ async function compressChatPhoto(file) {
   throw new Error("Image is too large");
 }
 
+async function compressNewsPhoto(file) {
+  const source = await avatarFileToDataUrl(file);
+  let maxSide = NEWS_IMAGE_MAX_SIDE;
+  let quality = 0.84;
+  for (let attempt = 0; attempt < 9; attempt += 1) {
+    const result = await resizeImageDataUrl(source, maxSide, quality);
+    if (dataUrlByteLength(result) <= NEWS_IMAGE_MAX_BYTES) return result;
+    maxSide = Math.max(520, Math.round(maxSide * 0.82));
+    quality = Math.max(0.48, quality - 0.07);
+  }
+  throw new Error("Image is too large");
+}
+
+function videoDuration(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    const timeout = setTimeout(() => reject(new Error("Video metadata unavailable")), 8000);
+    video.preload = "metadata";
+    video.addEventListener("loadedmetadata", () => {
+      clearTimeout(timeout);
+      resolve(Number(video.duration || 0));
+      video.removeAttribute("src");
+      video.load();
+    }, { once: true });
+    video.addEventListener("error", () => {
+      clearTimeout(timeout);
+      reject(new Error("Invalid video"));
+    }, { once: true });
+    video.src = dataUrl;
+  });
+}
+
+async function prepareNewsMedia(file) {
+  if (!file) return null;
+  const fileName = String(file.name || "media");
+  const extension = fileName.split(".").pop()?.toLowerCase() || "";
+  const imageExtensions = new Set(["jpg", "jpeg", "png", "webp"]);
+  const videoExtensions = new Set(["mp4", "mov", "webm"]);
+  const isImage = String(file.type || "").startsWith("image/") || imageExtensions.has(extension);
+  const isVideo = String(file.type || "").startsWith("video/") || videoExtensions.has(extension);
+
+  if (isImage && imageExtensions.has(extension)) {
+    return {
+      type: "image",
+      mime: "image/jpeg",
+      fileName,
+      duration: 0,
+      data: await compressNewsPhoto(file),
+    };
+  }
+  if (!isVideo || !videoExtensions.has(extension)) throw new Error("unsupported");
+  if (file.size > NEWS_VIDEO_MAX_BYTES) throw new Error("large");
+  const data = await avatarFileToDataUrl(file);
+  const duration = await videoDuration(data);
+  if (!duration || duration > NEWS_VIDEO_MAX_SECONDS + 0.25) throw new Error("duration");
+  return {
+    type: "video",
+    mime: file.type || (extension === "mov" ? "video/quicktime" : `video/${extension}`),
+    fileName,
+    duration: Math.round(duration * 10) / 10,
+    data,
+  };
+}
+
+function clearNewsMedia() {
+  newsPendingMedia = null;
+  if (newsMediaInput) newsMediaInput.value = "";
+  renderNewsMediaPreview();
+}
+
+function renderNewsMediaPreview() {
+  if (!newsMediaPreview) return;
+  newsMediaPreview.hidden = !newsPendingMedia;
+  if (!newsPendingMedia) {
+    newsMediaPreview.innerHTML = "";
+    return;
+  }
+  const media = newsPendingMedia.type === "video"
+    ? `<video src="${escapeHtml(newsPendingMedia.data)}" controls playsinline preload="metadata"></video>`
+    : `<img src="${escapeHtml(newsPendingMedia.data)}" alt="${escapeHtml(t("newsMedia"))}" />`;
+  newsMediaPreview.innerHTML = `
+    ${media}
+    <div>
+      <span>${escapeHtml(newsPendingMedia.fileName)}</span>
+      <button class="text-button" type="button" data-remove-news-media>${escapeHtml(t("removeMedia"))}</button>
+    </div>
+  `;
+}
+
 function renderChatPhotoPreview() {
   if (!chatPhotoPreview || !chatPhotoPreviewImage) return;
   chatPhotoPreview.hidden = !chatPendingPhoto;
@@ -3940,9 +4155,9 @@ window.__bazaSetNativeAvatar = updateAvatar;
 function localizedToast(key) {
   const labels = {
     signed: {
-      en: "You are on the roster. +25 points added.",
-      ru: "Ты в списке. Начислено +25 пунктов.",
-      pl: "Jesteś na liście. Dodano +25 punktów.",
+      en: "You are on the roster. Rating updated.",
+      ru: "Ты в списке. Рейтинг обновлён.",
+      pl: "Jesteś na liście. Ranking został zaktualizowany.",
     },
     canceled: {
       en: "Booking removed. Points recalculated.",
@@ -3950,9 +4165,9 @@ function localizedToast(key) {
       pl: "Zapis usunięty. Punkty przeliczone.",
     },
     news: {
-      en: "News added. +10 points.",
-      ru: "Новость добавлена. Начислено +10 пунктов.",
-      pl: "News dodany. +10 punktów.",
+      en: "News published. +30 points added.",
+      ru: "Новость опубликована. Начислено +30 пунктов.",
+      pl: "News opublikowany. Dodano +30 punktów.",
     },
     profile: {
       en: "Profile saved.",
@@ -4055,9 +4270,9 @@ function localizedToast(key) {
       pl: "Gracz dodany.",
     },
     newsApproved: {
-      en: "News approved for publication.",
-      ru: "Новость допущена к публикации.",
-      pl: "News dopuszczony do publikacji.",
+      en: "News published. The player received +30 points.",
+      ru: "Новость опубликована. Игрок получил +30 пунктов.",
+      pl: "News opublikowany. Gracz otrzymał +30 punktów.",
     },
     newsDeleted: {
       en: "Proposed news deleted.",
@@ -4097,9 +4312,9 @@ function localizedToast(key) {
   };
   const additionalLabels = {
     be: {
-      signed: "Вы ў спісе. Дададзена +25 ачкоў.",
+      signed: "Вы ў спісе. Рэйтынг абноўлены.",
       canceled: "Браніраванне скасавана. Ачкі пералічаны.",
-      news: "Навіна дададзена. Налічана +10 ачкоў.",
+      news: "Навіна апублікавана. Налічана +30 ачкоў.",
       profile: "Профіль захаваны.",
       login: "Уваход выкананы.",
       logout: "Вы выйшлі з уліковага запісу.",
@@ -4120,7 +4335,7 @@ function localizedToast(key) {
       hardReset: "Завадскія налады адноўлены.",
       adminSaved: "Змены адміністратара захаваны.",
       playerAdded: "Гулец дададзены.",
-      newsApproved: "Навіна ўхвалена да публікацыі.",
+      newsApproved: "Навіна апублікавана. Гулец атрымаў +30 ачкоў.",
       newsDeleted: "Прапанаваная навіна выдалена.",
       newsPending: "Навіна адпраўлена адміністратару на праверку.",
       transferSuccess: "Ачкі перададзены і сінхранізаваны.",
@@ -4130,9 +4345,9 @@ function localizedToast(key) {
       registerFirst: "Спачатку запоўніце профіль.",
     },
     uk: {
-      signed: "Ви у списку. Додано +25 очок.",
+      signed: "Ви у списку. Рейтинг оновлено.",
       canceled: "Бронювання скасовано. Очки перераховано.",
-      news: "Новину додано. Нараховано +10 очок.",
+      news: "Новину опубліковано. Нараховано +30 очок.",
       profile: "Профіль збережено.",
       login: "Вхід виконано.",
       logout: "Ви вийшли з облікового запису.",
@@ -4153,7 +4368,7 @@ function localizedToast(key) {
       hardReset: "Заводські налаштування відновлено.",
       adminSaved: "Зміни адміністратора збережено.",
       playerAdded: "Гравця додано.",
-      newsApproved: "Новину схвалено до публікації.",
+      newsApproved: "Новину опубліковано. Гравець отримав +30 очок.",
       newsDeleted: "Запропоновану новину видалено.",
       newsPending: "Новину надіслано адміністратору на перевірку.",
       transferSuccess: "Очки передано та синхронізовано.",
@@ -4280,10 +4495,11 @@ async function savePlayerProfile(formData) {
 
   if (!saveState()) return false;
 
+  let persisted = false;
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
     const savedProfile = saved.profile || {};
-    return (
+    persisted = (
       Boolean(savedProfile.saved) &&
       Boolean(savedProfile.passwordHash) &&
       normalizePlayerName(savedProfile.nickname) === normalizePlayerName(nickname) &&
@@ -4292,6 +4508,15 @@ async function savePlayerProfile(formData) {
   } catch {
     return false;
   }
+  if (!persisted) return false;
+  await syncAdminPlayerToSite({
+    nickname,
+    contact,
+    points: totalPoints(),
+    passwordHash: state.profile.passwordHash,
+    source: "ios-profile-registration",
+  });
+  return true;
 }
 
 async function loginPlayer(formData) {
@@ -4312,6 +4537,7 @@ async function loginPlayer(formData) {
       role: "admin",
     };
     saveState();
+    await loadNewsProposals();
     return true;
   }
   const adminProfile = state.admin?.playerProfiles?.[normalizePlayerName(nickname)];
@@ -4357,6 +4583,13 @@ async function loginPlayer(formData) {
       role: "player",
     };
     saveState();
+    await syncAdminPlayerToSite({
+      nickname: knownPlayer.name,
+      contact: "site-account",
+      points: Number(knownPlayer.points || 0),
+      passwordHash,
+      source: "ios-account-login",
+    });
     return true;
   }
   if (!hasProfilePassword()) return false;
@@ -4365,6 +4598,13 @@ async function loginPlayer(formData) {
   state.auth.loggedIn = true;
   state.auth.role = "player";
   saveState();
+  await syncAdminPlayerToSite({
+    nickname,
+    contact: state.profile.contact,
+    points: totalPoints(),
+    passwordHash: state.profile.passwordHash,
+    source: "ios-profile-login",
+  });
   return true;
 }
 
@@ -4438,6 +4678,7 @@ function signGame(gameId) {
     `${localize(game.date)} / ${localize(game.time)}`,
     25,
   );
+  applyCurrentPlayerPointDelta(25);
   saveState();
   render();
   showToast(localizedToast("signed"));
@@ -4462,6 +4703,7 @@ function cancelGame(gameId) {
     { en: "points removed for this game", pl: "punkty za tę grę zdjęte", be: "ачкі за гэтую гульню зняты", uk: "очки за цю гру знято", ru: "пункты за эту игру сняты" },
     -25,
   );
+  applyCurrentPlayerPointDelta(-25);
   saveState();
   render();
   showToast(localizedToast("canceled"));
@@ -4517,7 +4759,7 @@ function renderArticle() {
   const isLoading = canShowSourceBody && articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
   const body = canShowSourceBody && hasFullArticleBody(item, cachedBody) ? cachedBody : "";
   articleReader.innerHTML = `
-    <img class="article-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" />
+    ${renderArticleMedia(item)}
     <div class="article-meta">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</div>
     <h1>${escapeHtml(localizedNewsTitle(item))}</h1>
     <p class="article-summary">${escapeHtml(localizedNewsBody(item))}</p>
@@ -4696,8 +4938,9 @@ async function loadRemoteNewsFeed() {
       title: item.title || "BAZA update",
       body: item.summary || "",
       author: item.author || localize(section.labels) || "BAZA",
-      createdAt: item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString(),
+      createdAt: item.createdAt || (item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString()),
       image: item.image || "",
+      media: item.media || null,
       contentUrl: item.contentUrl || "",
       content: item.content || "",
       contentByLanguage: item.contentByLanguage || {},
@@ -4705,6 +4948,7 @@ async function loadRemoteNewsFeed() {
       webSelector: item.webSelector || "",
       site: true,
       sectionId: section.id || "",
+      playerSubmitted: Boolean(item.playerSubmitted),
       source,
     }));
   } catch {
@@ -4761,9 +5005,7 @@ async function loadLegacySiteNews() {
 
 async function loadSiteRanking() {
   const sources = [
-    { url: "https://www.lasertagbaza.pl/api/ranking-feed", type: "json" },
-    { url: "/api/ranking-feed", type: "json" },
-    { url: "http://localhost:3000/api/ranking-feed", type: "json" },
+    { url: appApiUrl("/api/ranking-feed"), type: "json" },
     { url: "Lasertagbaza1-upload/data/ranking-feed.json", type: "json" },
     { url: "https://www.lasertagbaza.pl/", type: "html" },
     { url: "index.html", type: "html" },
@@ -5029,14 +5271,10 @@ async function syncSignupToSite(game, signupId) {
   const payload = {
     ...signup,
     gameLabel: gameLabelForSite(gameKey),
+    playerProof: state.profile.passwordHash,
   };
 
-  const targets = [
-    "https://www.lasertagbaza.pl/api/games-feed",
-    "/api/games-feed",
-    "https://www.lasertagbaza.pl/api/telegram-signup",
-    "/api/telegram-signup",
-  ];
+  const targets = [appApiUrl("/api/games-feed")];
 
   for (const target of targets) {
     try {
@@ -5050,8 +5288,11 @@ async function syncSignupToSite(game, signupId) {
       if (Array.isArray(data.signups)) {
         mergeSiteSignups(data.signups);
       }
+      if (applyRankingPayload(data.ranking)) clearPlayerPointOverride(playerName());
       setSyncStatus("synced");
       saveState();
+      renderRanking();
+      renderStats();
       renderGames();
       return;
     } catch {
@@ -5072,12 +5313,7 @@ async function syncSignupCancellationToSite(game, signupId) {
     nickname: playerName(),
   };
 
-  const targets = [
-    "https://www.lasertagbaza.pl/api/games-feed",
-    "/api/games-feed",
-    "https://www.lasertagbaza.pl/api/telegram-signup",
-    "/api/telegram-signup",
-  ];
+  const targets = [appApiUrl("/api/games-feed")];
 
   for (const target of targets) {
     try {
@@ -5091,8 +5327,11 @@ async function syncSignupCancellationToSite(game, signupId) {
       if (Array.isArray(data.signups)) {
         replaceSiteSignups(data.signups);
       }
+      if (applyRankingPayload(data.ranking)) clearPlayerPointOverride(playerName());
       setSyncStatus("synced");
       saveState();
+      renderRanking();
+      renderStats();
       renderGames();
       return;
     } catch {
@@ -5197,7 +5436,7 @@ document.addEventListener("selectstart", (event) => {
   if (!editableTarget) event.preventDefault();
 });
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const soundTarget = event.target.closest("button, a, .avatar-picker, [role='button']");
   if (soundTarget) playTapSound();
 
@@ -5210,6 +5449,12 @@ document.addEventListener("click", (event) => {
   const liveStreamButton = event.target.closest("[data-live-stream]");
   if (liveStreamButton) {
     showToast(t("streamDuringGame"));
+    return;
+  }
+
+  const removeNewsMediaButton = event.target.closest("[data-remove-news-media]");
+  if (removeNewsMediaButton) {
+    clearNewsMedia();
     return;
   }
 
@@ -5278,13 +5523,13 @@ document.addEventListener("click", (event) => {
 
   const publishNewsButton = event.target.closest("[data-admin-publish-news]");
   if (publishNewsButton) {
-    approveAdminNews(publishNewsButton.dataset.adminPublishNews);
+    await approveAdminNews(publishNewsButton.dataset.adminPublishNews);
     return;
   }
 
   const deleteNewsButton = event.target.closest("[data-admin-delete-news]");
   if (deleteNewsButton) {
-    deleteAdminNews(deleteNewsButton.dataset.adminDeleteNews);
+    await deleteAdminNews(deleteNewsButton.dataset.adminDeleteNews);
     return;
   }
 
@@ -5645,6 +5890,17 @@ function setAdminPlayerPoints(name, points) {
   };
 }
 
+function applyCurrentPlayerPointDelta(delta) {
+  if (!isCurrentUserRegistered() || isAdmin()) return;
+  const currentPoints = Number(rankingPlayerByName(playerName())?.points || totalPoints() || 0);
+  setAdminPlayerPoints(playerName(), currentPoints + Number(delta || 0));
+}
+
+function clearPlayerPointOverride(name) {
+  const key = normalizePlayerName(name);
+  if (state.admin?.playerOverrides?.[key]) delete state.admin.playerOverrides[key];
+}
+
 async function saveAdminPlayer(form) {
   if (!isAdmin()) return;
   const formData = new FormData(form);
@@ -5720,7 +5976,6 @@ function syncAdminRankSelect(select) {
 }
 
 async function syncAdminPlayerToSite(player) {
-  const productionEndpoint = "https://www.lasertagbaza.pl/api/admin-player";
   const payload = {
     nickname: player.nickname,
     password: player.password,
@@ -5729,11 +5984,7 @@ async function syncAdminPlayerToSite(player) {
     createdAt: new Date().toISOString(),
     source: player.source || "ios-admin-panel",
   };
-  const endpoints = [
-    productionEndpoint,
-    "http://localhost:3000/api/admin-player",
-    "/api/admin-player",
-  ];
+  const endpoints = [appApiUrl("/api/admin-player")];
   let localSynced = false;
 
   for (const endpoint of endpoints) {
@@ -5748,13 +5999,11 @@ async function syncAdminPlayerToSite(player) {
       const players = normalizeRankingFeedPlayers(data?.players || data?.ranking?.players || []);
       if (players.length) state.siteRanking = players;
       localSynced = true;
-      if (endpoint === productionEndpoint) {
-        state.sync.status = "synced";
-        state.sync.lastSiteSync = new Date().toISOString();
-        state.sync.lastError = "";
-        saveState();
-        return true;
-      }
+      state.sync.status = "synced";
+      state.sync.lastSiteSync = new Date().toISOString();
+      state.sync.lastError = "";
+      saveState();
+      return true;
     } catch {
       // Try the next sync endpoint.
     }
@@ -5767,11 +6016,7 @@ async function syncAdminPlayerToSite(player) {
 }
 
 async function loadAdminPlayersFromSite() {
-  const endpoints = [
-    "https://www.lasertagbaza.pl/api/admin-player",
-    "/api/admin-player",
-    "http://localhost:3000/api/admin-player",
-  ];
+  const endpoints = [appApiUrl("/api/admin-player")];
 
   for (const endpoint of endpoints) {
     try {
@@ -5961,7 +6206,7 @@ async function retryAdminSync() {
 
 function updateAdminNewsFromForm(form) {
   const newsId = form?.dataset.newsId;
-  const item = state.news.find((newsItem) => newsItem.id === newsId);
+  const item = (state.newsProposals || []).find((newsItem) => newsItem.id === newsId);
   if (!item) return null;
   const formData = new FormData(form);
   item.title = String(formData.get("title") || "").trim() || item.title;
@@ -5970,38 +6215,143 @@ function updateAdminNewsFromForm(form) {
   return item;
 }
 
-function saveAdminNewsDraft(form) {
+function applyRankingPayload(payload) {
+  const players = normalizeRankingFeedPlayers(payload?.players || payload?.ranking?.players || []);
+  if (!players.length) return false;
+  state.siteRanking = players;
+  return true;
+}
+
+async function requestNewsProposal(payload, method = "POST") {
+  const response = await fetch(appApiUrl("/api/news-proposals"), {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "News proposal request failed");
+  return data;
+}
+
+async function loadNewsProposals() {
+  try {
+    const response = await fetch(appApiUrl("/api/news-proposals"), {
+      cache: "no-store",
+      headers: isAdmin() ? { "X-BAZA-Admin": ADMIN_ACCOUNT.password } : {},
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    const incoming = Array.isArray(data.proposals) ? data.proposals : [];
+    if (isAdmin()) {
+      state.newsProposals = incoming;
+    } else {
+      const localPending = (state.newsProposals || []).filter((item) => item.status === "pending");
+      state.newsProposals = [...incoming, ...localPending.filter((local) => !incoming.some((item) => item.id === local.id))];
+    }
+    saveState();
+    renderAdminPanel();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function submitNewsProposal(form) {
+  if (!isCurrentUserRegistered() || isAdmin()) {
+    showToast(localizedToast("registerFirst"));
+    setView("profile");
+    return false;
+  }
+  const formData = new FormData(form);
+  const title = String(formData.get("title") || "").trim();
+  const body = String(formData.get("body") || "").trim();
+  if (!title || !body) return false;
+
+  const submitButton = form.querySelector('[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
+  try {
+    const data = await requestNewsProposal({
+      action: "create",
+      title,
+      body,
+      author: playerName(),
+      playerProof: state.profile.passwordHash,
+      media: newsPendingMedia,
+    });
+    state.newsProposals = [data.proposal, ...(state.newsProposals || []).filter((item) => item.id !== data.proposal.id)];
+    form.reset();
+    clearNewsMedia();
+    form.hidden = true;
+    saveState();
+    showToast(localizedToast("newsPending"));
+    return true;
+  } catch (error) {
+    showToast(error?.message || localizedToast("saveError"));
+    return false;
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
+async function saveAdminNewsDraft(form) {
   if (!isAdmin()) return;
-  updateAdminNewsFromForm(form);
+  const item = updateAdminNewsFromForm(form);
+  if (!item) return;
+  try {
+    await requestNewsProposal({
+      action: "update",
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      adminPassword: ADMIN_ACCOUNT.password,
+    });
+  } catch (error) {
+    showToast(error?.message || localizedToast("saveError"));
+    return;
+  }
   addAdminLog("news edited", form?.dataset.newsId || "");
   saveState();
+  await loadNewsProposals();
   renderAdminPanel();
   showToast(localizedToast("adminSaved"));
 }
 
-function approveAdminNews(newsId) {
+async function approveAdminNews(newsId) {
   if (!isAdmin()) return;
   const form = [...document.querySelectorAll("[data-admin-news-form]")].find((node) => node.dataset.newsId === newsId);
-  const item = updateAdminNewsFromForm(form) || state.news.find((newsItem) => newsItem.id === newsId);
+  const item = updateAdminNewsFromForm(form) || (state.newsProposals || []).find((newsItem) => newsItem.id === newsId);
   if (!item) return;
-  item.status = "published";
-  item.pending = false;
-  item.approvedAt = new Date().toISOString();
-  item.approvedBy = ADMIN_ACCOUNT.nickname;
-  if (item.author && normalizePlayerName(item.author) !== normalizePlayerName(ADMIN_ACCOUNT.nickname)) {
-    const existing = currentPlayerRanking().find((player) => normalizePlayerName(player.name) === normalizePlayerName(item.author));
-    setAdminPlayerPoints(item.author, Number(existing?.points || 0) + 10);
+  let data;
+  try {
+    data = await requestNewsProposal({
+      action: "approve",
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      adminPassword: ADMIN_ACCOUNT.password,
+    });
+  } catch (error) {
+    showToast(error?.message || localizedToast("saveError"));
+    return;
   }
+  applyRankingPayload(data.ranking);
   addAdminLog("news approved", localize(item.title));
   saveState();
+  await Promise.all([loadNewsProposals(), loadSiteNews(), loadSiteRanking()]);
   render();
   showToast(localizedToast("newsApproved"));
 }
 
-function deleteAdminNews(newsId) {
+async function deleteAdminNews(newsId) {
   if (!isAdmin()) return;
-  const item = state.news.find((newsItem) => newsItem.id === newsId);
-  state.news = state.news.filter((item) => item.id !== newsId);
+  const item = (state.newsProposals || []).find((newsItem) => newsItem.id === newsId);
+  try {
+    await requestNewsProposal({ id: newsId, adminPassword: ADMIN_ACCOUNT.password }, "DELETE");
+  } catch (error) {
+    showToast(error?.message || localizedToast("saveError"));
+    return;
+  }
+  state.newsProposals = (state.newsProposals || []).filter((newsItem) => newsItem.id !== newsId);
   addAdminLog("news deleted", localize(item?.title || newsId));
   saveState();
   render();
@@ -6943,46 +7293,33 @@ function hardResetApp() {
   showToast(localizedToast("hardReset"));
 }
 
-newsForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(newsForm);
-  const title = String(formData.get("title") || "").trim();
-  const body = String(formData.get("body") || "").trim();
-  if (!title || !body) return;
-  if (!isCurrentUserRegistered()) {
-    showToast(localizedToast("registerFirst"));
-    setView("profile");
-    return;
-  }
-  const publishNow = isAdmin();
+newsProposalToggle?.addEventListener("click", () => {
+  if (!newsForm) return;
+  newsForm.hidden = !newsForm.hidden;
+  newsProposalToggle.setAttribute("aria-expanded", String(!newsForm.hidden));
+  if (!newsForm.hidden) newsForm.elements.title?.focus();
+});
 
-  state.news.push({
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    title,
-    body,
-    author: playerName(),
-    createdAt: new Date().toISOString(),
-    system: false,
-    status: publishNow ? "published" : "pending",
-    pending: !publishNow,
-  });
-  if (publishNow) {
-    addActivity(
-      {
-        en: `News published: ${title}`,
-        pl: `News opublikowany: ${title}`,
-        be: `Навіна апублікавана: ${title}`,
-        uk: `Новину опубліковано: ${title}`,
-        ru: `Новость опубликована: ${title}`,
-      },
-      "club news",
-      10,
-    );
+newsMediaInput?.addEventListener("change", async () => {
+  const file = newsMediaInput.files?.[0];
+  if (!file) return;
+  try {
+    newsPendingMedia = await prepareNewsMedia(file);
+    renderNewsMediaPreview();
+  } catch (error) {
+    clearNewsMedia();
+    const message = error?.message === "duration"
+      ? t("videoTooLong")
+      : error?.message === "unsupported"
+        ? t("unsupportedMedia")
+        : t("mediaTooLarge");
+    showToast(message);
   }
-  newsForm.reset();
-  saveState();
-  render();
-  showToast(localizedToast(publishNow ? "news" : "newsPending"));
+});
+
+newsForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await submitNewsProposal(newsForm);
 });
 
 languageSelect?.addEventListener("change", () => {
@@ -7115,7 +7452,7 @@ document.addEventListener("submit", async (event) => {
   const adminNewsForm = event.target.closest("[data-admin-news-form]");
   if (adminNewsForm) {
     event.preventDefault();
-    saveAdminNewsDraft(adminNewsForm);
+    await saveAdminNewsDraft(adminNewsForm);
     return;
   }
 
@@ -7198,7 +7535,11 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
 
 document.addEventListener("visibilitychange", () => {
   syncVoiceInvitesOnForeground();
-  if (document.visibilityState === "visible") loadSiteGames({ notify: true });
+  if (document.visibilityState === "visible") {
+    loadSiteGames({ notify: true });
+    loadSiteRanking();
+    if (isAdmin()) loadNewsProposals();
+  }
   clearTimeout(voiceBrowserHiddenTimer);
   voiceBrowserHiddenTimer = null;
   if (!window.BAZA_NATIVE_APP && document.visibilityState === "hidden" && voiceSessionActivated) {
@@ -7220,8 +7561,15 @@ connectPlayerChatSocket();
 loadPlayerChat();
 chatRefreshTimer = setInterval(loadPlayerChat, 2500);
 loadSiteGames({ notify: true });
-gamesRefreshTimer = setInterval(() => loadSiteGames({ notify: true }), GAME_FEED_POLL_MS);
+gamesRefreshTimer = setInterval(() => {
+  loadSiteGames({ notify: true });
+}, GAME_FEED_POLL_MS);
 loadSiteSignups().then(syncCurrentSignedGamesToSite);
 loadSiteRanking();
+rankingRefreshTimer = setInterval(loadSiteRanking, RANKING_POLL_MS);
 loadAdminPlayersFromSite();
 loadSiteNews();
+loadNewsProposals();
+newsProposalRefreshTimer = setInterval(() => {
+  if (isAdmin()) loadNewsProposals();
+}, 5000);

@@ -13,6 +13,24 @@
   --body: "DM Sans", sans-serif;
 }
 
+.community-update-video,
+.community-news-player {
+  display: block;
+  width: 100%;
+  background: #050505;
+  object-fit: cover;
+}
+
+.community-update-video {
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+}
+
+.community-news-player {
+  max-height: 520px;
+  margin-top: 18px;
+}
+
 * {
   box-sizing: border-box;
 }

@@ -40,6 +40,7 @@ const newsFilterButtons = document.querySelectorAll("[data-news-filter]");
 const localApiBase = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 const gameSignupEndpoint = `${localApiBase}/api/games-feed`;
 const newsCommentsEndpoint = `${localApiBase}/api/news-comments`;
+const newsFeedEndpoint = `${localApiBase}/api/news-feed`;
 const rankingFeedEndpoint = `${localApiBase}/api/ranking-feed`;
 const weatherForecastEndpoint = `${localApiBase}/api/weather`;
 const analyticsEndpoint = `${localApiBase}/api/analytics`;
@@ -2729,10 +2730,89 @@ const setupBonusPlayerArticleLinks = () => {
   });
 };
 
+const loadPublishedPlayerNews = async () => {
+  if (!updatesGrid) return;
+  try {
+    const response = await fetch(newsFeedEndpoint, { cache: "no-store" });
+    if (!response.ok) return;
+    const feed = await response.json();
+    const section = (Array.isArray(feed.sections) ? feed.sections : []).find((item) => item.id === "player-news");
+    const items = Array.isArray(section?.items) ? section.items : [];
+
+    items.forEach((item) => {
+      if (!item?.id || updatesGrid.querySelector(`[data-news-id="${CSS.escape(String(item.id))}"]`)) return;
+      const card = document.createElement("article");
+      card.className = "update-card featured-update community-update";
+      card.dataset.newsId = String(item.id);
+      card.dataset.newsSection = "player-news";
+
+      const details = document.createElement("details");
+      details.className = "update-article";
+      details.dataset.newsKey = String(item.articleKey || item.id);
+      details.dataset.published = String(item.publishedAt || item.createdAt || "").slice(0, 10);
+      const summary = document.createElement("summary");
+      const media = item.media && typeof item.media === "object" ? item.media : null;
+      const mediaData = String(media?.data || "");
+
+      if (media?.type === "video" && /^data:video\/(?:mp4|webm|quicktime);base64,/i.test(mediaData)) {
+        const video = document.createElement("video");
+        video.className = "update-card-image community-update-video";
+        video.src = mediaData;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        summary.append(video);
+      } else {
+        const image = document.createElement("img");
+        image.className = "update-card-image";
+        image.src = /^data:image\/(?:jpeg|jpg|png|webp);base64,/i.test(mediaData)
+          ? mediaData
+          : item.image || "assets/card-news-trophy.jpg";
+        image.alt = String(item.title || "BAZA news");
+        image.loading = "lazy";
+        image.decoding = "async";
+        summary.append(image);
+      }
+
+      const kicker = document.createElement("span");
+      kicker.textContent = `${item.author || "BAZA"} / wiadomość gracza`;
+      const title = document.createElement("h3");
+      title.textContent = String(item.title || "BAZA news");
+      const lead = document.createElement("p");
+      lead.textContent = String(item.summary || item.content || "").slice(0, 220);
+      const read = document.createElement("b");
+      read.textContent = "Czytaj artykuł";
+      summary.append(kicker, title, lead, read);
+
+      const body = document.createElement("div");
+      body.className = "update-article-body";
+      const text = document.createElement("p");
+      text.textContent = String(item.content || item.summary || "");
+      body.append(text);
+      if (media?.type === "video" && /^data:video\/(?:mp4|webm|quicktime);base64,/i.test(mediaData)) {
+        const player = document.createElement("video");
+        player.className = "community-news-player";
+        player.src = mediaData;
+        player.controls = true;
+        player.playsInline = true;
+        player.preload = "metadata";
+        body.append(player);
+      }
+
+      details.append(summary, body);
+      card.append(details);
+      updatesGrid.prepend(card);
+    });
+  } catch (error) {
+    console.warn("Player news feed is unavailable", error);
+  }
+};
+
 const initializeSite = async () => {
   await loadExternalCopy();
   buildRankedPlayerAvatarIndex();
   await updatePlayerRankingFromFeed();
+  await loadPublishedPlayerNews();
   setupNewsPagination();
   setupBonusPlayerArticleLinks();
   collectTranslatableText();
