@@ -854,6 +854,36 @@ a {
   margin-top: 16px;
 }
 
+.admin-proposals-panel {
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255, 212, 0, 0.55);
+  background: rgba(255, 212, 0, 0.07);
+}
+
+.admin-proposals-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-proposals-heading h3 {
+  margin: 0;
+}
+
+.admin-proposals-heading > b {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: var(--ink);
+  background: var(--acid);
+  border-radius: 50%;
+  font-size: 13px;
+}
+
 .admin-block h3 {
   margin: 0 0 10px;
   color: var(--paper);
@@ -929,6 +959,39 @@ a {
 
 .admin-news-actions {
   flex-wrap: wrap;
+}
+
+.admin-news-readable {
+  display: block !important;
+  margin: 10px 0 14px;
+  padding: 12px;
+  border-left: 3px solid var(--acid);
+  background: rgba(0, 0, 0, 0.34);
+}
+
+.admin-news-readable h4 {
+  margin: 0 0 8px;
+  color: var(--paper);
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.admin-news-readable p {
+  margin: 0;
+  color: #e4e1d2;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.admin-news-card textarea {
+  min-height: 176px;
+  resize: vertical;
+}
+
+.admin-news-actions .primary-button {
+  flex: 1 1 100%;
 }
 
 .admin-toolbar {
@@ -3442,6 +3505,16 @@ textarea:focus-visible {
 
 .news-proposal-form {
   gap: 14px;
+}
+
+.news-proposal-panel {
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.news-proposal-panel + .section-title {
+  margin-top: 0;
 }
 
 .news-media-picker input[type="file"] {

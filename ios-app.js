@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 94;
+const APP_BUILD = 95;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -950,6 +950,8 @@ const additionalCopy = {
     removeMedia: "Remove media",
     rewardAfterApproval: "+30 points after approval",
     deleteProposal: "Delete proposal",
+    confirmPublication: "Confirm publication",
+    saveNewsChanges: "Save changes",
   },
   pl: {
     addPhoto: "Dodaj zdjęcie",
@@ -970,6 +972,8 @@ const additionalCopy = {
     removeMedia: "Usuń media",
     rewardAfterApproval: "+30 punktów po akceptacji",
     deleteProposal: "Usuń propozycję",
+    confirmPublication: "Potwierdź publikację",
+    saveNewsChanges: "Zapisz zmiany",
   },
   ru: {
     addPhoto: "Добавить фото",
@@ -990,6 +994,8 @@ const additionalCopy = {
     removeMedia: "Удалить медиа",
     rewardAfterApproval: "+30 пунктов после публикации",
     deleteProposal: "Удалить предложение",
+    confirmPublication: "Подтвердить публикацию",
+    saveNewsChanges: "Сохранить изменения",
   },
   uk: {
     addPhoto: "Додати фото",
@@ -1010,6 +1016,8 @@ const additionalCopy = {
     removeMedia: "Видалити медіа",
     rewardAfterApproval: "+30 очок після публікації",
     deleteProposal: "Видалити пропозицію",
+    confirmPublication: "Підтвердити публікацію",
+    saveNewsChanges: "Зберегти зміни",
   },
   be: {
     addPhoto: "Дадаць фота",
@@ -1030,6 +1038,8 @@ const additionalCopy = {
     removeMedia: "Выдаліць медыя",
     rewardAfterApproval: "+30 ачкоў пасля публікацыі",
     deleteProposal: "Выдаліць прапанову",
+    confirmPublication: "Пацвердзіць публікацыю",
+    saveNewsChanges: "Захаваць змены",
   },
 };
 
@@ -2773,6 +2783,19 @@ function renderAdminPanel() {
       </div>
     </div>
     <p class="admin-lead">${escapeHtml(t("adminLead"))}</p>
+    <div class="admin-block admin-proposals-panel">
+      <div class="admin-proposals-heading">
+        <h3>${escapeHtml(t("proposedNews"))}</h3>
+        <b>${proposedNews.length}</b>
+      </div>
+      <div class="admin-news-list">
+        ${
+          proposedNews.length
+            ? proposedNews.map((item) => renderAdminNewsForm(item)).join("")
+            : `<p class="empty-note">${escapeHtml(t("noPendingNews"))}</p>`
+        }
+      </div>
+    </div>
     <div class="admin-toolbar">
       <button class="text-button" type="button" data-admin-retry-sync>${escapeHtml(t("retrySync"))}</button>
       <button class="text-button" type="button" data-admin-export-players>${escapeHtml(t("exportPlayers"))}</button>
@@ -2800,16 +2823,6 @@ function renderAdminPanel() {
       <div class="admin-queue-list">
         <p>${escapeHtml(t("proposedNews"))}: <b>${proposedNews.length}</b></p>
         <p>${escapeHtml(t("teamConfirmations"))}: <b>${pendingMembers.length}</b></p>
-      </div>
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("proposedNews"))}</h3>
-      <div class="admin-news-list">
-        ${
-          proposedNews.length
-            ? proposedNews.map((item) => renderAdminNewsForm(item)).join("")
-            : `<p class="empty-note">${escapeHtml(t("noPendingNews"))}</p>`
-        }
       </div>
     </div>
     <div class="admin-block">
@@ -3275,6 +3288,9 @@ function adminRankOptions(points) {
 
 function renderAdminNewsForm(item) {
   const mediaData = String(item.media?.data || "");
+  const title = localize(item.title);
+  const body = localize(item.body);
+  const readableBody = escapeHtml(body).replace(/\n/g, "<br />");
   const mediaPreview = item.media?.type === "video" && mediaData
     ? `<video class="admin-news-media" src="${escapeHtml(mediaData)}" controls playsinline preload="metadata"></video>`
     : item.media?.type === "image" && mediaData
@@ -3284,23 +3300,27 @@ function renderAdminNewsForm(item) {
         : "";
   return `
     <form class="admin-news-card" data-admin-news-form data-news-id="${escapeHtml(item.id)}">
-      <div>
+      <div class="admin-news-meta">
         <b>${escapeHtml(item.author || "BAZA")}</b>
         <span>${formatDate(item.createdAt)}</span>
       </div>
       ${mediaPreview}
+      <div class="admin-news-readable">
+        <h4>${escapeHtml(title)}</h4>
+        <p>${readableBody}</p>
+      </div>
       <label>
         <span>${escapeHtml(t("newsHeadline"))}</span>
-        <input name="title" type="text" maxlength="64" value="${escapeHtml(localize(item.title))}" />
+        <input name="title" type="text" maxlength="80" value="${escapeHtml(title)}" />
       </label>
       <label>
         <span>${escapeHtml(t("newsBody"))}</span>
-        <textarea name="body" rows="3" maxlength="400">${escapeHtml(localize(item.body))}</textarea>
+        <textarea name="body" rows="8" maxlength="3000">${escapeHtml(body)}</textarea>
       </label>
       <div class="admin-news-actions">
-        <button class="primary-button" type="button" data-admin-publish-news="${escapeHtml(item.id)}">${escapeHtml(t("approveNews"))}</button>
+        <button class="text-button" type="submit">${escapeHtml(t("saveNewsChanges"))}</button>
+        <button class="primary-button" type="button" data-admin-publish-news="${escapeHtml(item.id)}">${escapeHtml(t("confirmPublication"))}</button>
         <button class="text-button" type="button" data-admin-delete-news="${escapeHtml(item.id)}">${escapeHtml(t("deleteProposal"))}</button>
-        <button class="text-button" type="submit">${escapeHtml(t("adminSaved"))}</button>
       </div>
       <p class="admin-news-reward">${escapeHtml(t("rewardAfterApproval"))}</p>
     </form>

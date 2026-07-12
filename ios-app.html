@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="ios-app.css?v=94" />
+    <link rel="stylesheet" href="ios-app.css?v=95" />
   </head>
   <body>
     <main class="ios-shell" aria-label="Lasertag Warszawa">
@@ -40,7 +40,7 @@
           <div class="environment-warning" data-env-warning hidden>
             <strong data-i18n="fileModeTitle">Open through local server</strong>
             <span data-i18n="fileModeText">File mode can block site sync.</span>
-            <a href="http://localhost:4178/ios-app.html?v=94" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+            <a href="http://localhost:4178/ios-app.html?v=95" data-localhost-link data-i18n="openLocalhost">Open app link</a>
           </div>
           <div class="voice-invite-alert" data-voice-invite-alert hidden></div>
 
@@ -128,6 +128,38 @@
               <p data-i18n="newsLead">News from the website appears here automatically. You can also add a short club update.</p>
             </div>
 
+            <div class="news-proposal-panel">
+              <div class="section-title compact-title first-section">
+                <div>
+                  <span data-i18n="playerNews">Player news</span>
+                  <h2 data-i18n="newsProposalTitle">Share club news</h2>
+                </div>
+                <button class="text-button" type="button" data-toggle-news-proposal data-i18n="suggestNews">Suggest news</button>
+              </div>
+              <form class="news-form news-proposal-form" data-news-form hidden>
+                <label>
+                  <span data-i18n="newsHeadline">Headline</span>
+                  <input name="title" type="text" maxlength="80" placeholder="Wednesday Counter-Strike game" data-i18n-attr="placeholder:newsTitlePlaceholder" required />
+                </label>
+                <label>
+                  <span data-i18n="newsBody">News text</span>
+                  <textarea name="body" rows="6" maxlength="3000" placeholder="Time, format, who it is for, and where to ask questions." data-i18n-attr="placeholder:newsBodyPlaceholder" required></textarea>
+                </label>
+                <label class="news-media-picker">
+                  <span data-i18n="newsMedia">Photo or short video</span>
+                  <input
+                    name="media"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm,image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+                    data-news-media-input
+                  />
+                </label>
+                <p class="news-media-hint" data-i18n="newsMediaHint">JPG, PNG, WebP or MP4, MOV, WebM up to 15 seconds.</p>
+                <div class="news-media-preview" data-news-media-preview hidden></div>
+                <button class="primary-button" type="submit" data-i18n="suggestNews">Suggest news</button>
+              </form>
+            </div>
+
             <div class="section-title compact-title first-section">
               <div>
                 <span data-i18n="clubFeed">Club feed</span>
@@ -135,36 +167,6 @@
               </div>
             </div>
             <div class="news-feed" data-news-feed></div>
-
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="playerNews">Player news</span>
-                <h2 data-i18n="newsProposalTitle">Share club news</h2>
-              </div>
-              <button class="text-button" type="button" data-toggle-news-proposal data-i18n="suggestNews">Suggest news</button>
-            </div>
-            <form class="news-form news-proposal-form" data-news-form hidden>
-              <label>
-                <span data-i18n="newsHeadline">Headline</span>
-                <input name="title" type="text" maxlength="80" placeholder="Wednesday Counter-Strike game" data-i18n-attr="placeholder:newsTitlePlaceholder" required />
-              </label>
-              <label>
-                <span data-i18n="newsBody">News text</span>
-                <textarea name="body" rows="6" maxlength="3000" placeholder="Time, format, who it is for, and where to ask questions." data-i18n-attr="placeholder:newsBodyPlaceholder" required></textarea>
-              </label>
-              <label class="news-media-picker">
-                <span data-i18n="newsMedia">Photo or short video</span>
-                <input
-                  name="media"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.mp4,.mov,.webm,image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
-                  data-news-media-input
-                />
-              </label>
-              <p class="news-media-hint" data-i18n="newsMediaHint">JPG, PNG, WebP or MP4, MOV, WebM up to 15 seconds.</p>
-              <div class="news-media-preview" data-news-media-preview hidden></div>
-              <button class="primary-button" type="submit" data-i18n="sendForReview">Send to Ruslan for review</button>
-            </form>
           </section>
 
           <section class="app-view article-view" data-view="article" aria-label="Article" data-i18n-attr="aria-label:article">
@@ -389,7 +391,7 @@
     </main>
 
     <div class="app-toast" data-toast role="status" aria-live="polite"></div>
-    <script src="vendor/livekit-client.umd.js?v=94"></script>
-    <script src="ios-app.js?v=94"></script>
+    <script src="vendor/livekit-client.umd.js?v=95"></script>
+    <script src="ios-app.js?v=95"></script>
   </body>
 </html>
