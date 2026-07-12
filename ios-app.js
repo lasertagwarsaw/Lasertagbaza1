@@ -1,8 +1,11 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 87;
+const APP_BUILD = 88;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
+const CHAT_IMAGE_MAX_BYTES = 95000;
+const CHAT_IMAGE_MAX_SIDE = 960;
+const GAME_FEED_POLL_MS = 5 * 60 * 1000;
 const PUBLIC_APP_ORIGIN = "https://www.lasertagbaza.pl";
 const VOICE_HTTP_POLL_MS = 1000;
 const VOICE_RELAY_CHUNK_MS = 220;
@@ -923,6 +926,41 @@ copy.be = {
   welcomeGame: "Сардэчна запрашаем у гульню!",
 };
 
+const additionalCopy = {
+  en: {
+    addPhoto: "Add photo",
+    removePhoto: "Remove photo",
+    chatLead: "Messages and photos from registered BAZA players.",
+    newGameNotification: "New game is open",
+  },
+  pl: {
+    addPhoto: "Dodaj zdjęcie",
+    removePhoto: "Usuń zdjęcie",
+    chatLead: "Wiadomości i zdjęcia zarejestrowanych graczy BAZA.",
+    newGameNotification: "Otwarto zapisy na nową grę",
+  },
+  ru: {
+    addPhoto: "Добавить фото",
+    removePhoto: "Удалить фото",
+    chatLead: "Сообщения и фотографии зарегистрированных игроков BAZA.",
+    newGameNotification: "Открыта запись на новую игру",
+  },
+  uk: {
+    addPhoto: "Додати фото",
+    removePhoto: "Видалити фото",
+    chatLead: "Повідомлення та фотографії зареєстрованих гравців BAZA.",
+    newGameNotification: "Відкрито запис на нову гру",
+  },
+  be: {
+    addPhoto: "Дадаць фота",
+    removePhoto: "Выдаліць фота",
+    chatLead: "Паведамленні і фатаграфіі зарэгістраваных гульцоў BAZA.",
+    newGameNotification: "Адкрыты запіс на новую гульню",
+  },
+};
+
+Object.entries(additionalCopy).forEach(([language, values]) => Object.assign(copy[language], values));
+
 const locales = { en: "en", pl: "pl", be: "be", uk: "uk", ru: "ru" };
 
 const newsCopy = {
@@ -1284,6 +1322,8 @@ const defaultState = {
   signups: {},
   news: defaultNews,
   siteNews: [],
+  siteGames: [],
+  seenGameInstances: [],
   siteRanking: [],
   siteSignups: [],
   cancelledSiteSignupIds: [],
@@ -1328,7 +1368,9 @@ let voiceHttpTimer = null;
 let voiceSignalCursor = "";
 let voiceAudioCursor = "";
 let chatRefreshTimer = null;
+let gamesRefreshTimer = null;
 let playerChatSocket = null;
+let chatPendingPhoto = "";
 let voiceAudioUnlocked = false;
 let voiceAudioContext = null;
 let voiceRelayRecorder = null;
@@ -1396,6 +1438,9 @@ const activityList = document.querySelector("[data-activity-list]");
 const toast = document.querySelector("[data-toast]");
 const chatFeed = document.querySelector("[data-chat-feed]");
 const chatForm = document.querySelector("[data-chat-form]");
+const chatPhotoInput = document.querySelector("[data-chat-photo-input]");
+const chatPhotoPreview = document.querySelector("[data-chat-photo-preview]");
+const chatPhotoPreviewImage = document.querySelector("[data-chat-photo-preview-image]");
 const playerPicker = document.querySelector("[data-player-picker]");
 const teamPanel = document.querySelector("[data-team-panel]");
 const teamForm = document.querySelector("[data-team-form]");
@@ -1534,6 +1579,8 @@ function loadState() {
       admin: adminData,
       news: normalizeNewsItems(Array.isArray(saved.news) ? saved.news : cloneData(defaultNews)),
       siteNews: Array.isArray(saved.siteNews) ? saved.siteNews : [],
+      siteGames: Array.isArray(saved.siteGames) ? saved.siteGames : [],
+      seenGameInstances: Array.isArray(saved.seenGameInstances) ? saved.seenGameInstances : [],
       siteRanking: Array.isArray(saved.siteRanking) ? saved.siteRanking : [],
       siteSignups: Array.isArray(saved.siteSignups) ? saved.siteSignups : [],
       cancelledSiteSignupIds: Array.isArray(saved.cancelledSiteSignupIds) ? saved.cancelledSiteSignupIds : [],
@@ -1642,8 +1689,9 @@ function playerName() {
 
 function signedGameIds() {
   if (!isCurrentUserRegistered()) return [];
-  const currentGameIds = new Set(scheduledGames().map((game) => game.id));
-  return Object.keys(state.signups).filter((gameId) => state.signups[gameId] && currentGameIds.has(gameId));
+  return scheduledGames()
+    .filter((game) => isCurrentPlayerSignedForGame(game))
+    .map((game) => game.id);
 }
 
 function siteHomeUrl() {
@@ -1856,6 +1904,21 @@ function siteSignupNamesForGame(game) {
   return names;
 }
 
+function currentPlayerSiteSignup(game) {
+  if (!isCurrentUserRegistered()) return null;
+  const gameKey = siteGameKey(game);
+  const currentName = normalizePlayerName(playerName());
+  if (!gameKey || !currentName) return null;
+  return state.siteSignups.find(
+    (signup) => signup.game === gameKey && normalizePlayerName(signup.nickname) === currentName,
+  ) || null;
+}
+
+function isCurrentPlayerSignedForGame(game) {
+  if (!isCurrentUserRegistered() || !game) return false;
+  return Boolean(state.signups[game.id] || currentPlayerSiteSignup(game));
+}
+
 function siteGameKey(game) {
   if (game?.siteGame) return game.siteGame;
   if (game?.scheduleDay === 3 || String(game?.id || "").startsWith("wed-counter")) return "wednesday";
@@ -1871,9 +1934,31 @@ function registeredPlayers() {
     .sort((a, b) => a.localeCompare(b));
 }
 
+function siteFeedGames() {
+  if (!Array.isArray(state.siteGames) || !state.siteGames.length) return [];
+  return state.siteGames.map((feedGame) => {
+    const template = defaultGames.find((game) => siteGameKey(game) === feedGame.id) || {};
+    const startsAt = new Date(feedGame.startsAt);
+    const validStart = !Number.isNaN(startsAt.getTime());
+    return {
+      ...template,
+      siteGame: feedGame.id || template.siteGame || "",
+      id: `${template.id || feedGame.id || "site-game"}-${validStart ? dateId(startsAt) : feedGame.date || Date.now()}`,
+      startsAt: validStart ? startsAt.toISOString() : feedGame.startsAt,
+      time: feedGame.time || template.time || "18:00",
+      title: template.title || feedGame.title || "BAZA game",
+      description: template.description || feedGame.scenario || "BAZA game",
+      capacity: Number(feedGame.capacity || template.capacity || 20),
+      roster: Array.isArray(feedGame.players) ? feedGame.players.map((player) => player.nickname).filter(Boolean) : [],
+      feedInstanceKey: `${feedGame.id || "game"}:${feedGame.startsAt || feedGame.date || ""}`,
+    };
+  });
+}
+
 function scheduledGames(now = new Date()) {
   const adminGames = (state.admin?.customGames || []).map((game) => ({ ...game, adminGame: true }));
-  return [...defaultGames, ...adminGames]
+  const baseGames = siteFeedGames();
+  return [...(baseGames.length ? baseGames : defaultGames), ...adminGames]
     .map((game) => {
       if (game.startsAt) {
         const startsAt = new Date(game.startsAt);
@@ -2028,7 +2113,7 @@ function renderVoiceInviteAlert() {
 function gameCard(game, isCompact = false) {
   const roster = isCompact ? signedRoster(game) : userRoster(game);
   const registered = isCurrentUserRegistered();
-  const signed = Boolean(state.signups[game.id] && registered);
+  const signed = isCurrentPlayerSignedForGame(game);
   const spotsLeft = Math.max(game.capacity - roster.length, 0);
   const progress = Math.min(Math.round((roster.length / game.capacity) * 100), 100);
   const button = signed
@@ -2105,6 +2190,16 @@ function emptyChatText() {
   });
 }
 
+function chatPhotoErrorText() {
+  return localizedText({
+    en: "The photo could not be prepared. Choose a smaller image.",
+    pl: "Nie udało się przygotować zdjęcia. Wybierz mniejszy plik.",
+    be: "Не ўдалося падрыхтаваць фота. Выберыце меншы файл.",
+    uk: "Не вдалося підготувати фото. Виберіть менший файл.",
+    ru: "Не удалось подготовить фото. Выберите файл поменьше.",
+  });
+}
+
 function deleteMessageLabel() {
   return localizedText({
     en: "Delete message",
@@ -2113,6 +2208,12 @@ function deleteMessageLabel() {
     uk: "Видалити повідомлення",
     ru: "Удалить сообщение",
   });
+}
+
+function safeChatImage(value) {
+  const image = String(value || "");
+  if (!/^data:image\/(?:jpeg|jpg|png|webp);base64,[a-z0-9+/=]+$/i.test(image)) return "";
+  return image.length <= Math.ceil(CHAT_IMAGE_MAX_BYTES * 1.4) ? image : "";
 }
 
 function renderGames() {
@@ -2303,7 +2404,9 @@ function renderChat() {
     messageInput.disabled = !allowed;
     messageInput.placeholder = !registered ? t("registerToChat") : allowed ? t("chatPlaceholder") : t("chatLocked");
   }
+  if (chatPhotoInput) chatPhotoInput.disabled = !allowed;
   if (!allowed) {
+    if (chatPendingPhoto) clearChatPhoto();
     chatFeed.innerHTML = `<p class="empty-note">${escapeHtml(registered ? t("chatLocked") : t("registerToChat"))}</p>`;
     return;
   }
@@ -2321,7 +2424,8 @@ function renderChat() {
                 <span>${formatDate(message.createdAt)}</span>
                 ${message.author === playerName() || isAdmin() ? `<button type="button" data-delete-chat="${escapeHtml(message.id)}" aria-label="${escapeHtml(deleteMessageLabel())}">×</button>` : ""}
               </div>
-              <p>${escapeHtml(localize(message.body))}</p>
+              ${message.body ? `<p>${escapeHtml(localize(message.body))}</p>` : ""}
+              ${safeChatImage(message.image) ? `<img class="chat-message-photo" src="${escapeHtml(message.image)}" alt="${escapeHtml(t("addPhoto"))}" loading="lazy" />` : ""}
             </article>
           `,
         )
@@ -2441,6 +2545,7 @@ function renderSyncStatus() {
 
 function renderPointsTransfer() {
   if (!pointsTransferPanel) return;
+  const wasOpen = Boolean(pointsTransferPanel.querySelector("[data-profile-disclosure='points']")?.open);
   const registered = isCurrentUserRegistered();
   const points = totalPoints();
   const players = registeredPlayers();
@@ -2453,27 +2558,29 @@ function renderPointsTransfer() {
   }
 
   pointsTransferPanel.innerHTML = `
-    <div class="points-transfer-head">
-      <div>
-        <span>${escapeHtml(t("points"))}</span>
-        <strong>${escapeHtml(t("pointsTransfer"))}</strong>
+    <details class="profile-disclosure" data-profile-disclosure="points" ${wasOpen ? "open" : ""}>
+      <summary>
+        <span class="material-symbols-rounded" aria-hidden="true">toll</span>
+        <span><small>${escapeHtml(t("points"))} · ${points}</small><strong>${escapeHtml(t("pointsTransfer"))}</strong></span>
+        <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+      </summary>
+      <div class="profile-disclosure-body">
+        <p>${escapeHtml(canTransfer ? t("pointsTransferNote") : players.length ? t("pointsTransferLocked") : t("transferNoPlayers"))}</p>
+        <form class="points-transfer-form" data-points-transfer-form>
+          <label>
+            <span>${escapeHtml(t("transferTo"))}</span>
+            <select name="recipient" ${canTransfer ? "" : "disabled"} required>
+              ${players.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)} · ${rankingPointsForPlayer(name)} ${escapeHtml(t("points"))}</option>`).join("")}
+            </select>
+          </label>
+          <label>
+            <span>${escapeHtml(t("transferAmount"))}</span>
+            <input name="amount" type="number" min="1" max="${points}" step="1" inputmode="numeric" ${canTransfer ? "" : "disabled"} required />
+          </label>
+          <button class="primary-button" type="submit" ${canTransfer ? "" : "disabled"}>${escapeHtml(t("transferSend"))}</button>
+        </form>
       </div>
-      <b>${points}</b>
-    </div>
-    <p>${escapeHtml(canTransfer ? t("pointsTransferNote") : players.length ? t("pointsTransferLocked") : t("transferNoPlayers"))}</p>
-    <form class="points-transfer-form" data-points-transfer-form>
-      <label>
-        <span>${escapeHtml(t("transferTo"))}</span>
-        <select name="recipient" ${canTransfer ? "" : "disabled"} required>
-          ${players.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)} · ${rankingPointsForPlayer(name)} ${escapeHtml(t("points"))}</option>`).join("")}
-        </select>
-      </label>
-      <label>
-        <span>${escapeHtml(t("transferAmount"))}</span>
-        <input name="amount" type="number" min="1" max="${points}" step="1" inputmode="numeric" ${canTransfer ? "" : "disabled"} required />
-      </label>
-      <button class="primary-button" type="submit" ${canTransfer ? "" : "disabled"}>${escapeHtml(t("transferSend"))}</button>
-    </form>
+    </details>
   `;
 }
 
@@ -2515,6 +2622,8 @@ function renderProfileForm() {
   }
   if (passwordChangeForm) {
     passwordChangeForm.hidden = !hasCompleteProfile || !state.auth.loggedIn || isAdmin();
+    const securityDisclosure = passwordChangeForm.closest("[data-profile-disclosure='security']");
+    if (securityDisclosure) securityDisclosure.hidden = passwordChangeForm.hidden;
     if (passwordChangeForm.elements.currentPassword) passwordChangeForm.elements.currentPassword.value = "";
     if (passwordChangeForm.elements.newPassword) passwordChangeForm.elements.newPassword.value = "";
   }
@@ -3334,6 +3443,24 @@ function sendNativeVoiceInviteNotification(invite) {
   return true;
 }
 
+function sendNewGameNotification(game) {
+  const title = t("newGameNotification");
+  const body = `${localize(game.title)} · ${game.date || ""} ${game.time || ""}`.trim();
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (handler?.postMessage) {
+    handler.postMessage({
+      type: "gameNotification",
+      title,
+      body,
+      gameId: game.feedInstanceKey || game.id,
+    });
+    return;
+  }
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body, tag: `baza-game-${game.feedInstanceKey || game.id}` });
+  }
+}
+
 function sendNativeVoiceAudioActive(active) {
   const handler = window.webkit?.messageHandlers?.bazaNative;
   if (!handler?.postMessage) return false;
@@ -3752,6 +3879,38 @@ function avatarFileToDataUrl(file) {
     reader.addEventListener("error", reject);
     reader.readAsDataURL(file);
   });
+}
+
+function dataUrlByteLength(dataUrl) {
+  const base64 = String(dataUrl || "").split(",")[1] || "";
+  return Math.floor((base64.length * 3) / 4);
+}
+
+async function compressChatPhoto(file) {
+  if (!file || !String(file.type || "").startsWith("image/")) throw new Error("Invalid image");
+  const source = await avatarFileToDataUrl(file);
+  let maxSide = CHAT_IMAGE_MAX_SIDE;
+  let quality = 0.8;
+  let result = "";
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    result = await resizeImageDataUrl(source, maxSide, quality);
+    if (dataUrlByteLength(result) <= CHAT_IMAGE_MAX_BYTES) return result;
+    maxSide = Math.max(420, Math.round(maxSide * 0.82));
+    quality = Math.max(0.46, quality - 0.08);
+  }
+  throw new Error("Image is too large");
+}
+
+function renderChatPhotoPreview() {
+  if (!chatPhotoPreview || !chatPhotoPreviewImage) return;
+  chatPhotoPreview.hidden = !chatPendingPhoto;
+  chatPhotoPreviewImage.src = chatPendingPhoto || "";
+}
+
+function clearChatPhoto() {
+  chatPendingPhoto = "";
+  if (chatPhotoInput) chatPhotoInput.value = "";
+  renderChatPhotoPreview();
 }
 
 async function updateAvatar(dataUrl) {
@@ -4255,7 +4414,7 @@ function signGame(gameId) {
     setView("profile");
     return;
   }
-  if (state.signups[gameId]) return;
+  if (isCurrentPlayerSignedForGame(game)) return;
   const signupId = stableSignupId(game);
   state.cancelledSiteSignupIds = (state.cancelledSiteSignupIds || []).filter((id) => id !== signupId);
   state.signups[gameId] = true;
@@ -4278,9 +4437,9 @@ function signGame(gameId) {
 
 function cancelGame(gameId) {
   const game = findGame(gameId);
-  if (!game || !state.signups[gameId]) return;
+  if (!game || !isCurrentPlayerSignedForGame(game)) return;
   if (!window.confirm(t("confirmCancelText"))) return;
-  const signupId = stableSignupId(game);
+  const signupId = currentPlayerSiteSignup(game)?.id || stableSignupId(game);
   delete state.signups[gameId];
   cancelSiteSignup(game, signupId);
   addActivity(
@@ -4344,8 +4503,8 @@ function renderArticle() {
   }
 
   const cacheKey = articleCacheKey(item);
-  const cachedBody = state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
-  const canShowSourceBody = currentLanguage() === "pl" || !newsCopy[item.id];
+  const cachedBody = item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
+  const canShowSourceBody = true;
   const isLoading = canShowSourceBody && articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
   const body = canShowSourceBody && hasFullArticleBody(item, cachedBody) ? cachedBody : "";
   articleReader.innerHTML = `
@@ -4359,9 +4518,8 @@ function renderArticle() {
 }
 
 async function loadArticleBody(item) {
-  if (currentLanguage() !== "pl" && newsCopy[item.id]) return;
   const cacheKey = articleCacheKey(item);
-  const cachedBody = state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
+  const cachedBody = item.content || state.articleCache?.[cacheKey] || (item.articleKey ? state.articleCache?.[item.articleKey] : "");
   if (hasFullArticleBody(item, cachedBody)) return;
 
   articleLoadingId = item.id;
@@ -4394,6 +4552,7 @@ function articleCacheKey(item) {
 
 function hasFullArticleBody(item, body) {
   const text = String(body || "").replace(/\s+/g, " ").trim();
+  if (item.content && text) return true;
   const summary = localize(item.body).replace(/\s+/g, " ").trim();
   return text.length > Math.max(180, summary.length + 40);
 }
@@ -4530,6 +4689,9 @@ async function loadRemoteNewsFeed() {
       createdAt: item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString(),
       image: item.image || "",
       contentUrl: item.contentUrl || "",
+      content: item.content || "",
+      articleKey: item.articleKey || "",
+      webSelector: item.webSelector || "",
       site: true,
       sectionId: section.id || "",
       source: "https://www.lasertagbaza.pl/api/news-feed",
@@ -4646,6 +4808,55 @@ function parseSiteRanking(doc, source) {
     })
     .filter(Boolean)
     .sort((a, b) => a.rank - b.rank);
+}
+
+function normalizeGamesFeedGames(games) {
+  return (Array.isArray(games) ? games : [])
+    .map((game) => ({
+      id: String(game.id || "").trim(),
+      startsAt: String(game.startsAt || "").trim(),
+      date: String(game.date || "").trim(),
+      time: String(game.time || "").trim(),
+      title: game.title || "",
+      scenario: game.scenario || "",
+      capacity: Number(game.capacity || 0),
+      players: Array.isArray(game.players) ? game.players : [],
+    }))
+    .filter((game) => game.id && game.startsAt && !Number.isNaN(new Date(game.startsAt).getTime()));
+}
+
+async function loadSiteGames({ notify = true } = {}) {
+  try {
+    const response = await fetch(appApiUrl("/api/games-feed"), { cache: "no-store" });
+    if (!response.ok) return false;
+    const feed = await response.json();
+    const games = normalizeGamesFeedGames(feed.games);
+    if (!games.length) return false;
+
+    const previousKeys = new Set(state.seenGameInstances || []);
+    const currentKeys = games.map((game) => `${game.id}:${game.startsAt}`);
+    const hasPreviousSnapshot = previousKeys.size > 0;
+    const newGames = hasPreviousSnapshot
+      ? games.filter((game) => !previousKeys.has(`${game.id}:${game.startsAt}`))
+      : [];
+
+    state.siteGames = games;
+    state.seenGameInstances = [...new Set([...currentKeys, ...previousKeys])].slice(-40);
+    if (Array.isArray(feed.signups)) replaceSiteSignups(feed.signups);
+    saveState();
+    renderGames();
+    renderStats();
+
+    if (notify) {
+      newGames.forEach((game) => {
+        const renderedGame = scheduledGames().find((item) => item.feedInstanceKey === `${game.id}:${game.startsAt}`) || game;
+        sendNewGameNotification(renderedGame);
+      });
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function loadSiteSignups() {
@@ -4975,6 +5186,12 @@ document.addEventListener("click", (event) => {
   const soundTarget = event.target.closest("button, a, .avatar-picker, [role='button']");
   if (soundTarget) playTapSound();
 
+  const removeChatPhotoButton = event.target.closest("[data-remove-chat-photo]");
+  if (removeChatPhotoButton) {
+    clearChatPhoto();
+    return;
+  }
+
   const signButton = event.target.closest("[data-sign-game]");
   if (signButton) {
     signGame(signButton.dataset.signGame);
@@ -5218,9 +5435,12 @@ function mergePlayerChatMessages(messages) {
   const byId = new Map();
   const stickyMessages = state.chat.filter((message) => message.system || message.author === "Club Bot");
   [...stickyMessages, ...messages].forEach((message) => {
-    if (!message?.id || !message?.author || !message?.body) return;
+    const image = safeChatImage(message?.image);
+    if (!message?.id || !message?.author || (!message?.body && !image)) return;
     byId.set(String(message.id), {
       ...message,
+      body: message.body || "",
+      image,
       registered: Boolean(message.registered) || !message.system,
       remote: !message.system,
       createdAt: message.createdAt || new Date().toISOString(),
@@ -6801,10 +7021,27 @@ avatarInput?.addEventListener("change", async () => {
   }
 });
 
+chatPhotoInput?.addEventListener("change", async () => {
+  const file = chatPhotoInput.files?.[0];
+  if (!file) return;
+  if (!canUsePlayerChat()) {
+    clearChatPhoto();
+    showToast(isCurrentUserRegistered() ? t("chatLocked") : t("registerToChat"));
+    return;
+  }
+  try {
+    chatPendingPhoto = await compressChatPhoto(file);
+    renderChatPhotoPreview();
+  } catch {
+    clearChatPhoto();
+    showToast(chatPhotoErrorText());
+  }
+});
+
 chatForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const message = String(new FormData(chatForm).get("message") || "").trim();
-  if (!message) return;
+  if (!message && !chatPendingPhoto) return;
   if (!isCurrentUserRegistered()) {
     showToast(localizedToast("registerFirst"));
     setView("profile");
@@ -6819,11 +7056,13 @@ chatForm?.addEventListener("submit", (event) => {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     author: playerName(),
     body: message,
+    image: chatPendingPhoto,
     registered: true,
     createdAt: new Date().toISOString(),
   };
   state.chat.push(chatMessage);
   chatForm.reset();
+  clearChatPhoto();
   saveState();
   renderChat();
   syncPlayerChatMessage(chatMessage);
@@ -6938,6 +7177,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
 
 document.addEventListener("visibilitychange", () => {
   syncVoiceInvitesOnForeground();
+  if (document.visibilityState === "visible") loadSiteGames({ notify: true });
   clearTimeout(voiceBrowserHiddenTimer);
   voiceBrowserHiddenTimer = null;
   if (!window.BAZA_NATIVE_APP && document.visibilityState === "hidden" && voiceSessionActivated) {
@@ -6958,6 +7198,8 @@ updateVoiceDiagnostics();
 connectPlayerChatSocket();
 loadPlayerChat();
 chatRefreshTimer = setInterval(loadPlayerChat, 2500);
+loadSiteGames({ notify: true });
+gamesRefreshTimer = setInterval(() => loadSiteGames({ notify: true }), GAME_FEED_POLL_MS);
 loadSiteSignups().then(syncCurrentSignedGamesToSite);
 loadSiteRanking();
 loadAdminPlayersFromSite();

@@ -19,6 +19,12 @@ const cleanText = (value, maxLength = 240) =>
 
 const normalizeName = (value) => cleanText(value, 40).toLowerCase();
 
+const cleanImage = (value) => {
+  const image = String(value || "");
+  if (!/^data:image\/(?:jpeg|jpg|png|webp);base64,[a-z0-9+/=]+$/i.test(image)) return "";
+  return image.length <= 135000 ? image : "";
+};
+
 const makeId = () => `chat-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const emptyState = () => ({
@@ -30,22 +36,33 @@ const emptyState = () => ({
 const normalizeMessage = (message) => {
   const author = cleanText(message?.author, 40);
   const body = cleanText(message?.body, 160);
-  if (!author || !body) return null;
+  const image = cleanImage(message?.image);
+  if (!author || (!body && !image)) return null;
   return {
     id: cleanText(message?.id, 90) || makeId(),
     author,
     body,
+    image,
     registered: true,
     createdAt: message?.createdAt || new Date().toISOString(),
   };
 };
 
-const normalizeState = (state) => ({
-  ...emptyState(),
-  ...(state && typeof state === "object" ? state : {}),
-  messages: (Array.isArray(state?.messages) ? state.messages : []).map(normalizeMessage).filter(Boolean).slice(-120),
-  updatedAt: new Date().toISOString(),
-});
+const normalizeState = (state) => {
+  const messages = (Array.isArray(state?.messages) ? state.messages : []).map(normalizeMessage).filter(Boolean).slice(-120);
+  let imageCount = 0;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (!messages[index].image) continue;
+    imageCount += 1;
+    if (imageCount > 20) messages[index] = { ...messages[index], image: "" };
+  }
+  return {
+    ...emptyState(),
+    ...(state && typeof state === "object" ? state : {}),
+    messages,
+    updatedAt: new Date().toISOString(),
+  };
+};
 
 const readLocalState = () => {
   try {

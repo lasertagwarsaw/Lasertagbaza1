@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="ios-app.css?v=87" />
+    <link rel="stylesheet" href="ios-app.css?v=88" />
   </head>
   <body>
     <main class="ios-shell" aria-label="Lasertag Warszawa">
@@ -40,7 +40,7 @@
           <div class="environment-warning" data-env-warning hidden>
             <strong data-i18n="fileModeTitle">Open through local server</strong>
             <span data-i18n="fileModeText">File mode can block site sync.</span>
-            <a href="http://localhost:4178/ios-app.html?v=87" data-localhost-link data-i18n="openLocalhost">Open app link</a>
+            <a href="http://localhost:4178/ios-app.html?v=88" data-localhost-link data-i18n="openLocalhost">Open app link</a>
           </div>
           <div class="voice-invite-alert" data-voice-invite-alert hidden></div>
 
@@ -100,20 +100,6 @@
               <button type="button" data-ranking-filter="me" data-i18n="rankingFilterMe">Me</button>
             </div>
             <div class="ranking-strip" data-ranking-list></div>
-
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="playerChat">Player chat</span>
-                <h2 data-i18n="quickChat">Quick chat</h2>
-              </div>
-            </div>
-            <div class="chat-panel">
-              <div class="chat-feed" data-chat-feed></div>
-              <form class="chat-compose" data-chat-form>
-                <input name="message" type="text" maxlength="120" placeholder="Write to players" data-i18n-attr="placeholder:chatPlaceholder" required />
-                <button type="submit" aria-label="Send message" data-i18n-attr="aria-label:sendMessage">↗</button>
-              </form>
-            </div>
 
             <div class="section-title compact-title">
               <div>
@@ -185,6 +171,33 @@
           <section class="app-view article-view" data-view="article" aria-label="Article" data-i18n-attr="aria-label:article">
             <button class="text-button back-button" type="button" data-back-from-article data-i18n="back">Back</button>
             <article class="article-reader" data-article-reader></article>
+          </section>
+
+          <section class="app-view chat-view" data-view="chat" aria-label="Player chat" data-i18n-attr="aria-label:playerChat">
+            <div class="page-heading">
+              <p class="overline" data-i18n="playerChat">Player chat</p>
+              <h1 data-i18n="quickChat">Quick chat</h1>
+              <p data-i18n="chatLead">Messages and photos from registered BAZA players.</p>
+            </div>
+            <div class="chat-panel chat-page-panel">
+              <div class="chat-feed" data-chat-feed></div>
+              <div class="chat-photo-preview" data-chat-photo-preview hidden>
+                <img data-chat-photo-preview-image alt="Selected chat photo" />
+                <button type="button" data-remove-chat-photo aria-label="Remove photo" data-i18n-attr="aria-label:removePhoto">
+                  <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                </button>
+              </div>
+              <form class="chat-compose" data-chat-form>
+                <label class="chat-photo-button" aria-label="Add photo" data-i18n-attr="aria-label:addPhoto">
+                  <input data-chat-photo-input type="file" accept="image/*" />
+                  <span class="material-symbols-rounded" aria-hidden="true">add_photo_alternate</span>
+                </label>
+                <input name="message" type="text" maxlength="120" placeholder="Write to players" data-i18n-attr="placeholder:chatPlaceholder" />
+                <button type="submit" aria-label="Send message" data-i18n-attr="aria-label:sendMessage">
+                  <span class="material-symbols-rounded" aria-hidden="true">send</span>
+                </button>
+              </form>
+            </div>
           </section>
 
           <section class="app-view voice-view" data-view="voice" aria-label="Voice room" data-i18n-attr="aria-label:voiceRoom">
@@ -266,76 +279,88 @@
 
             <div class="profile-sync-card" data-profile-sync></div>
 
-            <div class="points-transfer-card" data-points-transfer></div>
+            <div data-points-transfer></div>
 
             <div class="team-panel" data-team-panel>
-              <div class="section-title compact-title">
-                <div>
-                  <span data-i18n="captainTools">Captain tools</span>
-                  <h2 data-i18n="createTeam">Create a team</h2>
+              <details class="profile-disclosure" data-profile-disclosure="team">
+                <summary>
+                  <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                  <span><small data-i18n="captainTools">Captain tools</small><strong data-i18n="createTeam">Create a team</strong></span>
+                  <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+                </summary>
+                <div class="profile-disclosure-body">
+                  <form class="team-form" data-team-form>
+                    <label>
+                      <span data-i18n="teamName">Team name</span>
+                      <input name="teamName" type="text" maxlength="32" placeholder="Warsaw Alpha" required />
+                    </label>
+                    <div>
+                      <span class="form-label" data-i18n="choosePlayers">Choose registered players</span>
+                      <div class="player-picker" data-player-picker></div>
+                    </div>
+                    <button class="primary-button" type="submit" data-i18n="sendInvites">Send team invitations</button>
+                  </form>
+                  <div class="team-status" data-team-status></div>
                 </div>
-              </div>
-              <form class="team-form" data-team-form>
-                <label>
-                  <span data-i18n="teamName">Team name</span>
-                  <input name="teamName" type="text" maxlength="32" placeholder="Warsaw Alpha" required />
-                </label>
-                <div>
-                  <span class="form-label" data-i18n="choosePlayers">Choose registered players</span>
-                  <div class="player-picker" data-player-picker></div>
-                </div>
-                <button class="primary-button" type="submit" data-i18n="sendInvites">Send team invitations</button>
-              </form>
-              <div class="team-status" data-team-status></div>
+              </details>
             </div>
 
             <div data-notification-list hidden></div>
 
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="achievements">Achievements</span>
-                <h2 data-i18n="achievements">Achievements</h2>
+            <details class="profile-disclosure" data-profile-disclosure="achievements">
+              <summary>
+                <span class="material-symbols-rounded" aria-hidden="true">military_tech</span>
+                <span><small data-i18n="personalProgress">Progress</small><strong data-i18n="achievements">Achievements</strong></span>
+                <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="profile-disclosure-body">
+                <div class="achievement-grid" data-achievements></div>
               </div>
-            </div>
-            <div class="achievement-grid" data-achievements></div>
+            </details>
 
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="securitySettings">Security</span>
-                <h2 data-i18n="securitySettings">Security</h2>
+            <details class="profile-disclosure" data-profile-disclosure="security">
+              <summary>
+                <span class="material-symbols-rounded" aria-hidden="true">shield_lock</span>
+                <span><small data-i18n="accountAccess">Account</small><strong data-i18n="securitySettings">Security</strong></span>
+                <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="profile-disclosure-body">
+                <form class="password-change-form" data-password-change-form hidden>
+                  <label>
+                    <span data-i18n="currentPassword">Current password</span>
+                    <input name="currentPassword" type="password" maxlength="32" autocomplete="current-password" required />
+                  </label>
+                  <label>
+                    <span data-i18n="newPassword">New password</span>
+                    <input name="newPassword" type="password" minlength="2" maxlength="32" autocomplete="new-password" placeholder="A1" required />
+                    <em data-i18n="passwordHint">Min. 2 letters/numbers and one uppercase letter.</em>
+                  </label>
+                  <button class="primary-button" type="submit" data-i18n="changePassword">Change password</button>
+                </form>
               </div>
-            </div>
-            <form class="password-change-form" data-password-change-form hidden>
-              <label>
-                <span data-i18n="currentPassword">Current password</span>
-                <input name="currentPassword" type="password" maxlength="32" autocomplete="current-password" required />
-              </label>
-              <label>
-                <span data-i18n="newPassword">New password</span>
-                <input name="newPassword" type="password" minlength="2" maxlength="32" autocomplete="new-password" placeholder="A1" required />
-                <em data-i18n="passwordHint">Min. 2 letters/numbers and one uppercase letter.</em>
-              </label>
-              <button class="primary-button" type="submit" data-i18n="changePassword">Change password</button>
-            </form>
+            </details>
 
-            <div class="section-title compact-title">
-              <div>
-                <span data-i18n="appSettings">Settings</span>
-                <h2 data-i18n="appSettings">Settings</h2>
+            <details class="profile-disclosure" data-profile-disclosure="settings">
+              <summary>
+                <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+                <span><small data-i18n="language">Language</small><strong data-i18n="appSettings">Settings</strong></span>
+                <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="profile-disclosure-body">
+                <div class="profile-language-panel">
+                  <label>
+                    <span data-i18n="language">Language</span>
+                    <select name="language" data-language-select>
+                      <option value="en">English</option>
+                      <option value="pl">Polski</option>
+                      <option value="be">Беларуская</option>
+                      <option value="uk">Українська</option>
+                      <option value="ru">Русский</option>
+                    </select>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div class="profile-language-panel">
-              <label>
-                <span data-i18n="language">Language</span>
-                <select name="language" data-language-select>
-                  <option value="en">English</option>
-                  <option value="pl">Polski</option>
-                  <option value="be">Беларуская</option>
-                  <option value="uk">Українська</option>
-                  <option value="ru">Русский</option>
-                </select>
-              </label>
-            </div>
+            </details>
 
             <button class="hard-reset-button" type="button" data-hard-reset data-i18n="hardReset">Hard reset</button>
 
@@ -356,6 +381,10 @@
             <span class="material-symbols-rounded">newspaper</span>
             <b data-i18n="news">News</b>
           </button>
+          <button type="button" data-tab="chat" aria-label="Player chat" data-i18n-attr="aria-label:playerChat">
+            <span class="material-symbols-rounded">forum</span>
+            <b data-i18n="quickChat">Chat</b>
+          </button>
           <button type="button" data-tab="profile" aria-label="Profile" data-i18n-attr="aria-label:profile">
             <span class="material-symbols-rounded">person</span>
             <b data-i18n="profile">Profile</b>
@@ -365,7 +394,7 @@
     </main>
 
     <div class="app-toast" data-toast role="status" aria-live="polite"></div>
-    <script src="vendor/livekit-client.umd.js?v=87"></script>
-    <script src="ios-app.js?v=87"></script>
+    <script src="vendor/livekit-client.umd.js?v=88"></script>
+    <script src="ios-app.js?v=88"></script>
   </body>
 </html>

@@ -3120,6 +3120,229 @@ textarea:focus-visible {
   overflow: hidden;
 }
 
+/* Compact profile, dedicated chat and five-item navigation — v88 */
+.tab-bar {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.tab-bar button {
+  padding-inline: 2px;
+  overflow: hidden;
+}
+
+.tab-bar button b {
+  display: block;
+  overflow: hidden;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-view .page-heading {
+  margin-bottom: 14px;
+}
+
+.chat-page-panel {
+  height: clamp(330px, calc(100svh - 360px), 560px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-page-panel .chat-feed {
+  max-height: none;
+  min-height: 0;
+  flex: 1;
+}
+
+.chat-compose {
+  grid-template-columns: 52px minmax(0, 1fr) 54px;
+}
+
+.chat-photo-button {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid var(--line);
+  color: var(--acid);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.chat-photo-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chat-photo-button .material-symbols-rounded,
+.chat-compose button .material-symbols-rounded {
+  font-size: 21px;
+}
+
+.chat-photo-preview {
+  position: relative;
+  width: fit-content;
+  margin: 0 14px 12px;
+  padding: 5px;
+  border: 1px solid rgba(255, 212, 0, 0.35);
+  border-radius: 8px;
+  background: #080806;
+}
+
+.chat-photo-preview[hidden] {
+  display: none;
+}
+
+.chat-photo-preview img {
+  width: 112px;
+  height: 84px;
+  display: block;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.chat-photo-preview button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  color: white;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.chat-photo-preview button span {
+  font-size: 17px;
+}
+
+.chat-message-photo {
+  width: 100%;
+  max-height: 300px;
+  margin-top: 8px;
+  display: block;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.profile-disclosure {
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(13, 16, 14, 0.9);
+}
+
+.profile-disclosure > summary {
+  min-height: 66px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 10px;
+  color: var(--paper);
+  cursor: pointer;
+  list-style: none;
+}
+
+.profile-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-disclosure > summary > .material-symbols-rounded:first-child {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 212, 0, 0.32);
+  border-radius: 7px;
+  color: var(--acid);
+  background: rgba(255, 212, 0, 0.06);
+  font-size: 20px;
+}
+
+.profile-disclosure > summary small,
+.profile-disclosure > summary strong {
+  display: block;
+}
+
+.profile-disclosure > summary small {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.profile-disclosure > summary strong {
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1.05;
+}
+
+.disclosure-chevron {
+  color: var(--muted);
+  transition: transform 0.18s ease;
+}
+
+.profile-disclosure[open] .disclosure-chevron {
+  transform: rotate(180deg);
+}
+
+.profile-disclosure-body {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.profile-disclosure-body > p {
+  margin: 0 0 14px;
+  color: #d7d4c2;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.team-panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.team-panel .profile-disclosure {
+  margin-top: 14px;
+}
+
+.profile-disclosure .team-form,
+.profile-disclosure .password-change-form,
+.profile-disclosure .profile-language-panel,
+.profile-disclosure .achievement-grid {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.profile-disclosure .password-change-form,
+.profile-disclosure .profile-language-panel {
+  padding: 0;
+}
+
+@media (max-width: 380px) {
+  .tab-bar button b {
+    font-size: 8px;
+  }
+
+  .tab-bar button span {
+    font-size: 16px;
+  }
+}
+
 .mini-news-image {
   width: 82px;
   height: 100%;
