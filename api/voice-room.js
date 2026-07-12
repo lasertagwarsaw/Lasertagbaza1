@@ -299,10 +299,9 @@ module.exports = async function handler(request, response) {
       if (!afterAudio) return true;
       return new Date(chunk.createdAt).getTime() > new Date(afterAudio).getTime();
     });
-    const nextState = await writeVoiceState(state);
     response.status(200).json({
       ok: true,
-      rooms: roomsWithOnlineState(nextState),
+      rooms: roomsWithOnlineState(state),
       signals,
       audioChunks,
       serverTime: new Date().toISOString(),
@@ -343,11 +342,19 @@ module.exports = async function handler(request, response) {
     return;
   }
 
+  if (body.type === "hello") {
+    markClient(state, body.player);
+    response.status(200).json({
+      ok: true,
+      rooms: roomsWithOnlineState(state),
+      serverTime: new Date().toISOString(),
+    });
+    return;
+  }
+
   markClient(state, body.player || body.source || body.room?.owner);
 
-  if (body.type === "hello") {
-    // Presence is updated above.
-  } else if (body.type === "sync-room") {
+  if (body.type === "sync-room") {
     mergeRoom(state, body.room);
   } else if (body.type === "delete-room") {
     deleteRoom(state, body.roomId, body.player);
