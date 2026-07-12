@@ -22,8 +22,8 @@ function appApiOrigin() {
   if (isNativeAppRuntime()) return PUBLIC_APP_ORIGIN;
   const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1" || host === "") {
-    const protocol = window.location.protocol === "https:" ? "https:" : "http:";
-    return `${protocol}//localhost:3000`;
+    if (window.location.port === "3000") return window.location.origin;
+    return PUBLIC_APP_ORIGIN;
   }
   return window.location.origin;
 }
@@ -1362,6 +1362,7 @@ const voiceRelayQueue = [];
 const voiceHttpSeenSignals = new Set();
 const notifiedVoiceInviteIds = new Set();
 const nativeVoiceRequests = new Map();
+let lastVoiceForegroundSyncAt = 0;
 
 const views = document.querySelectorAll("[data-view]");
 const appScroll = document.querySelector(".app-scroll");
@@ -2995,11 +2996,16 @@ function pendingVoiceInvites() {
         !room.participants?.some((participant) => normalizePlayerName(participant.name) === currentName) &&
         room.invitations?.some((invite) => invite.status === "pending" && normalizePlayerName(invite.name) === currentName),
     )
-    .map((room) => ({ room }));
+    .map((room) => ({
+      room,
+      invitation: room.invitations.find(
+        (invite) => invite.status === "pending" && normalizePlayerName(invite.name) === currentName,
+      ),
+    }));
 }
 
 function pendingVoiceInviteKey(invite) {
-  return `${invite?.room?.id || ""}:${normalizePlayerName(playerName())}`;
+  return `${invite?.room?.id || ""}:${normalizePlayerName(playerName())}:${invite?.invitation?.createdAt || ""}`;
 }
 
 function notifyNewVoiceInvites(invites) {
@@ -5695,12 +5701,25 @@ async function syncVoiceRoomOverHttp(payload = null) {
           body: JSON.stringify(payload),
         }
       : { cache: "no-store" };
-    const url = payload ? voiceHttpApiUrl() : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}`;
+    const url = payload
+      ? voiceHttpApiUrl()
+      : `${voiceHttpApiUrl()}?player=${encodeURIComponent(playerName())}${voiceSignalCursor ? `&after=${encodeURIComponent(voiceSignalCursor)}` : ""}${
+          voiceAudioCursor ? `&afterAudio=${encodeURIComponent(voiceAudioCursor)}` : ""
+        }`;
     const response = await fetch(url, options);
     if (!response.ok) throw new Error("voice http failed");
     const data = await response.json();
     voiceSocketStatus = "online";
     if (Array.isArray(data.rooms)) syncVoiceRoomsFromServer(data.rooms);
+    if (Array.isArray(data.signals)) {
+      data.signals.forEach((signal) => {
+        if (!signal?.id || voiceHttpSeenSignals.has(signal.id)) return;
+        voiceHttpSeenSignals.add(signal.id);
+        voiceSignalCursor = signal.createdAt || voiceSignalCursor;
+        handleWebRtcSignal({ type: "signal", ...signal });
+      });
+    }
+    if (Array.isArray(data.audioChunks)) data.audioChunks.forEach(handleVoiceRelayChunk);
     renderVoiceRoom();
     renderHomeVoiceEntry();
     renderVoiceInviteAlert();
@@ -5734,6 +5753,14 @@ function ensureVoiceInviteSync() {
   } else if (voiceHttpTimer) {
     stopVoiceHttpSync();
   }
+}
+
+function syncVoiceInvitesOnForeground() {
+  if (document.visibilityState === "hidden" || !isCurrentUserRegistered()) return;
+  const now = Date.now();
+  if (now - lastVoiceForegroundSyncAt < 750) return;
+  lastVoiceForegroundSyncAt = now;
+  syncVoiceRoomOverHttp();
 }
 
 function sendVoiceHttp(payload) {
@@ -5847,7 +5874,6 @@ function prepareVoiceRoomForSync(room) {
 
 function syncVoiceRoomsFromServer(rooms) {
   if (!Array.isArray(rooms)) return;
-  const previousInvites = new Set(pendingVoiceInvites().map(pendingVoiceInviteKey));
   const currentName = normalizePlayerName(playerName());
   const previousRooms = state.voiceRooms || [];
   const previousActiveRoom = previousRooms.find(
@@ -5886,8 +5912,7 @@ function syncVoiceRoomsFromServer(rooms) {
     leaveBrowserVoiceRoom();
   }
   saveState();
-  const newInvites = pendingVoiceInvites().filter((invite) => !previousInvites.has(pendingVoiceInviteKey(invite)));
-  notifyNewVoiceInvites(newInvites);
+  notifyNewVoiceInvites(pendingVoiceInvites());
   renderVoiceRoom();
   renderHomeVoiceEntry();
   renderVoiceInviteAlert();
@@ -6815,6 +6840,10 @@ teamForm?.addEventListener("submit", (event) => {
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+
+document.addEventListener("visibilitychange", syncVoiceInvitesOnForeground);
+window.addEventListener("pageshow", syncVoiceInvitesOnForeground);
+window.addEventListener("focus", syncVoiceInvitesOnForeground);
 
 render();
 connectPlayerChatSocket();
