@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 96;
+const APP_BUILD = 97;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1482,6 +1482,7 @@ let browserVoiceRoom = null;
 let browserVoiceConnectPromise = null;
 let voiceRoomRenderFingerprint = "";
 let voiceActionPending = false;
+const gameCancellationPending = new Set();
 let voiceRoomMissingSince = 0;
 let voiceSessionActivated = false;
 let voiceReconnectNotBefore = 0;
@@ -2224,10 +2225,11 @@ function gameCard(game, isCompact = false) {
   const roster = isCompact ? signedRoster(game) : userRoster(game);
   const registered = isCurrentUserRegistered();
   const signed = isCurrentPlayerSignedForGame(game);
+  const cancellationPending = gameCancellationPending.has(game.id);
   const spotsLeft = Math.max(game.capacity - roster.length, 0);
   const progress = Math.min(Math.round((roster.length / game.capacity) * 100), 100);
   const button = signed
-    ? `<button class="secondary-button" type="button" data-cancel-game="${game.id}">${buttonLabel("cancel")}</button>`
+    ? `<button class="secondary-button" type="button" data-cancel-game="${game.id}" ${cancellationPending ? "disabled" : ""}>${buttonLabel("cancel")}</button>`
     : `<button class="primary-button" type="button" data-sign-game="${game.id}" ${spotsLeft === 0 && registered ? "disabled" : ""}>${buttonLabel(registered ? "sign" : "register")}</button>`;
 
   return `
@@ -4706,11 +4708,21 @@ function signGame(gameId) {
   syncSignupToSite(game, signupId);
 }
 
-function cancelGame(gameId) {
+async function cancelGame(gameId) {
   const game = findGame(gameId);
-  if (!game || !isCurrentPlayerSignedForGame(game)) return;
-  if (!window.confirm(t("confirmCancelText"))) return;
+  if (!game || !isCurrentPlayerSignedForGame(game) || gameCancellationPending.has(gameId)) return;
   const signupId = currentPlayerSiteSignup(game)?.id || stableSignupId(game);
+  gameCancellationPending.add(gameId);
+  renderGames();
+  renderHomeGame();
+  const cancellation = await syncSignupCancellationToSite(game, signupId);
+  gameCancellationPending.delete(gameId);
+  if (!cancellation.ok) {
+    renderGames();
+    renderHomeGame();
+    showToast(state.sync.lastError || localizedToast("saveError"));
+    return;
+  }
   delete state.signups[gameId];
   cancelSiteSignup(game, signupId);
   addActivity(
@@ -4724,11 +4736,10 @@ function cancelGame(gameId) {
     { en: "points removed for this game", pl: "punkty za tę grę zdjęte", be: "ачкі за гэтую гульню зняты", uk: "очки за цю гру знято", ru: "пункты за эту игру сняты" },
     -25,
   );
-  applyCurrentPlayerPointDelta(-25);
+  if (!cancellation.rankingApplied) applyCurrentPlayerPointDelta(-25);
   saveState();
   render();
   showToast(localizedToast("canceled"));
-  syncSignupCancellationToSite(game, signupId);
 }
 
 function setView(name) {
@@ -5325,7 +5336,7 @@ async function syncSignupToSite(game, signupId) {
 
 async function syncSignupCancellationToSite(game, signupId) {
   const gameKey = siteGameKey(game);
-  if (!gameKey) return;
+  if (!gameKey) return { ok: false, rankingApplied: false };
   setSyncStatus("pending");
 
   const payload = {
@@ -5348,18 +5359,20 @@ async function syncSignupCancellationToSite(game, signupId) {
       if (Array.isArray(data.signups)) {
         replaceSiteSignups(data.signups);
       }
-      if (applyRankingPayload(data.ranking)) clearPlayerPointOverride(playerName());
+      const rankingApplied = applyRankingPayload(data.ranking);
+      if (rankingApplied) clearPlayerPointOverride(playerName());
       setSyncStatus("synced");
       saveState();
       renderRanking();
       renderStats();
       renderGames();
-      return;
+      return { ok: true, rankingApplied };
     } catch {
       // The local roster has already been updated.
     }
   }
   setSyncStatus("error", "The app could not remove this booking from the site.");
+  return { ok: false, rankingApplied: false };
 }
 
 async function adminRemoveSignupFromSite({ id, game, nickname }) {
@@ -5487,7 +5500,7 @@ document.addEventListener("click", async (event) => {
 
   const cancelButton = event.target.closest("[data-cancel-game]");
   if (cancelButton) {
-    cancelGame(cancelButton.dataset.cancelGame);
+    await cancelGame(cancelButton.dataset.cancelGame);
     return;
   }
 
