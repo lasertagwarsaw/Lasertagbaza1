@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 99;
+const APP_BUILD = 100;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -4740,6 +4740,7 @@ function setView(name) {
   const previousViewName = getCurrentView();
   views.forEach((view) => view.classList.toggle("active", view.dataset.view === name));
   tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
+  appScroll?.classList.toggle("article-reading", name === "article");
   document.querySelector(".app-scroll").scrollTo({ top: 0, behavior: "smooth" });
   if (name === "voice" && isCurrentUserRegistered()) {
     activateVoiceSession();
@@ -4785,12 +4786,14 @@ function renderArticle() {
   const isLoading = canShowSourceBody && articleLoadingId === item.id && !hasFullArticleBody(item, cachedBody);
   const body = canShowSourceBody && hasFullArticleBody(item, cachedBody) ? cachedBody : "";
   articleReader.innerHTML = `
-    ${renderArticleMedia(item)}
-    <div class="article-meta">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</div>
-    <h1>${escapeHtml(localizedNewsTitle(item))}</h1>
-    <p class="article-summary">${escapeHtml(localizedNewsBody(item))}</p>
-    ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
-    ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
+    <div class="article-copy">
+      <div class="article-meta">${formatDate(item.createdAt)} / ${escapeHtml(item.author || "BAZA")}</div>
+      <h1>${escapeHtml(localizedNewsTitle(item))}</h1>
+      <p class="article-summary">${escapeHtml(localizedNewsBody(item))}</p>
+      ${renderArticleMedia(item)}
+      ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
+      ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
+    </div>
   `;
 }
 
