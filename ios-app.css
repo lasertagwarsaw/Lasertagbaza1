@@ -3120,7 +3120,7 @@ textarea:focus-visible {
   overflow: hidden;
 }
 
-/* Compact profile, dedicated chat and four-item navigation - v93 */
+/* Compact profile, dedicated chat and four-item navigation - v94 */
 .tab-bar {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }

@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 93;
+const APP_BUILD = 94;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -6223,7 +6223,7 @@ function applyRankingPayload(payload) {
 }
 
 async function requestNewsProposal(payload, method = "POST") {
-  const response = await fetch(appApiUrl("/api/news-proposals"), {
+  const response = await fetch(`${appApiUrl("/api/news-feed")}?mode=proposals`, {
     method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -6235,7 +6235,7 @@ async function requestNewsProposal(payload, method = "POST") {
 
 async function loadNewsProposals() {
   try {
-    const response = await fetch(appApiUrl("/api/news-proposals"), {
+    const response = await fetch(`${appApiUrl("/api/news-feed")}?mode=proposals`, {
       cache: "no-store",
       headers: isAdmin() ? { "X-BAZA-Admin": ADMIN_ACCOUNT.password } : {},
     });

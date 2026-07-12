@@ -3,6 +3,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const newsFeed = require("../data/news-feed.json");
 const { readNewsProposals } = require("./_news-proposals");
+const proposalsHandler = require("./_news-proposals-handler");
 
 const pagePath = path.join(__dirname, "..", "index.html");
 const scriptPath = path.join(__dirname, "..", "script.js");
@@ -156,6 +157,10 @@ const approvedPlayerNewsSection = async () => {
 };
 
 module.exports = async function handler(request, response) {
+  if (request.query?.mode === "proposals") {
+    await proposalsHandler(request, response);
+    return;
+  }
   if (request.method !== "GET") {
     response.status(405).json({ error: "Method not allowed" });
     return;
