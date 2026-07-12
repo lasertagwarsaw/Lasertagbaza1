@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 97;
+const APP_BUILD = 98;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -4714,12 +4714,10 @@ async function cancelGame(gameId) {
   const signupId = currentPlayerSiteSignup(game)?.id || stableSignupId(game);
   gameCancellationPending.add(gameId);
   renderGames();
-  renderHomeGame();
   const cancellation = await syncSignupCancellationToSite(game, signupId);
   gameCancellationPending.delete(gameId);
   if (!cancellation.ok) {
     renderGames();
-    renderHomeGame();
     showToast(state.sync.lastError || localizedToast("saveError"));
     return;
   }
