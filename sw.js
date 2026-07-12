@@ -1,9 +1,9 @@
-const CACHE_NAME = "lasertag-warszawa-v95";
+const CACHE_NAME = "lasertag-warszawa-v96";
 const APP_ASSETS = [
   "ios-app.html",
   "ios-app.css",
   "ios-app.js",
-  "vendor/livekit-client.umd.js?v=95",
+  "vendor/livekit-client.umd.js?v=96",
   "manifest.webmanifest",
   "assets/baza-hero.jpg",
   "assets/lasertag-warsaw-mark.png",

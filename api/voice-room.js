@@ -350,9 +350,18 @@ module.exports = async function handler(request, response) {
   }
 
   if (["hello", "mic", "signal", "audio-chunk"].includes(body.type)) {
+    markClient(state, body.player || body.source);
+    if (body.type === "mic") {
+      updateMic(state, body.roomId, body.player, body.micEnabled);
+    } else if (body.type === "signal") {
+      addSignal(state, body);
+    } else if (body.type === "audio-chunk") {
+      addAudioChunk(state, body);
+    }
+    const nextState = await writeVoiceState(state);
     response.status(200).json({
       ok: true,
-      rooms: roomsWithOnlineState(state),
+      rooms: roomsWithOnlineState(nextState),
       serverTime: new Date().toISOString(),
     });
     return;

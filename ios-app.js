@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 95;
+const APP_BUILD = 96;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -3082,6 +3082,7 @@ function renderVoiceRoom(options = {}) {
   let voiceStatus = t("voiceServerOffline");
   if ((!room && transportAvailable) || transportStatus === "connected") voiceStatus = t("voiceReady");
   if (transportStatus === "connecting") voiceStatus = t("voiceConnecting");
+  if (room && voiceActionPending && transportStatus === "offline") voiceStatus = t("voiceConnecting");
   if (!room) {
     const voiceRoomAllowed = canCreateVoiceRoom();
     voiceRoomPanel.innerHTML = `
