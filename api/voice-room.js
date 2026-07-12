@@ -342,8 +342,7 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  if (body.type === "hello") {
-    markClient(state, body.player);
+  if (["hello", "mic", "signal", "audio-chunk"].includes(body.type)) {
     response.status(200).json({
       ok: true,
       rooms: roomsWithOnlineState(state),
@@ -362,12 +361,6 @@ module.exports = async function handler(request, response) {
     leaveRoom(state, body.roomId, body.player);
   } else if (body.type === "decline-invite") {
     declineInvite(state, body.roomId, body.player);
-  } else if (body.type === "mic") {
-    updateMic(state, body.roomId, body.player, body.micEnabled);
-  } else if (body.type === "signal") {
-    addSignal(state, body);
-  } else if (body.type === "audio-chunk") {
-    addAudioChunk(state, body);
   }
 
   const nextState = await writeVoiceState(state);
