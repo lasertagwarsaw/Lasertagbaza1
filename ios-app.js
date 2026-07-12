@@ -3402,14 +3402,23 @@ function voiceTransportAudioCount() {
   return 0;
 }
 
+function updateVoiceDiagnostics() {
+  document.documentElement.dataset.voiceBuild = String(APP_BUILD);
+  document.documentElement.dataset.voiceSessionActive = String(voiceSessionActivated);
+  document.documentElement.dataset.voiceTransport = voiceTransportStatus();
+  document.documentElement.dataset.voiceReconnectAttempts = String(voiceReconnectAttempts);
+}
+
 function resetVoiceReconnectBackoff() {
   voiceReconnectAttempts = 0;
   voiceReconnectNotBefore = 0;
+  updateVoiceDiagnostics();
 }
 
 function registerVoiceConnectFailure() {
   voiceReconnectAttempts = Math.min(voiceReconnectAttempts + 1, 5);
   voiceReconnectNotBefore = Date.now() + Math.min(30000, 2000 * 2 ** (voiceReconnectAttempts - 1));
+  updateVoiceDiagnostics();
 }
 
 function activateVoiceSession() {
@@ -3418,10 +3427,12 @@ function activateVoiceSession() {
   clearTimeout(voiceBrowserHiddenTimer);
   voiceBrowserHiddenTimer = null;
   if (!wasActive) resetVoiceReconnectBackoff();
+  updateVoiceDiagnostics();
 }
 
 async function deactivateVoiceSession() {
   voiceSessionActivated = false;
+  updateVoiceDiagnostics();
   clearTimeout(voiceBrowserHiddenTimer);
   voiceBrowserHiddenTimer = null;
   resetVoiceReconnectBackoff();
@@ -3437,6 +3448,7 @@ async function deactivateVoiceSession() {
     });
   }
   await voiceDisconnectPromise;
+  updateVoiceDiagnostics();
   if (!voiceSessionActivated) {
     renderVoiceRoom({ force: true });
     renderHomeVoiceEntry();
@@ -3697,6 +3709,7 @@ window.__bazaNativeVoiceEvent = (event) => {
   saveState();
   renderVoiceRoom();
   renderHomeVoiceEntry();
+  updateVoiceDiagnostics();
 };
 
 window.__bazaVoiceDiagnostics = () => ({
@@ -5978,6 +5991,7 @@ function syncVoiceRoomsFromServer(rooms) {
     voiceRoomMissingSince = 0;
     state.activeVoiceRoomId = "";
     voiceSessionActivated = false;
+    updateVoiceDiagnostics();
     closeVoicePeers();
     stopVoiceStream();
     leaveNativeVoiceRoom();
@@ -6514,6 +6528,7 @@ async function leaveVoiceRoom() {
   }
   state.activeVoiceRoomId = "";
   voiceSessionActivated = false;
+  updateVoiceDiagnostics();
   await leaveNativeVoiceRoom();
   await leaveBrowserVoiceRoom();
   sendNativeVoiceAudioActive(false);
@@ -6939,6 +6954,7 @@ window.addEventListener("pagehide", () => {
 });
 
 render();
+updateVoiceDiagnostics();
 connectPlayerChatSocket();
 loadPlayerChat();
 chatRefreshTimer = setInterval(loadPlayerChat, 2500);
