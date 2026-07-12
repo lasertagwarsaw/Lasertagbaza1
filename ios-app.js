@@ -5021,6 +5021,8 @@ async function syncSignupToSite(game, signupId) {
   };
 
   const targets = [
+    "https://www.lasertagbaza.pl/api/games-feed",
+    "/api/games-feed",
     "https://www.lasertagbaza.pl/api/telegram-signup",
     "/api/telegram-signup",
   ];
@@ -5060,6 +5062,8 @@ async function syncSignupCancellationToSite(game, signupId) {
   };
 
   const targets = [
+    "https://www.lasertagbaza.pl/api/games-feed",
+    "/api/games-feed",
     "https://www.lasertagbaza.pl/api/telegram-signup",
     "/api/telegram-signup",
   ];

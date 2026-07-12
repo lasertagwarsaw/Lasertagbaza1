@@ -168,7 +168,7 @@ const sendWeatherFeed = async (response) => {
 
 module.exports = async function handler(request, response) {
   response.setHeader("Access-Control-Allow-Origin", "*");
-  response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  response.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (request.method === "OPTIONS") {
@@ -177,7 +177,7 @@ module.exports = async function handler(request, response) {
     return;
   }
 
-  if (request.method === "POST") {
+  if (["POST", "DELETE"].includes(request.method)) {
     await signupHandler(request, response);
     return;
   }
