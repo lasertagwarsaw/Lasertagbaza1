@@ -7,6 +7,7 @@ const root = path.join(__dirname, "..");
 const dataDir = path.join(root, "data");
 const voicePath = path.join(dataDir, "voice-room.json");
 const voiceStorageKey = "baza:voice-room:v1";
+const MIN_LIVEKIT_CLIENT_VERSION = 87;
 const AUDIO_CHUNK_LIMIT = 48;
 const MAX_AUDIO_CHUNK_SIZE = 120_000;
 
@@ -321,6 +322,12 @@ module.exports = async function handler(request, response) {
     const apiSecret = String(process.env.LIVEKIT_API_SECRET || "").trim();
     if (!liveKitUrl || !apiKey || !apiSecret) {
       response.status(503).json({ ok: false, error: "Voice service is not configured" });
+      return;
+    }
+
+    const clientVersion = Number(body.clientVersion || 0);
+    if (!Number.isInteger(clientVersion) || clientVersion < MIN_LIVEKIT_CLIENT_VERSION) {
+      response.status(426).json({ ok: false, error: "Update the app before joining voice rooms" });
       return;
     }
 

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
+const APP_BUILD = 87;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1352,8 +1353,14 @@ let browserVoiceConnectPromise = null;
 let voiceRoomRenderFingerprint = "";
 let voiceActionPending = false;
 let voiceRoomMissingSince = 0;
+let voiceSessionActivated = false;
+let voiceReconnectNotBefore = 0;
+let voiceReconnectAttempts = 0;
+let voiceBrowserHiddenTimer = null;
+let voiceDisconnectPromise = null;
 const VOICE_ROOM_MISSING_GRACE_MS = 12000;
 const VOICE_RECONNECT_STATUS_GRACE_MS = 6000;
+const VOICE_BROWSER_HIDDEN_DISCONNECT_MS = 120000;
 const voicePeers = new Map();
 const remoteAudioNodes = new Map();
 const browserVoiceAudioNodes = new Map();
@@ -3395,6 +3402,47 @@ function voiceTransportAudioCount() {
   return 0;
 }
 
+function resetVoiceReconnectBackoff() {
+  voiceReconnectAttempts = 0;
+  voiceReconnectNotBefore = 0;
+}
+
+function registerVoiceConnectFailure() {
+  voiceReconnectAttempts = Math.min(voiceReconnectAttempts + 1, 5);
+  voiceReconnectNotBefore = Date.now() + Math.min(30000, 2000 * 2 ** (voiceReconnectAttempts - 1));
+}
+
+function activateVoiceSession() {
+  const wasActive = voiceSessionActivated;
+  voiceSessionActivated = true;
+  clearTimeout(voiceBrowserHiddenTimer);
+  voiceBrowserHiddenTimer = null;
+  if (!wasActive) resetVoiceReconnectBackoff();
+}
+
+async function deactivateVoiceSession() {
+  voiceSessionActivated = false;
+  clearTimeout(voiceBrowserHiddenTimer);
+  voiceBrowserHiddenTimer = null;
+  resetVoiceReconnectBackoff();
+  if (!voiceDisconnectPromise) {
+    voiceDisconnectPromise = (async () => {
+      closeVoicePeers();
+      stopVoiceStream();
+      await leaveNativeVoiceRoom();
+      await leaveBrowserVoiceRoom();
+      sendNativeVoiceAudioActive(false);
+    })().finally(() => {
+      voiceDisconnectPromise = null;
+    });
+  }
+  await voiceDisconnectPromise;
+  if (!voiceSessionActivated) {
+    renderVoiceRoom({ force: true });
+    renderHomeVoiceEntry();
+  }
+}
+
 function sendNativeVoiceRtcCommand(type, payload = {}, timeoutMs = 15000) {
   const handler = window.webkit?.messageHandlers?.bazaNative;
   if (!hasNativeVoiceRtc() || !handler?.postMessage) {
@@ -3427,10 +3475,14 @@ async function ensureNativeVoiceRoom(room) {
       roomId: room.id,
       player: playerName(),
       tokenEndpoint: appApiUrl("/api/voice-room"),
+      clientVersion: APP_BUILD,
     },
     20000,
   )
-    .then(() => true)
+    .then(() => {
+      resetVoiceReconnectBackoff();
+      return true;
+    })
     .finally(() => {
       nativeVoiceConnectPromise = null;
     });
@@ -3463,7 +3515,7 @@ async function fetchBrowserVoiceToken(room) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
-        body: JSON.stringify({ type: "livekit-token", roomId: room.id, player: playerName() }),
+        body: JSON.stringify({ type: "livekit-token", roomId: room.id, player: playerName(), clientVersion: APP_BUILD }),
       });
       const data = await response.json();
       if (response.ok && data.ok && data.serverUrl && data.token) return data;
@@ -3573,6 +3625,7 @@ async function ensureBrowserVoiceRoom(room) {
     await liveRoom.connect(credentials.serverUrl, credentials.token, { autoSubscribe: true });
     browserVoiceRoom = liveRoom;
     browserVoiceRtcStatus = "connected";
+    resetVoiceReconnectBackoff();
     browserVoiceRtcMicEnabled = false;
     const activeRoom = currentVoiceRoom();
     const activeParticipant = activeRoom?.participants?.find(
@@ -3612,7 +3665,10 @@ window.__bazaNativeVoiceEvent = (event) => {
   if (!event || typeof event !== "object") return;
   if (event.status) {
     nativeVoiceRtcStatus = String(event.status);
-    if (nativeVoiceRtcStatus === "connected") nativeVoiceDisconnectedAt = 0;
+    if (nativeVoiceRtcStatus === "connected") {
+      nativeVoiceDisconnectedAt = 0;
+      resetVoiceReconnectBackoff();
+    }
     if (nativeVoiceRtcStatus === "offline" && !nativeVoiceDisconnectedAt) nativeVoiceDisconnectedAt = Date.now();
   }
   if (event.roomId) nativeVoiceRtcRoomId = String(event.roomId);
@@ -3642,6 +3698,16 @@ window.__bazaNativeVoiceEvent = (event) => {
   renderVoiceRoom();
   renderHomeVoiceEntry();
 };
+
+window.__bazaVoiceDiagnostics = () => ({
+  build: APP_BUILD,
+  sessionActivated: voiceSessionActivated,
+  roomId: currentVoiceRoom()?.id || "",
+  transportStatus: voiceTransportStatus(),
+  microphoneEnabled: voiceTransportMicEnabled(),
+  reconnectAttempts: voiceReconnectAttempts,
+  reconnectBlockedForMs: Math.max(0, voiceReconnectNotBefore - Date.now()),
+});
 
 function resizeImageDataUrl(dataUrl, maxSize = 420, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -4222,11 +4288,16 @@ function cancelGame(gameId) {
 }
 
 function setView(name) {
+  const previousViewName = getCurrentView();
   views.forEach((view) => view.classList.toggle("active", view.dataset.view === name));
   tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
   document.querySelector(".app-scroll").scrollTo({ top: 0, behavior: "smooth" });
   if (name === "voice" && isCurrentUserRegistered()) {
+    activateVoiceSession();
     connectVoiceSocket();
+    connectVoiceRoomMedia({ force: true });
+  } else if (previousViewName === "voice") {
+    deactivateVoiceSession();
   }
 }
 
@@ -5906,6 +5977,7 @@ function syncVoiceRoomsFromServer(rooms) {
   if (!roomForPlayer && state.activeVoiceRoomId) {
     voiceRoomMissingSince = 0;
     state.activeVoiceRoomId = "";
+    voiceSessionActivated = false;
     closeVoicePeers();
     stopVoiceStream();
     leaveNativeVoiceRoom();
@@ -5916,7 +5988,7 @@ function syncVoiceRoomsFromServer(rooms) {
   renderVoiceRoom();
   renderHomeVoiceEntry();
   renderVoiceInviteAlert();
-  connectVoiceRoomMedia();
+  if (voiceSessionActivated) connectVoiceRoomMedia();
 }
 
 function syncCurrentVoiceRoom() {
@@ -6190,13 +6262,17 @@ function addLocalVoiceTracks(pc) {
   });
 }
 
-async function connectVoiceRoomMedia() {
+async function connectVoiceRoomMedia(options = {}) {
   const room = currentVoiceRoom();
-  if (!room) return;
+  if (!room || !voiceSessionActivated) return;
+  if (voiceDisconnectPromise) await voiceDisconnectPromise;
+  if (!voiceSessionActivated || currentVoiceRoom()?.id !== room.id) return;
+  if (!options.force && Date.now() < voiceReconnectNotBefore) return;
   if (hasNativeVoiceRtc()) {
     ensureNativeVoiceRoom(room).catch((error) => {
       lastVoiceError = voiceErrorMessage(error);
       nativeVoiceRtcStatus = "offline";
+      registerVoiceConnectFailure();
       renderVoiceRoom();
       renderHomeVoiceEntry();
     });
@@ -6206,6 +6282,7 @@ async function connectVoiceRoomMedia() {
     ensureBrowserVoiceRoom(room).catch((error) => {
       lastVoiceError = voiceErrorMessage(error);
       browserVoiceRtcStatus = "offline";
+      registerVoiceConnectFailure();
       renderVoiceRoom();
       renderHomeVoiceEntry();
     });
@@ -6335,6 +6412,7 @@ async function createVoiceRoom(form) {
     ...(state.voiceRooms || []).filter((item) => normalizePlayerName(item.owner) !== normalizePlayerName(playerName())),
   ];
   state.activeVoiceRoomId = room.id;
+  activateVoiceSession();
   saveState();
   renderVoiceRoom({ force: true });
   const synced = await syncVoiceRoomOverHttp({ type: "sync-room", room: prepareVoiceRoomForSync(room) });
@@ -6343,7 +6421,7 @@ async function createVoiceRoom(form) {
     renderVoiceRoom({ force: true });
     return;
   }
-  connectVoiceRoomMedia();
+  connectVoiceRoomMedia({ force: true });
 }
 
 async function addVoiceParticipantByName(memberName) {
@@ -6407,7 +6485,7 @@ async function acceptVoiceInvite(roomId) {
     renderVoiceRoom({ force: true });
     return;
   }
-  connectVoiceRoomMedia();
+  connectVoiceRoomMedia({ force: true });
   resumeRemoteVoiceAudio();
 }
 
@@ -6435,6 +6513,7 @@ async function leaveVoiceRoom() {
     await syncVoiceRoomOverHttp({ type: "leave-room", roomId: room.id, player: playerName() });
   }
   state.activeVoiceRoomId = "";
+  voiceSessionActivated = false;
   await leaveNativeVoiceRoom();
   await leaveBrowserVoiceRoom();
   sendNativeVoiceAudioActive(false);
@@ -6444,6 +6523,7 @@ async function leaveVoiceRoom() {
 
 async function toggleVoiceMic() {
   unlockVoiceAudio();
+  activateVoiceSession();
   const room = currentVoiceRoom();
   if (!room) return;
   const participant = room.participants.find((item) => normalizePlayerName(item.name) === normalizePlayerName(playerName()));
@@ -6841,9 +6921,22 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 
-document.addEventListener("visibilitychange", syncVoiceInvitesOnForeground);
+document.addEventListener("visibilitychange", () => {
+  syncVoiceInvitesOnForeground();
+  clearTimeout(voiceBrowserHiddenTimer);
+  voiceBrowserHiddenTimer = null;
+  if (!window.BAZA_NATIVE_APP && document.visibilityState === "hidden" && voiceSessionActivated) {
+    voiceBrowserHiddenTimer = setTimeout(deactivateVoiceSession, VOICE_BROWSER_HIDDEN_DISCONNECT_MS);
+  } else if (!window.BAZA_NATIVE_APP && document.visibilityState === "visible" && getCurrentView() === "voice" && currentVoiceRoom()) {
+    activateVoiceSession();
+    connectVoiceRoomMedia({ force: true });
+  }
+});
 window.addEventListener("pageshow", syncVoiceInvitesOnForeground);
 window.addEventListener("focus", syncVoiceInvitesOnForeground);
+window.addEventListener("pagehide", () => {
+  if (!window.BAZA_NATIVE_APP) deactivateVoiceSession();
+});
 
 render();
 connectPlayerChatSocket();
