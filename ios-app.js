@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 102;
+const APP_BUILD = 103;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1409,6 +1409,7 @@ const defaultState = {
   news: defaultNews,
   newsProposals: [],
   siteNews: [],
+  readNewsByPlayer: {},
   siteGames: [],
   seenGameInstances: [],
   siteRanking: [],
@@ -1697,6 +1698,7 @@ function loadState() {
       news: normalizeNewsItems(Array.isArray(saved.news) ? saved.news : cloneData(defaultNews)),
       newsProposals: Array.isArray(saved.newsProposals) ? saved.newsProposals : [],
       siteNews: Array.isArray(saved.siteNews) ? saved.siteNews : [],
+      readNewsByPlayer: saved.readNewsByPlayer && typeof saved.readNewsByPlayer === "object" ? saved.readNewsByPlayer : {},
       siteGames: Array.isArray(saved.siteGames) ? saved.siteGames : [],
       seenGameInstances: Array.isArray(saved.seenGameInstances) ? saved.seenGameInstances : [],
       siteRanking: Array.isArray(saved.siteRanking) ? saved.siteRanking : [],
@@ -1867,6 +1869,33 @@ function combinedNews() {
   const fallbackItems = (state.news || []).filter((item) => item.status !== "pending");
   const items = siteItems.length ? [...siteItems, ...playerItems] : fallbackItems;
   return items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+function newsReadKey(item) {
+  return String(item?.articleKey || item?.id || item?.contentUrl || `${item?.createdAt || ""}:${localizedNewsTitle(item || {})}`).trim();
+}
+
+function readNewsIdsForCurrentPlayer() {
+  const playerKey = normalizePlayerName(playerName()) || "guest";
+  const ids = state.readNewsByPlayer?.[playerKey];
+  return Array.isArray(ids) ? ids : [];
+}
+
+function unreadNewsCount() {
+  const readIds = new Set(readNewsIdsForCurrentPlayer());
+  const availableIds = new Set(combinedNews().map(newsReadKey).filter(Boolean));
+  return [...availableIds].filter((id) => !readIds.has(id)).length;
+}
+
+function markNewsAsRead(item) {
+  const id = newsReadKey(item);
+  if (!id) return;
+  const playerKey = normalizePlayerName(playerName()) || "guest";
+  const currentIds = readNewsIdsForCurrentPlayer();
+  if (currentIds.includes(id)) return;
+  state.readNewsByPlayer = state.readNewsByPlayer || {};
+  state.readNewsByPlayer[playerKey] = [...new Set([...currentIds, id])].slice(-500);
+  saveState();
 }
 
 function totalPoints() {
@@ -2193,6 +2222,9 @@ function renderStats() {
   });
   document.querySelectorAll("[data-news-count]").forEach((node) => {
     node.textContent = userNews().length;
+  });
+  document.querySelectorAll("[data-unread-news-count]").forEach((node) => {
+    node.textContent = unreadNewsCount();
   });
   document.querySelectorAll("[data-rank-label]").forEach((node) => {
     node.textContent = calculatedRankLabel();
@@ -2530,6 +2562,9 @@ function renderNews() {
       .map((item) => renderFullNews(item))
       .join("");
   }
+  document.querySelectorAll("[data-unread-news-count]").forEach((node) => {
+    node.textContent = unreadNewsCount();
+  });
 }
 
 function ensureHomeNewsToggle() {
@@ -4821,6 +4856,8 @@ function getCurrentView() {
 function openArticle(id) {
   const item = findNewsItem(id);
   if (!item) return;
+  markNewsAsRead(item);
+  renderStats();
   previousView = getCurrentView() === "article" ? previousView : getCurrentView();
   activeArticleId = id;
   renderArticle();
