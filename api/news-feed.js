@@ -10,6 +10,7 @@ const scriptPath = path.join(__dirname, "..", "script.js");
 const externalTranslationPaths = [
   path.join(__dirname, "..", "data", "tort-review-translations.json"),
   path.join(__dirname, "..", "data", "noka-review-translations.json"),
+  path.join(__dirname, "..", "data", "networking-news-translations.json"),
 ];
 const supportedLanguages = ["pl", "uk", "be", "en", "ru"];
 

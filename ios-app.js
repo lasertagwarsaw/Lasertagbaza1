@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 103;
+const APP_BUILD = 104;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -152,6 +152,7 @@ const copy = {
     rankRegular: "Regular player",
     rankRookie: "Rookie",
     readNews: "Read",
+    relatedTournamentNews: "Read the tournament story",
     registerFirst: "Complete your profile to register as a player.",
     removePlayer: "Remove player",
     registerProfile: "Register",
@@ -328,6 +329,7 @@ const copy = {
     rankRegular: "Постоянный игрок",
     rankRookie: "Новый игрок",
     readNews: "Читать",
+    relatedTournamentNews: "Прочитать новость о турнире",
     registerFirst: "Сначала заполни профиль, чтобы стать зарегистрированным игроком.",
     removePlayer: "Удалить игрока",
     registerProfile: "Регистрация",
@@ -504,6 +506,7 @@ const copy = {
     rankRegular: "Stały gracz",
     rankRookie: "Nowy gracz",
     readNews: "Czytaj",
+    relatedTournamentNews: "Przeczytaj relację z turnieju",
     registerFirst: "Najpierw uzupełnij profil, aby zostać zarejestrowanym graczem.",
     removePlayer: "Usuń gracza",
     registerProfile: "Rejestracja",
@@ -682,6 +685,7 @@ copy.uk = {
   rankRegular: "Постійний гравець",
   rankRookie: "Новачок",
   readNews: "Читати",
+  relatedTournamentNews: "Прочитати новину про турнір",
   registerFirst: "Заповніть профіль, щоб зареєструватися як гравець.",
   removePlayer: "Видалити гравця",
   registerProfile: "Зареєструватися",
@@ -859,6 +863,7 @@ copy.be = {
   rankRegular: "Пастаянны гулец",
   rankRookie: "Навічок",
   readNews: "Чытаць",
+  relatedTournamentNews: "Прачытай навіну пра турнір",
   registerFirst: "Запоўніце профіль, каб зарэгістравацца як гулец.",
   removePlayer: "Выдаліць гульца",
   registerProfile: "Зарэгістравацца",
@@ -1050,6 +1055,22 @@ Object.entries(additionalCopy).forEach(([language, values]) => Object.assign(cop
 const locales = { en: "en", pl: "pl", be: "be", uk: "uk", ru: "ru" };
 
 const newsCopy = {
+  "club-networking-2026-07-13": {
+    title: {
+      en: "The club is more than games. It is valuable networking too",
+      pl: "Klub to nie tylko gry. To także wartościowy networking",
+      be: "Клуб - гэта не толькі гульні, але і карысны нетворкінг",
+      uk: "Клуб - це не лише ігри, а й корисний нетворкінг",
+      ru: "Клуб - это не только игры, но и полезный нетворкинг",
+    },
+    body: {
+      en: "People from many different fields meet at BAZA, play together, get to know each other and enjoy time beyond the arena too.",
+      pl: "Na BAZIE spotykają się ludzie z różnych branż, grają razem, poznają się i dobrze spędzają czas także poza polem gry.",
+      be: "На BAZA збіраюцца людзі з розных сфер, гуляюць разам, знаёмяцца і выдатна праводзяць час не толькі на гульнявым полі.",
+      uk: "На BAZA збираються люди з різних сфер, грають разом, знайомляться та чудово проводять час не лише на ігровому полі.",
+      ru: "На BAZA собираются люди из совершенно разных сфер, играют вместе, знакомятся и отлично проводят время не только на игровом поле.",
+    },
+  },
   "noka-review-2026-07-10": {
     title: {
       en: "The 11th generation through the tournament winner's eyes",
@@ -1213,6 +1234,7 @@ const newsCopy = {
 };
 
 const newsImages = {
+  "club-networking-2026-07-13": "assets/update-club-networking-2026-07-13.jpg",
   "noka-review-2026-07-10": "assets/update-noka-review.webp",
   "agent-review-2026-07-10": "assets/update-agent-review.webp",
   "tort-review-2026-07-09": "assets/player-tort.webp",
@@ -4893,6 +4915,12 @@ function renderArticle() {
       ${renderArticleMedia(item)}
       ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
       ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
+      ${item.relatedArticleId ? `
+        <button class="article-related-link" type="button" data-open-article="${escapeHtml(item.relatedArticleId)}">
+          <span class="material-symbols-rounded" aria-hidden="true">emoji_events</span>
+          <span>${escapeHtml(t("relatedTournamentNews"))}</span>
+        </button>
+      ` : ""}
     </div>
   `;
 }
@@ -5075,6 +5103,7 @@ async function loadRemoteNewsFeed() {
       contentByLanguage: item.contentByLanguage || {},
       articleKey: item.articleKey || "",
       webSelector: item.webSelector || "",
+      relatedArticleId: item.relatedArticleId || "",
       site: true,
       sectionId: section.id || "",
       playerSubmitted: Boolean(item.playerSubmitted),

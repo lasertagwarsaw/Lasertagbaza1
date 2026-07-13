@@ -2,7 +2,7 @@
   "name": "Lasertag Warszawa",
   "short_name": "Lasertag Warszawa",
   "description": "Lasertag Warszawa app for players, games, news, avatars and points.",
-  "start_url": "ios-app.html?v=103",
+  "start_url": "ios-app.html?v=104",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",

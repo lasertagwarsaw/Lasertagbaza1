@@ -1313,7 +1313,11 @@ const mergeSiteCopy = (incomingSiteCopy = {}) => {
 };
 
 const loadExternalCopy = async () => {
-  const sources = ["data/tort-review-translations.json", "data/noka-review-translations.json"];
+  const sources = [
+    "data/tort-review-translations.json",
+    "data/noka-review-translations.json",
+    "data/networking-news-translations.json",
+  ];
 
   for (const source of sources) {
     try {
