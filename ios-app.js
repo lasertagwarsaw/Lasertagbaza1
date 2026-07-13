@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 104;
+const APP_BUILD = 105;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
