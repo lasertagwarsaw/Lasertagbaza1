@@ -150,6 +150,7 @@ const copy = {
     rankRegular: "Regular player",
     rankRookie: "Rookie",
     readNews: "Read",
+    relatedTournamentNews: "Read the tournament story",
     registerFirst: "Complete your profile to register as a player.",
     removePlayer: "Remove player",
     registerProfile: "Register",
@@ -326,6 +327,7 @@ const copy = {
     rankRegular: "Постоянный игрок",
     rankRookie: "Новый игрок",
     readNews: "Читать",
+    relatedTournamentNews: "Прочитать новость о турнире",
     registerFirst: "Сначала заполни профиль, чтобы стать зарегистрированным игроком.",
     removePlayer: "Удалить игрока",
     registerProfile: "Регистрация",
@@ -502,6 +504,7 @@ const copy = {
     rankRegular: "Stały gracz",
     rankRookie: "Nowy gracz",
     readNews: "Czytaj",
+    relatedTournamentNews: "Przeczytaj relację z turnieju",
     registerFirst: "Najpierw uzupełnij profil, aby zostać zarejestrowanym graczem.",
     removePlayer: "Usuń gracza",
     registerProfile: "Rejestracja",
@@ -680,6 +683,7 @@ copy.uk = {
   rankRegular: "Постійний гравець",
   rankRookie: "Новачок",
   readNews: "Читати",
+  relatedTournamentNews: "Прочитати новину про турнір",
   registerFirst: "Заповніть профіль, щоб зареєструватися як гравець.",
   removePlayer: "Видалити гравця",
   registerProfile: "Зареєструватися",
@@ -857,6 +861,7 @@ copy.be = {
   rankRegular: "Пастаянны гулец",
   rankRookie: "Навічок",
   readNews: "Чытаць",
+  relatedTournamentNews: "Прачытай навіну пра турнір",
   registerFirst: "Запоўніце профіль, каб зарэгістравацца як гулец.",
   removePlayer: "Выдаліць гульца",
   registerProfile: "Зарэгістравацца",
@@ -2423,18 +2428,18 @@ function safeNewsUrl(item) {
 }
 
 function localizedNewsTitle(item) {
-  return localize(newsCopy[item.id]?.title || item.title);
+  return localize(item.titleByLanguage || newsCopy[item.id]?.title || item.title);
 }
 
 function localizedNewsBody(item) {
-  return localize(newsCopy[item.id]?.body || item.body);
+  return localize(item.summaryByLanguage || newsCopy[item.id]?.body || item.body);
 }
 
 function newsImage(item) {
   if (item.media?.type === "image" && /^data:image\/(?:jpeg|jpg|png|webp);base64,/i.test(item.media.data || "")) {
     return item.media.data;
   }
-  return newsImages[item.id] || item.image || "assets/card-news-trophy.jpg";
+  return item.image || newsImages[item.id] || "assets/card-news-trophy.jpg";
 }
 
 function safeNewsVideo(item) {
@@ -4793,6 +4798,12 @@ function renderArticle() {
       ${renderArticleMedia(item)}
       ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
       ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
+      ${item.relatedArticleId ? `
+        <button class="article-related-link" type="button" data-open-article="${escapeHtml(item.relatedArticleId)}">
+          <span class="material-symbols-rounded" aria-hidden="true">emoji_events</span>
+          <span>${escapeHtml(t("relatedTournamentNews"))}</span>
+        </button>
+      ` : ""}
     </div>
   `;
 }
@@ -4965,7 +4976,9 @@ async function loadRemoteNewsFeed() {
     return items.map(({ item, section }, index) => ({
       id: item.id || `remote-news-${index}`,
       title: item.title || "BAZA update",
+      titleByLanguage: item.titleByLanguage || null,
       body: item.summary || "",
+      summaryByLanguage: item.summaryByLanguage || null,
       author: item.author || localize(section.labels) || "BAZA",
       createdAt: item.createdAt || (item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString()),
       image: item.image || "",
@@ -4975,6 +4988,7 @@ async function loadRemoteNewsFeed() {
       contentByLanguage: item.contentByLanguage || {},
       articleKey: item.articleKey || "",
       webSelector: item.webSelector || "",
+      relatedArticleId: item.relatedArticleId || "",
       site: true,
       sectionId: section.id || "",
       playerSubmitted: Boolean(item.playerSubmitted),

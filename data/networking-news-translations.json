@@ -1,0 +1,82 @@
+{
+  "copyById": {
+    "networking-card-kicker": {
+      "pl": "Klub / ludzie",
+      "en": "Club / people",
+      "ru": "Клуб / люди",
+      "uk": "Клуб / люди",
+      "be": "Клуб / людзі"
+    },
+    "networking-card-title": {
+      "pl": "Klub to nie tylko gry. To także wartościowy networking",
+      "en": "The club is more than games. It is valuable networking too",
+      "ru": "Клуб - это не только игры, но и полезный нетворкинг",
+      "uk": "Клуб - це не лише ігри, а й корисний нетворкінг",
+      "be": "Клуб - гэта не толькі гульні, але і карысны нетворкінг"
+    },
+    "networking-card-summary": {
+      "pl": "Na BAZIE spotykają się ludzie z różnych branż, grają razem, poznają się i dobrze spędzają czas także poza polem gry.",
+      "en": "People from many different fields meet at BAZA, play together, get to know each other and enjoy time beyond the arena too.",
+      "ru": "На BAZA собираются люди из совершенно разных сфер, играют вместе, знакомятся и отлично проводят время не только на игровом поле.",
+      "uk": "На BAZA збираються люди з різних сфер, грають разом, знайомляться та чудово проводять час не лише на ігровому полі.",
+      "be": "На BAZA збіраюцца людзі з розных сфер, гуляюць разам, знаёмяцца і выдатна праводзяць час не толькі на гульнявым полі."
+    },
+    "networking-intro": {
+      "pl": "Lasertag Warsaw to nie tylko dynamiczne mecze. To również klub, w którym regularnie spotykają się zupełnie różni ludzie, poznają się w naturalnej atmosferze i budują wartościowe relacje.",
+      "en": "Lasertag Warsaw is not only about dynamic matches. It is also a club where very different people meet regularly, get to know each other naturally and build valuable relationships.",
+      "ru": "Lasertag Warsaw - это не только динамичные матчи. Это клуб, где регулярно встречаются совершенно разные люди, знакомятся в естественной атмосфере и создают полезные связи.",
+      "uk": "Lasertag Warsaw - це не лише динамічні матчі. Це клуб, де регулярно зустрічаються зовсім різні люди, знайомляться у природній атмосфері та створюють корисні зв'язки.",
+      "be": "Lasertag Warsaw - гэта не толькі дынамічныя матчы. Гэта клуб, дзе рэгулярна сустракаюцца зусім розныя людзі, знаёмяцца ў натуральнай атмасферы і ствараюць карысныя сувязі."
+    },
+    "networking-heading-people": {
+      "pl": "Różne światy, wspólna gra",
+      "en": "Different worlds, one game",
+      "ru": "Разные сферы, одна игра",
+      "uk": "Різні сфери, одна гра",
+      "be": "Розныя сферы, адна гульня"
+    },
+    "networking-people": {
+      "pl": "Na gry przychodzą osoby z różnych zawodów, branż i środowisk. Na polu wszyscy mają wspólny cel, a po meczu jest czas na rozmowę, wymianę doświadczeń i nowe znajomości. Dzięki temu networking powstaje bez formalności i sztywnych spotkań biznesowych.",
+      "en": "Players come from different professions, industries and backgrounds. On the field everyone shares one goal, and after the match there is time to talk, exchange experience and make new connections. Networking happens naturally, without formality or rigid business meetings.",
+      "ru": "На игры приходят люди разных профессий, отраслей и интересов. На поле у всех одна цель, а после матча есть время для общения, обмена опытом и новых знакомств. Такой нетворкинг возникает естественно, без формальностей и строгих деловых встреч.",
+      "uk": "На ігри приходять люди різних професій, галузей та інтересів. На полі в усіх одна мета, а після матчу є час для спілкування, обміну досвідом і нових знайомств. Такий нетворкінг виникає природно, без формальностей і офіційних ділових зустрічей.",
+      "be": "На гульні прыходзяць людзі розных прафесій, галін і інтарэсаў. На полі ва ўсіх адна мэта, а пасля матча ёсць час для размовы, абмену досведам і новых знаёмстваў. Такі нетворкінг узнікае натуральна, без фармальнасцей і афіцыйных дзелавых сустрэч."
+    },
+    "networking-heading-community": {
+      "pl": "Relacje, które zostają po meczu",
+      "en": "Connections that last after the match",
+      "ru": "Связи, которые остаются после игры",
+      "uk": "Зв'язки, що залишаються після гри",
+      "be": "Сувязі, якія застаюцца пасля гульні"
+    },
+    "networking-community": {
+      "pl": "Wspólna gra szybko przełamuje pierwsze bariery. Gracze dobrze się bawią, uczą się współpracy i wracają na kolejne spotkania już nie jako przypadkowe osoby, lecz jako część klubowej społeczności.",
+      "en": "Playing together quickly breaks the ice. Players have a great time, learn teamwork and return to the next meetings not as strangers, but as part of the club community.",
+      "ru": "Совместная игра быстро снимает первые барьеры. Игроки отлично проводят время, учатся работать в команде и возвращаются на следующие встречи уже не как случайные знакомые, а как часть клубного сообщества.",
+      "uk": "Спільна гра швидко прибирає перші бар'єри. Гравці чудово проводять час, вчаться командній роботі та повертаються на наступні зустрічі вже не як випадкові знайомі, а як частина клубної спільноти.",
+      "be": "Сумесная гульня хутка прыбірае першыя бар'еры. Гульцы выдатна праводзяць час, вучацца каманднай працы і вяртаюцца на наступныя сустрэчы ўжо не як выпадковыя знаёмыя, а як частка клубнай супольнасці."
+    },
+    "networking-heading-tournaments": {
+      "pl": "Od regularnych gier do turniejów",
+      "en": "From regular games to tournaments",
+      "ru": "От регулярных игр до турниров",
+      "uk": "Від регулярних ігор до турнірів",
+      "be": "Ад рэгулярных гульняў да турніраў"
+    },
+    "networking-tournaments": {
+      "pl": "Co kilka miesięcy organizujemy również turnieje, podczas których drużyny mogą sprawdzić przygotowanie, komunikację i zgranie w bardziej sportowym formacie.",
+      "en": "Every few months we also hold tournaments where teams can test their preparation, communication and coordination in a more competitive format.",
+      "ru": "Раз в несколько месяцев мы также проводим турниры, где команды могут проверить подготовку, коммуникацию и сыгранность в более спортивном формате.",
+      "uk": "Раз на кілька місяців ми також проводимо турніри, де команди можуть перевірити підготовку, комунікацію та зіграність у більш спортивному форматі.",
+      "be": "Раз на некалькі месяцаў мы таксама праводзім турніры, дзе каманды могуць праверыць падрыхтоўку, камунікацыю і зладжанасць у больш спартыўным фармаце."
+    },
+    "networking-tournament-link": {
+      "pl": "Przeczytaj relację z turnieju Open Lasertag 5 lipca.",
+      "en": "Read the story from the July 5 Open Lasertag tournament.",
+      "ru": "Прочитайте новость о турнире Open Lasertag 5 июля.",
+      "uk": "Прочитайте новину про турнір Open Lasertag 5 липня.",
+      "be": "Прачытайце навіну пра турнір Open Lasertag 5 ліпеня."
+    }
+  },
+  "siteCopy": {}
+}
