@@ -1,10 +1,12 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 101;
+const APP_BUILD = 102;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
 const CHAT_IMAGE_MAX_BYTES = 95000;
 const CHAT_IMAGE_MAX_SIDE = 960;
+const AVATAR_IMAGE_MAX_BYTES = 70000;
+const AVATAR_IMAGE_MAX_SIDE = 420;
 const NEWS_IMAGE_MAX_BYTES = 220000;
 const NEWS_IMAGE_MAX_SIDE = 1400;
 const NEWS_VIDEO_MAX_BYTES = 1500000;
@@ -2176,7 +2178,7 @@ function renderAvatar(target, size = "small") {
   const label = initials(playerName());
   if (!target) return;
   target.innerHTML = state.profile.avatar
-    ? `<img src="${state.profile.avatar}" alt="${escapeHtml(playerName())}" />`
+    ? `<img src="${escapeHtml(state.profile.avatar)}" alt="${escapeHtml(playerName())}" />`
     : label;
   target.setAttribute("aria-label", size === "small" ? `${t("profile")}: ${playerName()}` : `${t("changeAvatar")}: ${playerName()}`);
 }
@@ -2368,7 +2370,7 @@ function renderRanking() {
   rankingList.innerHTML = players
     .map((player) => {
       const avatar = player.avatar
-        ? `<img src="${player.avatar}" alt="${escapeHtml(player.name)}" />`
+        ? `<img src="${escapeHtml(player.avatar)}" alt="${escapeHtml(player.name)}" />`
         : `<span>${escapeHtml(initials(player.name))}</span>`;
       const rank = player.rank ? `#${player.rank}` : "ME";
       return `
@@ -4083,6 +4085,18 @@ async function compressChatPhoto(file) {
   throw new Error("Image is too large");
 }
 
+async function compressAvatarDataUrl(source) {
+  let maxSide = AVATAR_IMAGE_MAX_SIDE;
+  let quality = 0.82;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const result = await resizeImageDataUrl(source, maxSide, quality);
+    if (dataUrlByteLength(result) <= AVATAR_IMAGE_MAX_BYTES) return result;
+    maxSide = Math.max(220, Math.round(maxSide * 0.84));
+    quality = Math.max(0.48, quality - 0.08);
+  }
+  throw new Error("Avatar is too large");
+}
+
 async function compressNewsPhoto(file) {
   const source = await avatarFileToDataUrl(file);
   let maxSide = NEWS_IMAGE_MAX_SIDE;
@@ -4188,12 +4202,24 @@ async function updateAvatar(dataUrl) {
   const value = String(dataUrl || "");
   if (!value) return;
   try {
-    state.profile.avatar = await resizeImageDataUrl(value);
+    state.profile.avatar = await compressAvatarDataUrl(value);
   } catch {
-    state.profile.avatar = value;
+    showToast(localizedToast("saveError"));
+    return;
   }
   if (!saveState()) return;
   render();
+  if (isCurrentUserRegistered() && !isAdmin()) {
+    await syncAdminPlayerToSite({
+      nickname: playerName(),
+      contact: state.profile.contact,
+      points: totalPoints(),
+      passwordHash: state.profile.passwordHash,
+      avatar: state.profile.avatar,
+      source: "ios-avatar-update",
+    });
+    renderRanking();
+  }
   showToast(localizedToast("avatar"));
 }
 
@@ -4561,6 +4587,7 @@ async function savePlayerProfile(formData) {
     contact,
     points: totalPoints(),
     passwordHash: state.profile.passwordHash,
+    avatar: state.profile.avatar,
     source: "ios-profile-registration",
   });
   return true;
@@ -4595,6 +4622,7 @@ async function loginPlayer(formData) {
         ...defaultState.profile,
         nickname: adminProfile.nickname,
         contact: adminProfile.contact || "admin-created",
+        avatar: adminProfile.avatar || rankingPlayerByName(adminProfile.nickname)?.avatar || "",
         saved: true,
         passwordHash: adminProfile.passwordHash,
       };
@@ -4615,6 +4643,7 @@ async function loginPlayer(formData) {
       contact: "site-account",
       passwordHash,
       points: Number(knownPlayer.points || 0),
+      avatar: knownPlayer.avatar || "",
       createdAt: new Date().toISOString(),
       synced: false,
     };
@@ -4622,6 +4651,7 @@ async function loginPlayer(formData) {
       ...defaultState.profile,
       nickname: knownPlayer.name,
       contact: "site-account",
+      avatar: knownPlayer.avatar || "",
       saved: true,
       passwordHash,
     };
@@ -4635,6 +4665,7 @@ async function loginPlayer(formData) {
       contact: "site-account",
       points: Number(knownPlayer.points || 0),
       passwordHash,
+      avatar: knownPlayer.avatar || "",
       source: "ios-account-login",
     });
     return true;
@@ -4650,6 +4681,7 @@ async function loginPlayer(formData) {
     contact: state.profile.contact,
     points: totalPoints(),
     passwordHash: state.profile.passwordHash,
+    avatar: state.profile.avatar,
     source: "ios-profile-login",
   });
   return true;
@@ -4676,6 +4708,7 @@ async function changePlayerPassword(formData) {
     contact: state.profile.contact || state.admin.playerProfiles[key]?.contact || "player",
     passwordHash,
     points: totalPoints(),
+    avatar: state.profile.avatar,
     updatedAt: new Date().toISOString(),
   };
   saveState();
@@ -4684,6 +4717,7 @@ async function changePlayerPassword(formData) {
     contact: state.profile.contact,
     points: totalPoints(),
     passwordHash,
+    avatar: state.profile.avatar,
     source: "ios-password-change",
   });
   return true;
@@ -6041,7 +6075,9 @@ async function syncAdminPlayerToSite(player) {
     nickname: player.nickname,
     password: player.password,
     passwordHash: player.passwordHash,
+    contact: player.contact,
     points: player.points,
+    avatar: String(player.avatar || "").startsWith("data:image/") ? player.avatar : undefined,
     createdAt: new Date().toISOString(),
     source: player.source || "ios-admin-panel",
   };
@@ -6094,6 +6130,7 @@ async function loadAdminPlayersFromSite() {
           passwordHash: profile.passwordHash,
           contact: profile.contact || "admin-created",
           points: Number(profile.points || 0),
+          avatar: profile.avatar || "",
           createdAt: profile.createdAt || new Date().toISOString(),
           synced: true,
         };

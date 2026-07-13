@@ -5,8 +5,40 @@ const { readPlayerProfiles, writePlayerProfiles } = require("./_player-profiles"
 
 const root = path.join(__dirname, "..");
 const indexPath = path.join(root, "index.html");
+const publicAppOrigin = "https://www.lasertagbaza.pl";
+const avatarMaxBytes = 100000;
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const parseAvatarDataUrl = (value) => {
+  const match = String(value || "").match(/^data:(image\/(?:jpeg|png|webp));base64,([a-z0-9+/=]+)$/i);
+  if (!match) return null;
+  let buffer;
+  try {
+    buffer = Buffer.from(match[2], "base64");
+  } catch {
+    return null;
+  }
+  if (!buffer.length || buffer.length > avatarMaxBytes) return null;
+  return { data: `${match[2]}`, mime: match[1].toLowerCase(), bytes: buffer.length };
+};
+
+const avatarUrlFor = (id, updatedAt) =>
+  `${publicAppOrigin}/api/player-avatar?id=${encodeURIComponent(id)}&v=${encodeURIComponent(updatedAt || "1")}`;
+
+const publicProfiles = (profiles) =>
+  Object.fromEntries(
+    Object.entries(profiles || {}).map(([id, profile]) => {
+      const { avatarData, avatarMime, ...publicProfile } = profile || {};
+      return [
+        id,
+        {
+          ...publicProfile,
+          avatar: avatarData ? avatarUrlFor(id, profile.avatarUpdatedAt || profile.updatedAt) : publicProfile.avatar || "",
+        },
+      ];
+    }),
+  );
 
 const updateRankingHtml = (ranking) => {
   if (!fs.existsSync(indexPath)) return;
@@ -49,7 +81,7 @@ module.exports = async function handler(request, response) {
   const profiles = await readPlayerProfiles();
 
   if (request.method === "GET") {
-    response.status(200).json({ ranking, profiles: profiles.profiles || {} });
+    response.status(200).json({ ranking, profiles: publicProfiles(profiles.profiles) });
     return;
   }
 
@@ -69,11 +101,24 @@ module.exports = async function handler(request, response) {
 
   const id = playerId(nickname);
   const existingIndex = ranking.players.findIndex((player) => String(player.nickname || "").toLowerCase() === nickname.toLowerCase());
+  profiles.profiles = profiles.profiles || {};
+  const existingProfile = profiles.profiles[id];
+  const avatar = body.avatar ? parseAvatarDataUrl(body.avatar) : null;
+  if (body.avatar && !avatar) {
+    response.status(400).json({ error: "Invalid avatar image" });
+    return;
+  }
+  if (avatar && existingProfile?.passwordHash && String(body.passwordHash || "") !== String(existingProfile.passwordHash)) {
+    response.status(403).json({ error: "Avatar authorization failed" });
+    return;
+  }
+  const avatarUpdatedAt = avatar ? new Date().toISOString() : existingProfile?.avatarUpdatedAt || "";
   const nextPlayer = {
     ...(existingIndex >= 0 ? ranking.players[existingIndex] : {}),
     id,
     nickname,
     points,
+    avatar: avatar ? avatarUrlFor(id, avatarUpdatedAt) : ranking.players[existingIndex]?.avatar || "",
   };
 
   if (existingIndex >= 0) {
@@ -82,10 +127,7 @@ module.exports = async function handler(request, response) {
     ranking.players.push(nextPlayer);
   }
 
-  profiles.profiles = profiles.profiles || {};
-  const existingProfile = profiles.profiles[id];
   if (body.passwordHash || existingProfile) {
-    profiles.profiles = profiles.profiles || {};
     profiles.profiles[id] = {
       ...(existingProfile || {}),
       id,
@@ -93,6 +135,10 @@ module.exports = async function handler(request, response) {
       passwordHash: body.passwordHash ? cleanText(body.passwordHash, 120) : existingProfile?.passwordHash || "",
       contact: cleanText(body.contact, 80) || existingProfile?.contact || "admin-created",
       points,
+      avatarData: avatar?.data || existingProfile?.avatarData || "",
+      avatarMime: avatar?.mime || existingProfile?.avatarMime || "",
+      avatarUpdatedAt,
+      avatar: avatar ? avatarUrlFor(id, avatarUpdatedAt) : existingProfile?.avatar || nextPlayer.avatar || "",
       createdAt: existingProfile?.createdAt || body.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -110,6 +156,9 @@ module.exports = async function handler(request, response) {
     ok: true,
     player: nextPlayer,
     players: normalizedRanking.players,
-    profiles: profiles.profiles || {},
+    profiles: publicProfiles(profiles.profiles),
   });
 };
+
+module.exports.parseAvatarDataUrl = parseAvatarDataUrl;
+module.exports.avatarUrlFor = avatarUrlFor;

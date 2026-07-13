@@ -1757,6 +1757,7 @@ const updatePlayerRankingFromFeed = async () => {
       const rankNode = card.querySelector("b");
       const nameNode = card.querySelector("strong");
       const pointsNode = card.querySelector(":scope > span:last-child");
+      const avatarNode = card.querySelector(".points-avatar");
 
       card.hidden = false;
       card.dataset.playerRank = String(rank);
@@ -1764,6 +1765,18 @@ const updatePlayerRankingFromFeed = async () => {
       if (rankNode) rankNode.textContent = String(rank).padStart(2, "0");
       if (nameNode) nameNode.textContent = nickname;
       if (pointsNode) pointsNode.textContent = `${points} pkt`;
+      if (avatarNode && player.avatar) {
+        let image = avatarNode.querySelector("img");
+        if (!image) {
+          image = document.createElement("img");
+          image.loading = "lazy";
+          image.decoding = "async";
+          avatarNode.replaceChildren(image);
+        }
+        image.src = player.avatar;
+        image.alt = nickname;
+        card.classList.add("has-avatar");
+      }
       sortedCards.push(card);
     });
     window.bazaRankingFeedStatus = { status: "applied", endpoint: rankingFeedEndpoint, players: players.length, cards: sortedCards.length };
@@ -1774,6 +1787,7 @@ const updatePlayerRankingFromFeed = async () => {
       });
       sortedCards.forEach((card) => track.append(card));
     }
+    rankedPlayerAvatarIndex = null;
   } catch {
     window.bazaRankingFeedStatus = { status: "error", endpoint: rankingFeedEndpoint };
     // Keep static ranking if the feed is unavailable.
