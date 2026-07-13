@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { cleanText, playerId, readPlayerRanking, writePlayerRanking } = require("./_player-ranking");
 const { readPlayerProfiles, writePlayerProfiles } = require("./_player-profiles");
+const playerAvatarHandler = require("./_player-avatar-handler");
 
 const root = path.join(__dirname, "..");
 const indexPath = path.join(root, "index.html");
@@ -74,6 +75,11 @@ module.exports = async function handler(request, response) {
 
   if (request.method === "OPTIONS") {
     response.status(204).json({});
+    return;
+  }
+
+  if (request.query?.service === "avatar") {
+    await playerAvatarHandler(request, response);
     return;
   }
 

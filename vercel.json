@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/admin-games",
+      "destination": "/api/games-feed?service=admin"
+    },
+    {
+      "source": "/api/player-avatar",
+      "destination": "/api/admin-player?service=avatar"
+    },
+    {
       "source": "/api/weather",
       "destination": "/api/games-feed?service=weather"
     }

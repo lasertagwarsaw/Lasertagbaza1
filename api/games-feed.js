@@ -2,6 +2,7 @@ const { readSiteSignups } = require("./_site-signups");
 const { readPlayerRanking } = require("./_player-ranking");
 const signupHandler = require("./telegram-signup");
 const { readAdminGames } = require("./_admin-games");
+const adminGamesHandler = require("./_admin-games-handler");
 
 const timeZone = "Europe/Warsaw";
 const WEATHER_URL =
@@ -185,7 +186,12 @@ const sendWeatherFeed = async (response) => {
 module.exports = async function handler(request, response) {
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
-  response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type,X-BAZA-Admin");
+
+  if (request.query?.service === "admin") {
+    await adminGamesHandler(request, response);
+    return;
+  }
 
   if (request.method === "OPTIONS") {
     response.writeHead(204);
