@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 105;
+const APP_BUILD = 106;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1414,6 +1414,7 @@ const defaultState = {
   news: defaultNews,
   newsProposals: [],
   siteNews: [],
+  newsReactions: {},
   readNewsByPlayer: {},
   siteGames: [],
   seenGameInstances: [],
@@ -1449,6 +1450,7 @@ let homeNewsExpanded = false;
 let previousView = "home";
 let activeArticleId = "";
 let articleLoadingId = "";
+const pendingNewsReactions = new Set();
 let rankingFilter = "all";
 let voiceStream = null;
 let voiceSocket = null;
@@ -1703,6 +1705,7 @@ function loadState() {
       news: normalizeNewsItems(Array.isArray(saved.news) ? saved.news : cloneData(defaultNews)),
       newsProposals: Array.isArray(saved.newsProposals) ? saved.newsProposals : [],
       siteNews: Array.isArray(saved.siteNews) ? saved.siteNews : [],
+      newsReactions: saved.newsReactions && typeof saved.newsReactions === "object" ? saved.newsReactions : {},
       readNewsByPlayer: saved.readNewsByPlayer && typeof saved.readNewsByPlayer === "object" ? saved.readNewsByPlayer : {},
       siteGames: Array.isArray(saved.siteGames) ? saved.siteGames : [],
       seenGameInstances: Array.isArray(saved.seenGameInstances) ? saved.seenGameInstances : [],
@@ -2490,6 +2493,52 @@ function renderNewsCardMedia(item) {
   return `<img class="news-card-image" src="${escapeHtml(newsImage(item))}" alt="${escapeHtml(localizedNewsTitle(item))}" loading="lazy" decoding="async" />`;
 }
 
+function newsReactionState(articleId) {
+  const reaction = state.newsReactions?.[articleId] || {};
+  return {
+    likes: Math.max(0, Number(reaction.likes || 0)),
+    dislikes: Math.max(0, Number(reaction.dislikes || 0)),
+    viewerReaction: reaction.viewerReaction === "like" || reaction.viewerReaction === "dislike" ? reaction.viewerReaction : "",
+  };
+}
+
+function newsReactionText(kind) {
+  const labels = {
+    like: { en: "Like", pl: "Lubię", be: "Падабаецца", uk: "Подобається", ru: "Нравится" },
+    dislike: { en: "Dislike", pl: "Nie lubię", be: "Не падабаецца", uk: "Не подобається", ru: "Не нравится" },
+  };
+  return localize(labels[kind]);
+}
+
+function renderNewsReactionSummary(item) {
+  const reaction = newsReactionState(item.id);
+  return `
+    <span class="news-reaction-summary" aria-label="${escapeHtml(`${newsReactionText("like")}: ${reaction.likes}; ${newsReactionText("dislike")}: ${reaction.dislikes}`)}">
+      <span><span class="material-symbols-rounded" aria-hidden="true">thumb_up</span>${reaction.likes}</span>
+      <span><span class="material-symbols-rounded" aria-hidden="true">thumb_down</span>${reaction.dislikes}</span>
+    </span>
+  `;
+}
+
+function renderNewsReactionControls(item) {
+  const reaction = newsReactionState(item.id);
+  const pending = pendingNewsReactions.has(item.id);
+  return `
+    <div class="article-reactions" aria-label="${escapeHtml(t("news"))}">
+      <button type="button" data-news-reaction="like" data-news-id="${escapeHtml(item.id)}" aria-pressed="${reaction.viewerReaction === "like"}" ${pending ? "disabled" : ""}>
+        <span class="material-symbols-rounded" aria-hidden="true">thumb_up</span>
+        <span>${escapeHtml(newsReactionText("like"))}</span>
+        <b>${reaction.likes}</b>
+      </button>
+      <button type="button" data-news-reaction="dislike" data-news-id="${escapeHtml(item.id)}" aria-pressed="${reaction.viewerReaction === "dislike"}" ${pending ? "disabled" : ""}>
+        <span class="material-symbols-rounded" aria-hidden="true">thumb_down</span>
+        <span>${escapeHtml(newsReactionText("dislike"))}</span>
+        <b>${reaction.dislikes}</b>
+      </button>
+    </div>
+  `;
+}
+
 function renderArticleMedia(item) {
   const video = safeNewsVideo(item);
   if (video) {
@@ -2535,7 +2584,10 @@ function renderFullNews(item) {
       ${item.playerSubmitted ? '<span class="news-badge">+30</span>' : item.site ? '<span class="news-badge">site</span>' : item.system ? "" : '<span class="news-badge">+30</span>'}
     </div>
     <p>${escapeHtml(localizedNewsBody(item))}</p>
-    <strong class="read-news-link">${escapeHtml(t("readNews"))}</strong>
+    <div class="news-card-footer">
+      <strong class="read-news-link">${escapeHtml(t("readNews"))}</strong>
+      ${renderNewsReactionSummary(item)}
+    </div>
     </div>
   `;
 
@@ -2950,7 +3002,7 @@ function renderAdminPlayerControl(players) {
         </label>
         <label>
           <span>${escapeHtml(t("points"))}</span>
-          <input name="points" type="number" min="0" max="10000" step="10" value="${Number(selectedPlayer.points || 0)}" />
+          <input name="points" type="number" min="0" max="10000" step="1" inputmode="numeric" value="${Number(selectedPlayer.points || 0)}" />
         </label>
         <label>
           <span>${escapeHtml(t("rankInput"))}</span>
@@ -2981,7 +3033,7 @@ function renderAdminPlayerControl(players) {
         </label>
         <label>
           <span>${escapeHtml(t("points"))}</span>
-          <input name="points" type="number" min="0" max="10000" step="10" value="0" />
+          <input name="points" type="number" min="0" max="10000" step="1" inputmode="numeric" value="0" />
         </label>
         <button class="primary-button" type="submit">${escapeHtml(t("createPlayerProfile"))}</button>
       </form>
@@ -3007,7 +3059,7 @@ function renderAdminPlayerForm(player) {
       </div>
       <label>
         <span>${escapeHtml(t("points"))}</span>
-        <input name="points" type="number" min="0" max="10000" step="10" value="${Number(player.points || 0)}" />
+        <input name="points" type="number" min="0" max="10000" step="1" inputmode="numeric" value="${Number(player.points || 0)}" />
       </label>
       <label>
         <span>${escapeHtml(t("rankInput"))}</span>
@@ -4869,6 +4921,7 @@ function openArticle(id) {
   setView("article");
   appScroll?.scrollTo({ top: 0, behavior: "auto" });
   loadArticleBody(item);
+  loadNewsReactions();
 }
 
 function closeArticle() {
@@ -4898,6 +4951,7 @@ function renderArticle() {
       ${renderArticleMedia(item)}
       ${isLoading ? `<p class="article-loading">${escapeHtml(t("loadingArticle"))}</p>` : ""}
       ${body ? `<div class="article-body">${renderArticleBody(body)}</div>` : ""}
+      ${renderNewsReactionControls(item)}
       ${item.relatedArticleId ? `
         <button class="article-related-link" type="button" data-open-article="${escapeHtml(item.relatedArticleId)}">
           <span class="material-symbols-rounded" aria-hidden="true">emoji_events</span>
@@ -4935,6 +4989,70 @@ async function loadArticleBody(item) {
   }
   if (articleLoadingId === item.id) articleLoadingId = "";
   renderArticle();
+}
+
+function mergeNewsReactions(reactions) {
+  if (!reactions || typeof reactions !== "object") return;
+  state.newsReactions = state.newsReactions || {};
+  Object.entries(reactions).forEach(([articleId, reaction]) => {
+    if (!articleId || !reaction || typeof reaction !== "object") return;
+    state.newsReactions[articleId] = {
+      likes: Math.max(0, Number(reaction.likes || 0)),
+      dislikes: Math.max(0, Number(reaction.dislikes || 0)),
+      viewerReaction: reaction.viewerReaction === "like" || reaction.viewerReaction === "dislike" ? reaction.viewerReaction : "",
+    };
+  });
+}
+
+async function loadNewsReactions() {
+  const voter = isCurrentUserRegistered() ? `?voter=${encodeURIComponent(playerName())}` : "";
+  try {
+    const response = await fetch(`${appApiUrl("/api/news-comments")}${voter}`, { cache: "no-store" });
+    if (!response.ok) return false;
+    const data = await response.json();
+    mergeNewsReactions(data.reactions);
+    saveState();
+    renderNews();
+    if (activeArticleId) renderArticle();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function submitNewsReaction(articleId, reaction) {
+  if (!isCurrentUserRegistered()) {
+    showToast(localizedToast("registerFirst"));
+    setView("profile");
+    return;
+  }
+  if (!articleId || !["like", "dislike"].includes(reaction) || pendingNewsReactions.has(articleId)) return;
+  pendingNewsReactions.add(articleId);
+  renderArticle();
+  try {
+    const response = await fetch(appApiUrl("/api/news-comments"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "reaction",
+        articleId,
+        name: playerName(),
+        reaction,
+        formStartedAt: Date.now() - 1000,
+        website: "",
+      }),
+    });
+    if (!response.ok) throw new Error("Reaction could not be saved");
+    const data = await response.json();
+    mergeNewsReactions(data.reactions);
+    saveState();
+  } catch (error) {
+    showToast(error.message || localizedToast("saveError"));
+  } finally {
+    pendingNewsReactions.delete(articleId);
+    renderNews();
+    renderArticle();
+  }
 }
 
 function articleCacheKey(item) {
@@ -5602,6 +5720,12 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  const newsReactionButton = event.target.closest("[data-news-reaction]");
+  if (newsReactionButton) {
+    await submitNewsReaction(newsReactionButton.dataset.newsId, newsReactionButton.dataset.newsReaction);
+    return;
+  }
+
   const signButton = event.target.closest("[data-sign-game]");
   if (signButton) {
     signGame(signButton.dataset.signGame);
@@ -6053,6 +6177,10 @@ async function saveAdminPlayer(form) {
   const contact = String(formData.get("contact") || "").trim();
   const password = String(formData.get("password") || "").trim();
   const blocked = Boolean(formData.get("blocked"));
+  if (!name || !Number.isFinite(points) || points < 0 || points > 10000) {
+    showToast(localizedToast("saveError"));
+    return;
+  }
   adminSelectedPlayerName = name;
   ensureAdminState();
   setAdminPlayerPoints(name, points);
@@ -6079,13 +6207,16 @@ async function saveAdminPlayer(form) {
   renderRanking();
   renderAdminPanel();
   renderTeamTools();
-  await syncAdminPlayerToSite({
+  const synced = await syncAdminPlayerToSite({
     nickname: name,
     contact,
     points,
     passwordHash: state.admin.playerProfiles[key]?.passwordHash || "",
   });
-  showToast(localizedToast("adminSaved"));
+  renderRanking();
+  renderAdminPanel();
+  renderTeamTools();
+  showToast(localizedToast(synced ? "adminSaved" : "syncError"));
 }
 
 function syncAdminPlayerSelect(select) {
@@ -7786,6 +7917,7 @@ rankingRefreshTimer = setInterval(loadSiteRanking, RANKING_POLL_MS);
 loadAdminPlayersFromSite();
 loadAdminGamesFromSite({ renderPanel: false });
 loadSiteNews();
+loadNewsReactions();
 loadNewsProposals();
 newsProposalRefreshTimer = setInterval(() => {
   if (isAdmin()) loadNewsProposals();

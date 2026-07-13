@@ -1066,10 +1066,21 @@ a {
   gap: 9px !important;
 }
 
-.admin-check input {
-  width: 18px;
-  height: 18px;
+.admin-player-card .admin-check input[type="checkbox"] {
+  width: 20px !important;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  flex: 0 0 20px;
+  padding: 0;
+  margin: 0;
   accent-color: var(--acid);
+}
+
+.admin-check span {
+  min-width: 0;
+  color: var(--muted);
+  line-height: 1.3;
 }
 
 .admin-add-player-card h3 {
@@ -1738,6 +1749,39 @@ a {
   margin-top: 12px;
 }
 
+.news-card-footer {
+  min-height: 28px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.news-card-footer .read-news-link {
+  margin-top: 0;
+}
+
+.news-reaction-summary {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.news-reaction-summary > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.news-reaction-summary .material-symbols-rounded {
+  font-size: 17px;
+}
+
 .article-view {
   min-height: 100%;
   background: #050505;
@@ -1869,6 +1913,50 @@ a {
   font-weight: 900;
   text-align: center;
   touch-action: manipulation;
+}
+
+.article-reactions {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.article-reactions button {
+  min-width: 0;
+  min-height: 50px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: var(--paper);
+  background: #111;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+.article-reactions button[aria-pressed="true"] {
+  border-color: var(--acid);
+  color: var(--ink);
+  background: var(--acid);
+}
+
+.article-reactions button:disabled {
+  opacity: 0.58;
+}
+
+.article-reactions .material-symbols-rounded {
+  font-size: 21px;
+}
+
+.article-reactions b {
+  font-size: 14px;
 }
 
 .article-related-link .material-symbols-rounded {

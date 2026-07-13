@@ -11,7 +11,7 @@ const ensureDataDir = () => {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 };
 
-const emptyState = () => ({ comments: {} });
+const emptyState = () => ({ comments: {}, reactions: {} });
 
 const cleanText = (value, maxLength = 400) =>
   String(value || "")
@@ -24,16 +24,36 @@ const normalizeArticleId = (value) =>
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "");
 
+const normalizeVoter = (value) =>
+  cleanText(value, 40)
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+
 const normalizeState = (state) => {
-  if (!state || typeof state !== "object" || !state.comments || typeof state.comments !== "object") {
+  if (!state || typeof state !== "object") {
     return emptyState();
   }
 
   return {
     comments: Object.fromEntries(
-      Object.entries(state.comments).map(([articleId, comments]) => [
+      Object.entries(state.comments && typeof state.comments === "object" ? state.comments : {}).map(([articleId, comments]) => [
         normalizeArticleId(articleId),
         Array.isArray(comments) ? comments.slice(-80) : [],
+      ]),
+    ),
+    reactions: Object.fromEntries(
+      Object.entries(state.reactions && typeof state.reactions === "object" ? state.reactions : {}).map(([articleId, reactionState]) => [
+        normalizeArticleId(articleId),
+        {
+          votes: Object.fromEntries(
+            Object.entries(reactionState?.votes && typeof reactionState.votes === "object" ? reactionState.votes : {})
+              .map(([voter, reaction]) => [normalizeVoter(voter), reaction === "like" || reaction === "dislike" ? reaction : ""])
+              .filter(([voter, reaction]) => voter && reaction),
+          ),
+        },
       ]),
     ),
   };
@@ -52,7 +72,7 @@ const writeLocalComments = (state) => {
   fs.writeFileSync(commentsPath, JSON.stringify(state, null, 2));
 };
 
-const readNewsComments = async () => {
+const readNewsState = async () => {
   let state;
   let storage = { ok: true, type: "file" };
 
@@ -69,6 +89,32 @@ const readNewsComments = async () => {
   }
 
   return { ...normalizeState(state), storage };
+};
+
+const reactionSummaries = (state, voter = "") => {
+  const voterId = normalizeVoter(voter);
+  return Object.fromEntries(
+    Object.entries(state.reactions || {}).map(([articleId, reactionState]) => {
+      const votes = Object.values(reactionState?.votes || {});
+      return [
+        articleId,
+        {
+          likes: votes.filter((reaction) => reaction === "like").length,
+          dislikes: votes.filter((reaction) => reaction === "dislike").length,
+          viewerReaction: voterId ? reactionState?.votes?.[voterId] || "" : "",
+        },
+      ];
+    }),
+  );
+};
+
+const readNewsComments = async ({ voter = "" } = {}) => {
+  const state = await readNewsState();
+  return {
+    comments: state.comments,
+    reactions: reactionSummaries(state, voter),
+    storage: state.storage,
+  };
 };
 
 const writeNewsComments = async (state) => {
@@ -94,7 +140,7 @@ const addNewsComment = async ({ articleId, name, text, createdAt }) => {
     throw error;
   }
 
-  const state = await readNewsComments();
+  const state = await readNewsState();
   const comments = state.comments[cleanArticleId] || [];
   const nextComment = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -106,11 +152,40 @@ const addNewsComment = async ({ articleId, name, text, createdAt }) => {
   state.comments[cleanArticleId] = [...comments, nextComment].slice(-80);
   const storage = await writeNewsComments(state);
   return {
-    ...state,
+    comments: state.comments,
+    reactions: reactionSummaries(state, cleanName),
     storage,
     articleId: cleanArticleId,
     articleComments: state.comments[cleanArticleId],
   };
 };
 
-module.exports = { readNewsComments, addNewsComment };
+const addNewsReaction = async ({ articleId, name, reaction }) => {
+  const cleanArticleId = normalizeArticleId(articleId);
+  const voterId = normalizeVoter(name);
+  const cleanReaction = reaction === "like" || reaction === "dislike" ? reaction : "";
+  if (!cleanArticleId || !voterId || !cleanReaction) {
+    const error = new Error("Missing reaction fields");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const state = await readNewsState();
+  const current = state.reactions[cleanArticleId] || { votes: {} };
+  current.votes = current.votes || {};
+  if (current.votes[voterId] === cleanReaction) {
+    delete current.votes[voterId];
+  } else {
+    current.votes[voterId] = cleanReaction;
+  }
+  state.reactions[cleanArticleId] = current;
+  const storage = await writeNewsComments(state);
+  return {
+    comments: state.comments,
+    reactions: reactionSummaries(state, name),
+    storage,
+    articleId: cleanArticleId,
+  };
+};
+
+module.exports = { readNewsComments, addNewsComment, addNewsReaction };
