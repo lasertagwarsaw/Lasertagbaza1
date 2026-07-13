@@ -169,6 +169,9 @@ const copy = {
     relatedTournamentNews: "Read the tournament story",
     registerFirst: "Complete your profile to register as a player.",
     removePlayer: "Remove player",
+    deletePlayerAccount: "Delete account",
+    confirmDeletePlayer: "Delete {name}'s account? This removes the profile and ranking entry.",
+    playerDeleted: "Player account deleted.",
     registerProfile: "Register",
     registerToBook: "Complete profile",
     registerToChat: "Complete profile to chat",
@@ -346,6 +349,9 @@ const copy = {
     relatedTournamentNews: "Прочитать новость о турнире",
     registerFirst: "Сначала заполни профиль, чтобы стать зарегистрированным игроком.",
     removePlayer: "Удалить игрока",
+    deletePlayerAccount: "Удалить аккаунт",
+    confirmDeletePlayer: "Удалить аккаунт игрока {name}? Профиль и запись в рейтинге будут удалены.",
+    playerDeleted: "Аккаунт игрока удалён.",
     registerProfile: "Регистрация",
     registerToBook: "Заполнить профиль",
     registerToChat: "Заполни профиль, чтобы писать в чат",
@@ -523,6 +529,9 @@ const copy = {
     relatedTournamentNews: "Przeczytaj relację z turnieju",
     registerFirst: "Najpierw uzupełnij profil, aby zostać zarejestrowanym graczem.",
     removePlayer: "Usuń gracza",
+    deletePlayerAccount: "Usuń konto",
+    confirmDeletePlayer: "Usunąć konto gracza {name}? Profil i wpis w rankingu zostaną usunięte.",
+    playerDeleted: "Konto gracza zostało usunięte.",
     registerProfile: "Rejestracja",
     registerToBook: "Uzupełnij profil",
     registerToChat: "Uzupełnij profil, aby pisać",
@@ -702,6 +711,9 @@ copy.uk = {
   relatedTournamentNews: "Прочитати новину про турнір",
   registerFirst: "Заповніть профіль, щоб зареєструватися як гравець.",
   removePlayer: "Видалити гравця",
+  deletePlayerAccount: "Видалити акаунт",
+  confirmDeletePlayer: "Видалити акаунт гравця {name}? Профіль і запис у рейтингу буде видалено.",
+  playerDeleted: "Акаунт гравця видалено.",
   registerProfile: "Зареєструватися",
   registerToBook: "Заповнити профіль",
   registerToChat: "Заповніть профіль, щоб писати в чат",
@@ -880,6 +892,9 @@ copy.be = {
   relatedTournamentNews: "Прачытай навіну пра турнір",
   registerFirst: "Запоўніце профіль, каб зарэгістравацца як гулец.",
   removePlayer: "Выдаліць гульца",
+  deletePlayerAccount: "Выдаліць акаўнт",
+  confirmDeletePlayer: "Выдаліць акаўнт гульца {name}? Профіль і запіс у рэйтынгу будуць выдалены.",
+  playerDeleted: "Акаўнт гульца выдалены.",
   registerProfile: "Зарэгістравацца",
   registerToBook: "Запоўніць профіль",
   registerToChat: "Запоўніце профіль, каб пісаць у чат",
@@ -2014,23 +2029,18 @@ function staticRegisteredPlayerNames() {
 function currentPlayerRanking() {
   const basePlayers = state.siteRanking.length ? state.siteRanking : playerRanking;
   const byName = new Map();
+  const adminNameKey = normalizePlayerName(ADMIN_ACCOUNT.nickname);
 
   basePlayers.forEach((player) => {
-    byName.set(normalizePlayerName(player.name), { ...player });
+    const nameKey = normalizePlayerName(player.name);
+    if (nameKey && nameKey !== adminNameKey) byName.set(nameKey, { ...player });
   });
 
-  if (isAdmin()) {
-    byName.set(normalizePlayerName(ADMIN_ACCOUNT.nickname), {
-      rank: 1,
-      name: ADMIN_ACCOUNT.nickname,
-      points: 10000,
-      avatar: state.profile.avatar,
-    });
-  }
-
   Object.entries(state.admin?.playerOverrides || {}).forEach(([nameKey, override]) => {
-    const existing = byName.get(nameKey) || { name: override.name || nameKey, avatar: "" };
-    byName.set(nameKey, {
+    const overrideNameKey = normalizePlayerName(override.name || nameKey);
+    if (!overrideNameKey || overrideNameKey === adminNameKey) return;
+    const existing = byName.get(overrideNameKey) || { name: override.name || nameKey, avatar: "" };
+    byName.set(overrideNameKey, {
       ...existing,
       name: override.name || existing.name,
       points: Number(override.points || 0),
@@ -3047,6 +3057,12 @@ function renderAdminPlayerControl(players) {
           <span>${escapeHtml(t("playerBlocked"))}</span>
         </label>
         <button class="text-button" type="submit">${escapeHtml(t("savePlayer"))}</button>
+        <button
+          class="danger-button"
+          type="button"
+          data-admin-delete-player="${escapeHtml(selectedPlayer.name)}"
+          ${selectedPlayer.name ? "" : "disabled"}
+        >${escapeHtml(t("deletePlayerAccount"))}</button>
       </form>
       <button class="primary-button" type="button" data-admin-show-add-player>${escapeHtml(t("addPlayer"))}</button>
       <form class="admin-add-player-card" data-admin-add-player-form hidden>
@@ -4601,10 +4617,7 @@ function defaultAccountPassword(nickname) {
 
 function findKnownAccountPlayer(nickname) {
   const normalizedNickname = normalizePlayerName(nickname);
-  const rankingPlayer = currentPlayerRanking().find((player) => normalizePlayerName(player.name) === normalizedNickname);
-  if (rankingPlayer) return rankingPlayer;
-  const staticName = [...staticRegisteredPlayerNames()].find((name) => normalizePlayerName(name) === normalizedNickname);
-  return staticName ? { name: staticName, points: rankingPointsForPlayer(staticName) } : null;
+  return currentPlayerRanking().find((player) => normalizePlayerName(player.name) === normalizedNickname) || null;
 }
 
 async function hashPassword(nickname, password) {
@@ -4717,7 +4730,7 @@ async function loginPlayer(formData) {
   const nickname = String(formData.get("loginNickname") || "").trim();
   const password = String(formData.get("loginPassword") || "");
   if (!nickname || !password) return false;
-  await loadAdminPlayersFromSite();
+  const siteAccountsLoaded = await loadAdminPlayersFromSite();
   if (normalizePlayerName(nickname) === normalizePlayerName(ADMIN_ACCOUNT.nickname) && password === ADMIN_ACCOUNT.password) {
     state.profile = {
       ...defaultState.profile,
@@ -4790,6 +4803,7 @@ async function loginPlayer(formData) {
     });
     return true;
   }
+  if (siteAccountsLoaded) return false;
   if (!hasProfilePassword()) return false;
   const hash = await hashPassword(nickname, password);
   if (normalizePlayerName(nickname) !== normalizePlayerName(state.profile.nickname) || hash !== state.profile.passwordHash) return false;
@@ -5847,6 +5861,12 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  const deleteAdminPlayerButton = event.target.closest("[data-admin-delete-player]");
+  if (deleteAdminPlayerButton) {
+    await deleteAdminPlayer(deleteAdminPlayerButton.dataset.adminDeletePlayer);
+    return;
+  }
+
   const removeSignupButton = event.target.closest("[data-admin-remove-signup]");
   if (removeSignupButton) {
     adminRemoveSignupFromSite({
@@ -6259,6 +6279,57 @@ async function saveAdminPlayer(form) {
   showToast(localizedToast(synced ? "adminSaved" : "syncError"));
 }
 
+async function deleteAdminPlayer(name) {
+  if (!isAdmin()) return;
+  const nickname = String(name || "").trim();
+  const playerKey = normalizePlayerName(nickname);
+  if (!nickname || playerKey === normalizePlayerName(ADMIN_ACCOUNT.nickname)) return;
+  if (!window.confirm(t("confirmDeletePlayer").replace("{name}", nickname))) return;
+
+  try {
+    const response = await fetch(appApiUrl("/api/admin-player"), {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BAZA-Admin": ADMIN_ACCOUNT.password,
+      },
+      body: JSON.stringify({ nickname }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Player deletion failed");
+
+    ensureAdminState();
+    delete state.admin.playerOverrides[playerKey];
+    delete state.admin.playerProfiles[playerKey];
+    delete state.admin.blockedPlayers[playerKey];
+    state.siteRanking = normalizeRankingFeedPlayers(data.players || data.ranking?.players || []).filter(
+      (player) => normalizePlayerName(player.name) !== playerKey,
+    );
+    state.siteSignups = (state.siteSignups || []).filter(
+      (signup) => normalizePlayerName(signup.nickname) !== playerKey,
+    );
+    if (state.team?.captain && normalizePlayerName(state.team.captain) === playerKey) {
+      state.team = null;
+    } else if (state.team?.members) {
+      state.team.members = state.team.members.filter((member) => normalizePlayerName(member.name) !== playerKey);
+    }
+    adminSelectedPlayerName = "";
+    addAdminLog("player deleted", nickname);
+    state.sync.status = "synced";
+    state.sync.lastSiteSync = new Date().toISOString();
+    state.sync.lastError = "";
+    saveState();
+    render();
+    showToast(t("playerDeleted"));
+  } catch (error) {
+    state.sync.status = "error";
+    state.sync.lastError = error?.message || "Player deletion failed";
+    saveState();
+    renderAdminPanel();
+    showToast(localizedToast("syncError"));
+  }
+}
+
 function syncAdminPlayerSelect(select) {
   const form = select.closest("[data-admin-player-form]");
   if (!form) return;
@@ -6273,11 +6344,13 @@ function syncAdminPlayerSelect(select) {
   const blockedInput = form.elements.blocked;
   const passwordInput = form.elements.password;
   const selectedPlayer = form.querySelector("[data-admin-selected-player]");
+  const deleteButton = form.querySelector("[data-admin-delete-player]");
   if (pointsInput) pointsInput.value = points;
   if (rankSelect) rankSelect.innerHTML = adminRankOptions(points);
   if (contactInput) contactInput.value = profile.contact || "";
   if (blockedInput) blockedInput.checked = isPlayerBlocked(player?.name || "");
   if (passwordInput) passwordInput.value = "";
+  if (deleteButton) deleteButton.dataset.adminDeletePlayer = player?.name || "";
   if (selectedPlayer) {
     selectedPlayer.innerHTML = `
       <b>${escapeHtml(player?.name || "-")}</b>
@@ -6345,6 +6418,16 @@ async function loadAdminPlayersFromSite() {
       const players = normalizeRankingFeedPlayers(data?.players || data?.ranking?.players || []);
       const profiles = data?.profiles && typeof data.profiles === "object" ? Object.values(data.profiles) : [];
       ensureAdminState();
+      const serverPlayerKeys = new Set(players.map((player) => normalizePlayerName(player.name)));
+      const serverProfileKeys = new Set(
+        profiles.filter((profile) => profile?.nickname).map((profile) => normalizePlayerName(profile.nickname)),
+      );
+      Object.keys(state.admin.playerOverrides).forEach((playerKey) => {
+        if (!serverPlayerKeys.has(playerKey)) delete state.admin.playerOverrides[playerKey];
+      });
+      Object.entries(state.admin.playerProfiles).forEach(([profileKey, profile]) => {
+        if (profile?.synced && !serverProfileKeys.has(profileKey)) delete state.admin.playerProfiles[profileKey];
+      });
       profiles.forEach((profile) => {
         if (!profile?.nickname || !profile?.passwordHash) return;
         state.admin.playerProfiles[normalizePlayerName(profile.nickname)] = {
@@ -6358,7 +6441,16 @@ async function loadAdminPlayersFromSite() {
         };
         setAdminPlayerPoints(profile.nickname, Number(profile.points || 0));
       });
-      if (players.length) state.siteRanking = players;
+      state.siteRanking = players;
+      const activePlayerKey = normalizePlayerName(state.profile?.nickname);
+      if (
+        state.auth?.loggedIn &&
+        state.auth?.role !== "admin" &&
+        !serverPlayerKeys.has(activePlayerKey) &&
+        !serverProfileKeys.has(activePlayerKey)
+      ) {
+        state.auth.loggedIn = false;
+      }
       saveState();
       renderRanking();
       if (!adminPanel?.contains(document.activeElement)) renderAdminPanel();
@@ -6379,7 +6471,10 @@ function normalizeRankingFeedPlayers(players) {
       points: Number(player.points || 0),
       avatar: resolveBundledAssetUrl(player.avatar || ""),
     }))
-    .filter((player) => player.name);
+    .filter(
+      (player) =>
+        player.name && normalizePlayerName(player.name) !== normalizePlayerName(ADMIN_ACCOUNT.nickname),
+    );
 }
 
 async function addAdminPlayer(form) {
