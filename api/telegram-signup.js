@@ -3,6 +3,14 @@ const { readSiteSignups, addSiteSignup, removeSiteSignup } = require("./_site-si
 const { assertHumanSubmission, enforceRateLimit } = require("./_request-guard");
 const { setPointAward } = require("./_points-awards");
 const { readPlayerProfiles } = require("./_player-profiles");
+const { readAdminGames } = require("./_admin-games");
+
+const standardGameCapacities = { wednesday: 12, sunday: 60 };
+const resolveGameCapacity = async (game) => {
+  if (standardGameCapacities[game]) return standardGameCapacities[game];
+  const adminGames = await readAdminGames();
+  return Number(adminGames.games.find((item) => item.id === game)?.capacity || 0);
+};
 
 const normalizeName = (value) => String(value || "").trim().toLowerCase();
 const registeredPlayerMatches = async (nickname, playerProof) => {
@@ -55,7 +63,7 @@ module.exports = async function handler(request, response) {
     }
 
     const { id, game, nickname } = body;
-    if (!id || !["wednesday", "sunday"].includes(game) || !nickname) {
+    if (!id || !String(game || "").trim() || !nickname) {
       response.status(400).json({ error: "Missing cancellation fields" });
       return;
     }
@@ -107,7 +115,8 @@ module.exports = async function handler(request, response) {
 
   const { id, game, gameLabel, nickname, phone, note, createdAt, playerProof } = body;
 
-  if (!["wednesday", "sunday"].includes(game) || !gameLabel || !nickname || !phone) {
+  const gameCapacity = await resolveGameCapacity(game);
+  if (!gameCapacity || !gameLabel || !nickname || !phone) {
     response.status(400).json({ error: "Missing signup fields" });
     return;
   }
@@ -115,7 +124,7 @@ module.exports = async function handler(request, response) {
   let siteState = { signups: [], cycleStart: null };
   let storageResult = { ok: true };
   try {
-    siteState = await addSiteSignup({ id, game, nickname, note, createdAt });
+    siteState = await addSiteSignup({ id, game, nickname, note, createdAt }, { capacity: gameCapacity });
     storageResult = siteState.storage || storageResult;
   } catch (error) {
     console.warn("[telegram-signup] site signup storage failed:", error.message);

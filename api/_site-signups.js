@@ -90,13 +90,13 @@ const cleanText = (value, maxLength = 80) =>
     .replace(/\s+/g, " ")
     .slice(0, maxLength);
 
-const addSiteSignup = async (signup) => {
+const addSiteSignup = async (signup, options = {}) => {
   const state = await readSiteSignups();
   const id = cleanText(signup.id || String(Date.now()), 80);
 
   if (state.signups.some((item) => item.id === id)) return { ...state, added: false };
 
-  const capacity = gameCapacities[signup.game];
+  const capacity = Math.max(0, Number(options.capacity || gameCapacities[signup.game] || 0));
   const gameSignups = state.signups.filter((item) => item.game === signup.game);
   if (!capacity || gameSignups.length >= capacity) {
     const error = new Error("Game capacity reached");
@@ -118,7 +118,7 @@ const addSiteSignup = async (signup) => {
 const removeSiteSignup = async ({ id, game, nickname }) => {
   const state = await readSiteSignups();
   const cleanId = cleanText(id, 80);
-  const cleanGame = cleanText(game, 20);
+  const cleanGame = cleanText(game, 80);
   const cleanNickname = cleanText(nickname, 40).toLowerCase();
   const before = state.signups.length;
 

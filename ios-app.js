@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 100;
+const APP_BUILD = 101;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -1455,6 +1455,7 @@ let voiceAudioCursor = "";
 let chatRefreshTimer = null;
 let gamesRefreshTimer = null;
 let rankingRefreshTimer = null;
+let adminSelectedPlayerName = "";
 let playerChatSocket = null;
 let chatPendingPhoto = "";
 let newsPendingMedia = null;
@@ -2089,8 +2090,8 @@ function siteFeedGames() {
 }
 
 function scheduledGames(now = new Date()) {
-  const adminGames = (state.admin?.customGames || []).map((game) => ({ ...game, adminGame: true }));
   const baseGames = siteFeedGames();
+  const adminGames = baseGames.length ? [] : (state.admin?.customGames || []).map((game) => ({ ...game, adminGame: true }));
   return [...(baseGames.length ? baseGames : defaultGames), ...adminGames]
     .map((game) => {
       if (game.startsAt) {
@@ -2796,6 +2797,9 @@ function renderAdminPanel() {
     return;
   }
 
+  const openSections = new Set(
+    [...adminPanel.querySelectorAll("[data-admin-disclosure][open]")].map((section) => section.dataset.adminDisclosure),
+  );
   const players = currentPlayerRanking().filter((player) => normalizePlayerName(player.name) !== normalizePlayerName(ADMIN_ACCOUNT.nickname));
   const proposedNews = (state.newsProposals || []).filter((item) => item.status === "pending");
   const pendingMembers = state.team?.members?.filter((member) => member.status === "pending") || [];
@@ -2807,59 +2811,78 @@ function renderAdminPanel() {
       </div>
     </div>
     <p class="admin-lead">${escapeHtml(t("adminLead"))}</p>
-    <div class="admin-block admin-proposals-panel">
-      <div class="admin-proposals-heading">
-        <h3>${escapeHtml(t("proposedNews"))}</h3>
-        <b>${proposedNews.length}</b>
+    ${renderAdminDisclosure(
+      "proposed-news",
+      "newspaper",
+      t("queue"),
+      t("proposedNews"),
+      `<div class="admin-news-list">${
+        proposedNews.length
+          ? proposedNews.map((item) => renderAdminNewsForm(item)).join("")
+          : `<p class="empty-note">${escapeHtml(t("noPendingNews"))}</p>`
+      }</div>`,
+      openSections,
+      proposedNews.length,
+    )}
+    ${renderAdminDisclosure(
+      "admin-tools",
+      "sync",
+      t("adminPanelTitle"),
+      t("syncStatus"),
+      `<div class="admin-toolbar">
+        <button class="text-button" type="button" data-admin-retry-sync>${escapeHtml(t("retrySync"))}</button>
+        <button class="text-button" type="button" data-admin-export-players>${escapeHtml(t("exportPlayers"))}</button>
+        <button class="text-button" type="button" data-admin-clear-chat>${escapeHtml(t("clearChat"))}</button>
       </div>
-      <div class="admin-news-list">
-        ${
-          proposedNews.length
-            ? proposedNews.map((item) => renderAdminNewsForm(item)).join("")
-            : `<p class="empty-note">${escapeHtml(t("noPendingNews"))}</p>`
-        }
-      </div>
-    </div>
-    <div class="admin-toolbar">
-      <button class="text-button" type="button" data-admin-retry-sync>${escapeHtml(t("retrySync"))}</button>
-      <button class="text-button" type="button" data-admin-export-players>${escapeHtml(t("exportPlayers"))}</button>
-      <button class="text-button" type="button" data-admin-clear-chat>${escapeHtml(t("clearChat"))}</button>
-    </div>
-    <div class="admin-sync-status">
-      <b>${escapeHtml(t("syncStatus"))}</b>
-      <span>${escapeHtml(syncStatusText())}${state.sync.lastSiteSync ? ` / ${escapeHtml(formatDate(state.sync.lastSiteSync))}` : ""}</span>
-      ${state.sync.lastError ? `<p>${escapeHtml(state.sync.lastError)}</p>` : ""}
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("managePlayers"))}</h3>
-      ${renderAdminPlayerControl(players)}
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("manageGames"))}</h3>
-      ${renderAdminGameControl()}
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("bookings"))}</h3>
-      ${renderAdminSignupControl()}
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("queue"))}</h3>
-      <div class="admin-queue-list">
+      <div class="admin-sync-status">
+        <b>${escapeHtml(t("syncStatus"))}</b>
+        <span>${escapeHtml(syncStatusText())}${state.sync.lastSiteSync ? ` / ${escapeHtml(formatDate(state.sync.lastSiteSync))}` : ""}</span>
+        ${state.sync.lastError ? `<p>${escapeHtml(state.sync.lastError)}</p>` : ""}
+      </div>`,
+      openSections,
+    )}
+    ${renderAdminDisclosure("manage-players", "manage_accounts", t("adminPanelTitle"), t("managePlayers"), renderAdminPlayerControl(players), openSections, players.length)}
+    ${renderAdminDisclosure("manage-games", "event", t("adminPanelTitle"), t("manageGames"), renderAdminGameControl(), openSections, state.admin?.customGames?.length || 0)}
+    ${renderAdminDisclosure("bookings", "event_available", t("manageGames"), t("bookings"), renderAdminSignupControl(), openSections)}
+    ${renderAdminDisclosure(
+      "queue",
+      "pending_actions",
+      t("adminPanelTitle"),
+      t("queue"),
+      `<div class="admin-queue-list">
         <p>${escapeHtml(t("proposedNews"))}: <b>${proposedNews.length}</b></p>
         <p>${escapeHtml(t("teamConfirmations"))}: <b>${pendingMembers.length}</b></p>
-      </div>
-    </div>
-    <div class="admin-block">
-      <h3>${escapeHtml(t("adminLog"))}</h3>
-      <div class="admin-log-list">
-        ${renderAdminLog()}
-      </div>
-    </div>
+      </div>`,
+      openSections,
+      proposedNews.length + pendingMembers.length,
+    )}
+    ${renderAdminDisclosure("admin-log", "history", t("adminPanelTitle"), t("adminLog"), `<div class="admin-log-list">${renderAdminLog()}</div>`, openSections)}
+  `;
+}
+
+function renderAdminDisclosure(id, icon, eyebrow, title, body, openSections, badge = null) {
+  const isOpen = openSections.has(id);
+  return `
+    <details class="profile-disclosure admin-disclosure" data-admin-disclosure="${escapeHtml(id)}" ${isOpen ? "open" : ""}>
+      <summary>
+        <span class="material-symbols-rounded" aria-hidden="true">${escapeHtml(icon)}</span>
+        <span>
+          <small>${escapeHtml(eyebrow)}</small>
+          <strong>${escapeHtml(title)}${badge === null ? "" : `<em class="admin-disclosure-badge">${Number(badge || 0)}</em>`}</strong>
+        </span>
+        <span class="material-symbols-rounded disclosure-chevron" aria-hidden="true">expand_more</span>
+      </summary>
+      <div class="profile-disclosure-body admin-disclosure-body">${body}</div>
+    </details>
   `;
 }
 
 function renderAdminPlayerControl(players) {
-  const selectedPlayer = players[0] || { name: "", points: 0, rank: 0 };
+  const selectedPlayer =
+    players.find((player) => normalizePlayerName(player.name) === normalizePlayerName(adminSelectedPlayerName)) ||
+    players[0] ||
+    { name: "", points: 0, rank: 0 };
+  adminSelectedPlayerName = selectedPlayer.name || "";
   const selectedProfile = state.admin?.playerProfiles?.[normalizePlayerName(selectedPlayer.name)] || {};
   return `
     <div class="admin-player-window">
@@ -2867,7 +2890,12 @@ function renderAdminPlayerControl(players) {
         <label>
           <span>${escapeHtml(t("selectPlayer"))}</span>
           <select name="playerName" data-admin-player-select>
-            ${players.map((player) => `<option value="${escapeHtml(player.name)}">${escapeHtml(player.name)} / #${player.rank}</option>`).join("")}
+            ${players
+              .map(
+                (player) =>
+                  `<option value="${escapeHtml(player.name)}" ${normalizePlayerName(player.name) === normalizePlayerName(selectedPlayer.name) ? "selected" : ""}>${escapeHtml(player.name)} / #${player.rank}</option>`,
+              )
+              .join("")}
           </select>
         </label>
         <div class="admin-selected-player" data-admin-selected-player>
@@ -4556,7 +4584,7 @@ async function loginPlayer(formData) {
       role: "admin",
     };
     saveState();
-    await loadNewsProposals();
+    await Promise.all([loadNewsProposals(), loadAdminGamesFromSite({ renderPanel: false })]);
     return true;
   }
   const adminProfile = state.admin?.playerProfiles?.[normalizePlayerName(nickname)];
@@ -4741,6 +4769,7 @@ function setView(name) {
   views.forEach((view) => view.classList.toggle("active", view.dataset.view === name));
   tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
   appScroll?.classList.toggle("article-reading", name === "article");
+  appScroll?.classList.toggle("profile-reading", name === "profile");
   document.querySelector(".app-scroll").scrollTo({ top: 0, behavior: "smooth" });
   if (name === "voice" && isCurrentUserRegistered()) {
     activateVoiceSession();
@@ -5166,7 +5195,7 @@ async function fetchSiteSignups() {
   const sources = [
     "https://www.lasertagbaza.pl/api/telegram-signup",
     "/api/telegram-signup",
-    "Lasertagbaza1-upload/data/site-signups.json",
+    "data/site-signups.json",
   ];
 
   for (const source of sources) {
@@ -5205,7 +5234,7 @@ function normalizeSiteSignups(signups) {
   const byId = new Map();
   const cancelledIds = new Set(state.cancelledSiteSignupIds || []);
   signups
-    .filter((signup) => signup && ["wednesday", "sunday"].includes(signup.game) && !cancelledIds.has(String(signup.id || "")))
+    .filter((signup) => signup && String(signup.game || "").trim() && !cancelledIds.has(String(signup.id || "")))
     .forEach((signup) => {
       const id = String(signup.id || `${signup.game}-${signup.nickname}-${signup.createdAt || ""}`);
       byId.set(id, {
@@ -5299,7 +5328,7 @@ async function syncSignupToSite(game, signupId) {
 
   const payload = {
     ...signup,
-    gameLabel: gameLabelForSite(gameKey),
+    gameLabel: gameLabelForSite(gameKey, game),
     playerProof: state.profile.passwordHash,
   };
 
@@ -5419,10 +5448,12 @@ function syncCurrentSignedGamesToSite() {
   });
 }
 
-function gameLabelForSite(gameKey) {
-  return gameKey === "wednesday"
-    ? "Środa 18:30 / Counter-Strike 6v6"
-    : "Niedziela 18:00 / otwarta gra";
+function gameLabelForSite(gameKey, game = null) {
+  if (gameKey === "wednesday") return "Środa 18:30 / Counter-Strike 6v6";
+  if (gameKey === "sunday") return "Niedziela 18:00 / otwarta gra";
+  const title = localize(game?.title || "BAZA game");
+  const time = localize(game?.time || "");
+  return `${title}${time ? ` / ${time}` : ""}`;
 }
 
 function resolveRankingImage(src, sourceBase) {
@@ -5563,7 +5594,7 @@ document.addEventListener("click", async (event) => {
 
   const deleteAdminGameButton = event.target.closest("[data-admin-delete-game]");
   if (deleteAdminGameButton) {
-    deleteAdminGame(deleteAdminGameButton.dataset.adminDeleteGame);
+    await deleteAdminGame(deleteAdminGameButton.dataset.adminDeleteGame);
     return;
   }
 
@@ -5937,6 +5968,7 @@ async function saveAdminPlayer(form) {
   const contact = String(formData.get("contact") || "").trim();
   const password = String(formData.get("password") || "").trim();
   const blocked = Boolean(formData.get("blocked"));
+  adminSelectedPlayerName = name;
   ensureAdminState();
   setAdminPlayerPoints(name, points);
   const key = normalizePlayerName(name);
@@ -5975,6 +6007,7 @@ function syncAdminPlayerSelect(select) {
   const form = select.closest("[data-admin-player-form]");
   if (!form) return;
   const player = currentPlayerRanking().find((item) => item.name === select.value);
+  adminSelectedPlayerName = player?.name || select.value || "";
   const points = Number(player?.points || 0);
   const key = normalizePlayerName(player?.name || "");
   const profile = state.admin?.playerProfiles?.[key] || {};
@@ -6069,7 +6102,7 @@ async function loadAdminPlayersFromSite() {
       if (players.length) state.siteRanking = players;
       saveState();
       renderRanking();
-      renderAdminPanel();
+      if (!adminPanel?.contains(document.activeElement)) renderAdminPanel();
       return true;
     } catch {
       // Try the next admin player source.
@@ -6112,6 +6145,7 @@ async function addAdminPlayer(form) {
     createdAt: new Date().toISOString(),
     createdBy: ADMIN_ACCOUNT.nickname,
   };
+  adminSelectedPlayerName = name;
   state.admin.playerProfiles[profileKey] = createdProfile;
   state.admin.lastCreatedProfile = {
     nickname: name,
@@ -6132,7 +6166,46 @@ async function addAdminPlayer(form) {
   showToast(localizedToast("playerAdded"));
 }
 
-function createAdminGame(form) {
+function normalizeAdminGames(games) {
+  return (Array.isArray(games) ? games : [])
+    .map((game) => {
+      const startsAt = new Date(game.startsAt || "");
+      if (!game.id || Number.isNaN(startsAt.getTime())) return null;
+      return {
+        ...game,
+        id: String(game.id),
+        startsAt: startsAt.toISOString(),
+        day: String(startsAt.getDate()).padStart(2, "0"),
+        month: monthLabel(startsAt),
+        date: gameDateLabel(startsAt),
+        time: String(game.time || startsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })),
+        title: game.title || "BAZA game",
+        description: game.scenario || "BAZA admin game",
+        capacity: Math.max(2, Math.min(80, Number(game.capacity || 20))),
+        roster: [],
+        siteGame: String(game.id),
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.startsAt.localeCompare(right.startsAt));
+}
+
+async function loadAdminGamesFromSite({ renderPanel = true } = {}) {
+  try {
+    const response = await fetch(appApiUrl("/api/admin-games"), { cache: "no-store" });
+    if (!response.ok) return false;
+    const data = await response.json();
+    ensureAdminState();
+    state.admin.customGames = normalizeAdminGames(data.games);
+    saveState();
+    if (renderPanel && !adminPanel?.contains(document.activeElement)) renderAdminPanel();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function createAdminGame(form) {
   if (!isAdmin()) return;
   const formData = new FormData(form);
   const title = String(formData.get("title") || "").trim();
@@ -6142,34 +6215,58 @@ function createAdminGame(form) {
   if (!title || !date || !time) return;
   ensureAdminState();
   const startsAt = new Date(`${date}T${time}:00`);
-  state.admin.customGames.push({
-    id: `admin-game-${Date.now()}`,
-    startsAt: startsAt.toISOString(),
-    day: String(startsAt.getDate()).padStart(2, "0"),
-    month: monthLabel(startsAt),
-    date: gameDateLabel(startsAt),
-    time,
-    title,
-    description: "BAZA admin game",
-    capacity,
-    roster: [],
-    siteGame: "",
-  });
+  if (Number.isNaN(startsAt.getTime()) || startsAt.getTime() < Date.now() - 5 * 60 * 1000) return;
+  const submitButton = form.querySelector("[type='submit']");
+  if (submitButton) submitButton.disabled = true;
+  let response;
+  try {
+    response = await fetch(appApiUrl("/api/admin-games"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-BAZA-Admin": ADMIN_ACCOUNT.password },
+      body: JSON.stringify({ title, startsAt: startsAt.toISOString(), time, capacity, scenario: "BAZA admin game" }),
+    });
+  } catch {
+    response = null;
+  }
+  if (submitButton) submitButton.disabled = false;
+  if (!response?.ok) {
+    showToast(t("syncError"));
+    return;
+  }
+  const data = await response.json();
+  state.admin.customGames = normalizeAdminGames(data.games);
   addAdminLog("game created", `${title} / ${date} ${time}`);
   form.reset();
   saveState();
-  render();
+  renderAdminPanel();
+  await loadSiteGames({ notify: true });
   showToast(localizedToast("adminSaved"));
 }
 
-function deleteAdminGame(gameId) {
+async function deleteAdminGame(gameId) {
   if (!isAdmin()) return;
   ensureAdminState();
   const game = state.admin.customGames.find((item) => item.id === gameId);
-  state.admin.customGames = state.admin.customGames.filter((item) => item.id !== gameId);
+  let response;
+  try {
+    response = await fetch(appApiUrl("/api/admin-games"), {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "X-BAZA-Admin": ADMIN_ACCOUNT.password },
+      body: JSON.stringify({ id: gameId }),
+    });
+  } catch {
+    response = null;
+  }
+  if (!response?.ok) {
+    showToast(t("syncError"));
+    return;
+  }
+  const data = await response.json();
+  state.admin.customGames = normalizeAdminGames(data.games);
   addAdminLog("game deleted", game?.title || gameId);
   saveState();
-  render();
+  renderAdminPanel();
+  await loadSiteGames({ notify: false });
   showToast(localizedToast("adminSaved"));
 }
 
@@ -6277,7 +6374,7 @@ async function loadNewsProposals() {
       state.newsProposals = [...incoming, ...localPending.filter((local) => !incoming.some((item) => item.id === local.id))];
     }
     saveState();
-    renderAdminPanel();
+    if (!adminPanel?.contains(document.activeElement)) renderAdminPanel();
     return true;
   } catch {
     return false;
@@ -7487,7 +7584,7 @@ document.addEventListener("submit", async (event) => {
   const adminGameForm = event.target.closest("[data-admin-game-form]");
   if (adminGameForm) {
     event.preventDefault();
-    createAdminGame(adminGameForm);
+    await createAdminGame(adminGameForm);
     return;
   }
 
@@ -7566,7 +7663,10 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
     loadSiteGames({ notify: true });
     loadSiteRanking();
-    if (isAdmin()) loadNewsProposals();
+    if (isAdmin()) {
+      loadNewsProposals();
+      loadAdminGamesFromSite();
+    }
   }
   clearTimeout(voiceBrowserHiddenTimer);
   voiceBrowserHiddenTimer = null;
@@ -7596,6 +7696,7 @@ loadSiteSignups().then(syncCurrentSignedGamesToSite);
 loadSiteRanking();
 rankingRefreshTimer = setInterval(loadSiteRanking, RANKING_POLL_MS);
 loadAdminPlayersFromSite();
+loadAdminGamesFromSite({ renderPanel: false });
 loadSiteNews();
 loadNewsProposals();
 newsProposalRefreshTimer = setInterval(() => {

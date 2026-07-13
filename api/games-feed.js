@@ -1,6 +1,7 @@
 const { readSiteSignups } = require("./_site-signups");
 const { readPlayerRanking } = require("./_player-ranking");
 const signupHandler = require("./telegram-signup");
+const { readAdminGames } = require("./_admin-games");
 
 const timeZone = "Europe/Warsaw";
 const WEATHER_URL =
@@ -97,13 +98,12 @@ const enrichSignup = (signup, playersByNickname) => {
 };
 
 const buildGamesFeed = async () => {
-  const state = await readSiteSignups();
-  const ranking = await readPlayerRanking();
+  const [state, ranking, adminGamesState] = await Promise.all([readSiteSignups(), readPlayerRanking(), readAdminGames()]);
   const playersByNickname = new Map(
     ranking.players.map((player) => [normalizeNickname(player.nickname || player.name), player]),
   );
   const signups = state.signups.map((signup) => enrichSignup(signup, playersByNickname));
-  const games = Object.values(gameDefinitions)
+  const scheduledGames = Object.values(gameDefinitions)
     .map((game) => {
       const schedule = getNextGameStart(game);
       const players = signups.filter((signup) => signup.game === game.id);
@@ -115,7 +115,23 @@ const buildGamesFeed = async () => {
         availableSpots: Math.max(0, game.capacity - players.length),
         players,
       };
-    })
+    });
+  const customGames = adminGamesState.games
+    .filter((game) => new Date(game.startsAt).getTime() > Date.now())
+    .map((game) => {
+      const players = signups.filter((signup) => signup.game === game.id);
+      return {
+        ...game,
+        date: game.startsAt.slice(0, 10),
+        timeZone,
+        minimumAge: 10,
+        durationMinutes: 120,
+        signupCount: players.length,
+        availableSpots: Math.max(0, game.capacity - players.length),
+        players,
+      };
+    });
+  const games = [...scheduledGames, ...customGames]
     .sort((left, right) => left.startsAt.localeCompare(right.startsAt));
 
   return {
@@ -139,7 +155,7 @@ const buildGamesFeed = async () => {
       contentType: "application/json",
       requiredFields: ["game", "gameLabel", "nickname", "phone"],
       optionalFields: ["id", "note", "createdAt", "formStartedAt", "website"],
-      allowedGames: Object.keys(gameDefinitions),
+      allowedGames: [...Object.keys(gameDefinitions), ...customGames.map((game) => game.id)],
     },
     games,
     signups,
