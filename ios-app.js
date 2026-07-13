@@ -1,5 +1,5 @@
 const STORAGE_KEY = "bazaClubIosApp";
-const APP_BUILD = 108;
+const APP_BUILD = 109;
 const ADMIN_RESET_VERSION = "admin-ruslan-v1";
 const VOICE_ROOM_MIN_POINTS = 300;
 const CHAT_MIN_POINTS = 50;
@@ -45,6 +45,20 @@ function appApiUrl(path) {
 function appSocketUrl(path) {
   const origin = appApiOrigin();
   return `${origin.startsWith("https:") ? "wss:" : "ws:"}${origin.replace(/^https?:/, "")}${path}`;
+}
+
+function resolveBundledAssetUrl(source) {
+  const value = String(source || "").trim();
+  if (!value || value.startsWith("data:") || value.startsWith("blob:")) return value;
+  try {
+    const url = new URL(value, PUBLIC_APP_ORIGIN);
+    if (url.origin === PUBLIC_APP_ORIGIN && url.pathname.startsWith("/assets/")) {
+      return url.pathname.slice(1);
+    }
+  } catch {
+    // Keep non-URL values unchanged.
+  }
+  return value;
 }
 
 const copy = {
@@ -1726,6 +1740,16 @@ function loadState() {
   }
 }
 
+function persistStateToNative(serializedState) {
+  const handler = window.webkit?.messageHandlers?.bazaNative;
+  if (!window.BAZA_NATIVE_APP || !handler?.postMessage) return;
+  try {
+    handler.postMessage({ type: "persistState", value: serializedState });
+  } catch {
+    // Browser storage remains the primary copy when the native bridge is unavailable.
+  }
+}
+
 function saveState() {
   try {
     const persistedState = {
@@ -1735,13 +1759,17 @@ function saveState() {
         media: proposal.media ? { ...proposal.media, data: "" } : null,
       })),
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedState));
+    const serializedState = JSON.stringify(persistedState);
+    localStorage.setItem(STORAGE_KEY, serializedState);
+    persistStateToNative(serializedState);
     return true;
   } catch (error) {
     if (state.profile?.avatar) {
       state.profile.avatar = "";
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        const serializedState = JSON.stringify(state);
+        localStorage.setItem(STORAGE_KEY, serializedState);
+        persistStateToNative(serializedState);
         return true;
       } catch {
         // Fall through to the error toast below.
@@ -5180,41 +5208,45 @@ async function loadSiteNews() {
 }
 
 async function loadRemoteNewsFeed() {
-  try {
-    const source = appApiUrl("/api/news-feed");
-    const response = await fetch(source, { cache: "no-store" });
-    if (!response.ok) return [];
-    const feed = await response.json();
-    const sections = Array.isArray(feed.sections) ? feed.sections : [];
-    const items = sections.flatMap((section) => {
-      const sectionItems = Array.isArray(section.items) ? section.items : [];
-      return sectionItems.map((item) => ({ item, section }));
-    });
+  const sources = [appApiUrl("/api/news-feed"), "data/news-feed.json"];
+  for (const source of sources) {
+    try {
+      const response = await fetch(source, { cache: "no-store" });
+      if (!response.ok) continue;
+      const feed = await response.json();
+      const sections = Array.isArray(feed.sections) ? feed.sections : [];
+      const items = sections.flatMap((section) => {
+        const sectionItems = Array.isArray(section.items) ? section.items : [];
+        return sectionItems.map((item) => ({ item, section }));
+      });
+      if (!items.length) continue;
 
-    return items.map(({ item, section }, index) => ({
-      id: item.id || `remote-news-${index}`,
-      title: item.title || "BAZA update",
-      titleByLanguage: item.titleByLanguage || null,
-      body: item.summary || "",
-      summaryByLanguage: item.summaryByLanguage || null,
-      author: item.author || localize(section.labels) || "BAZA",
-      createdAt: item.createdAt || (item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString()),
-      image: item.image || "",
-      media: item.media || null,
-      contentUrl: item.contentUrl || "",
-      content: item.content || "",
-      contentByLanguage: item.contentByLanguage || {},
-      articleKey: item.articleKey || "",
-      webSelector: item.webSelector || "",
-      relatedArticleId: item.relatedArticleId || "",
-      site: true,
-      sectionId: section.id || "",
-      playerSubmitted: Boolean(item.playerSubmitted),
-      source,
-    }));
-  } catch {
-    return [];
+      return items.map(({ item, section }, index) => ({
+        id: item.id || `remote-news-${index}`,
+        title: item.title || "BAZA update",
+        titleByLanguage: item.titleByLanguage || null,
+        body: item.summary || "",
+        summaryByLanguage: item.summaryByLanguage || null,
+        author: item.author || localize(section.labels) || "BAZA",
+        createdAt: item.createdAt || (item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString()),
+        image: resolveBundledAssetUrl(item.image || ""),
+        media: item.media || null,
+        contentUrl: item.contentUrl || "",
+        content: item.content || "",
+        contentByLanguage: item.contentByLanguage || {},
+        articleKey: item.articleKey || "",
+        webSelector: item.webSelector || "",
+        relatedArticleId: item.relatedArticleId || "",
+        site: true,
+        sectionId: section.id || "",
+        playerSubmitted: Boolean(item.playerSubmitted),
+        source,
+      }));
+    } catch {
+      // Try the bundled feed when the live API is unavailable.
+    }
   }
+  return [];
 }
 
 function findBazaUpdatesSection(doc) {
@@ -5267,6 +5299,7 @@ async function loadLegacySiteNews() {
 async function loadSiteRanking() {
   const sources = [
     { url: appApiUrl("/api/ranking-feed"), type: "json" },
+    { url: "data/ranking-feed.json", type: "json" },
     { url: "Lasertagbaza1-upload/data/ranking-feed.json", type: "json" },
     { url: "https://www.lasertagbaza.pl/", type: "html" },
     { url: "index.html", type: "html" },
@@ -5340,37 +5373,44 @@ function normalizeGamesFeedGames(games) {
 }
 
 async function loadSiteGames({ notify = true } = {}) {
-  try {
-    const response = await fetch(appApiUrl("/api/games-feed"), { cache: "no-store" });
-    if (!response.ok) return false;
-    const feed = await response.json();
-    const games = normalizeGamesFeedGames(feed.games);
-    if (!games.length) return false;
+  const sources = [
+    { url: appApiUrl("/api/games-feed"), bundled: false },
+    { url: "data/offline-games.json", bundled: true },
+  ];
+  for (const source of sources) {
+    try {
+      const response = await fetch(source.url, { cache: "no-store" });
+      if (!response.ok) continue;
+      const feed = await response.json();
+      const games = normalizeGamesFeedGames(feed.games);
+      if (!games.length) continue;
 
-    const previousKeys = new Set(state.seenGameInstances || []);
-    const currentKeys = games.map((game) => `${game.id}:${game.startsAt}`);
-    const hasPreviousSnapshot = previousKeys.size > 0;
-    const newGames = hasPreviousSnapshot
-      ? games.filter((game) => !previousKeys.has(`${game.id}:${game.startsAt}`))
-      : [];
+      const previousKeys = new Set(state.seenGameInstances || []);
+      const currentKeys = games.map((game) => `${game.id}:${game.startsAt}`);
+      const hasPreviousSnapshot = previousKeys.size > 0;
+      const newGames = hasPreviousSnapshot
+        ? games.filter((game) => !previousKeys.has(`${game.id}:${game.startsAt}`))
+        : [];
 
-    state.siteGames = games;
-    state.seenGameInstances = [...new Set([...currentKeys, ...previousKeys])].slice(-40);
-    if (Array.isArray(feed.signups)) replaceSiteSignups(feed.signups);
-    saveState();
-    renderGames();
-    renderStats();
+      state.siteGames = games;
+      state.seenGameInstances = [...new Set([...currentKeys, ...previousKeys])].slice(-40);
+      if (Array.isArray(feed.signups)) replaceSiteSignups(feed.signups);
+      saveState();
+      renderGames();
+      renderStats();
 
-    if (notify) {
-      newGames.forEach((game) => {
-        const renderedGame = scheduledGames().find((item) => item.feedInstanceKey === `${game.id}:${game.startsAt}`) || game;
-        sendNewGameNotification(renderedGame);
-      });
+      if (notify && !source.bundled) {
+        newGames.forEach((game) => {
+          const renderedGame = scheduledGames().find((item) => item.feedInstanceKey === `${game.id}:${game.startsAt}`) || game;
+          sendNewGameNotification(renderedGame);
+        });
+      }
+      return true;
+    } catch {
+      // Keep the last saved games or try the bundled snapshot.
     }
-    return true;
-  } catch {
-    return false;
   }
+  return false;
 }
 
 async function loadSiteSignups() {
@@ -5661,9 +5701,9 @@ function gameLabelForSite(gameKey, game = null) {
 
 function resolveRankingImage(src, sourceBase) {
   if (!src) return "";
-  if (/^https?:\/\//i.test(src)) return src;
-  if (src.startsWith("/")) return src;
-  return `${sourceBase}${src}`;
+  if (/^https?:\/\//i.test(src)) return resolveBundledAssetUrl(src);
+  if (src.startsWith("/")) return resolveBundledAssetUrl(src);
+  return resolveBundledAssetUrl(`${sourceBase}${src}`);
 }
 
 tabButtons.forEach((button) => {
@@ -6337,7 +6377,7 @@ function normalizeRankingFeedPlayers(players) {
       rank: Number(player.rank || index + 1),
       name: player.nickname || player.name || "",
       points: Number(player.points || 0),
-      avatar: player.avatar || "",
+      avatar: resolveBundledAssetUrl(player.avatar || ""),
     }))
     .filter((player) => player.name);
 }
