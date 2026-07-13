@@ -3081,7 +3081,7 @@ textarea:focus-visible {
   padding: 28px 18px;
   border-bottom: 1px solid var(--acid);
   background-color: rgba(3, 3, 3, 0.7);
-  background-image: url("assets/laser-arena-hero.png");
+  background-image: url("assets/profile-hero.jpg");
   background-position: center;
   background-size: cover;
   background-blend-mode: multiply;
