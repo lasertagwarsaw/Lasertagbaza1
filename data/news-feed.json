@@ -85,8 +85,10 @@
           "publishedAt": "2026-07-13",
           "author": "Lasertag Warsaw",
           "title": "Klub to nie tylko gry. To także wartościowy networking",
+          "titleCopyId": "networking-card-title",
           "summary": "Na BAZIE spotykają się ludzie z różnych branż, grają razem, poznają się i dobrze spędzają czas także poza polem gry.",
-          "image": "https://www.lasertagbaza.pl/assets/update-club-networking-2026-07-13.jpg",
+          "summaryCopyId": "networking-card-summary",
+          "image": "/assets/update-club-networking-2026-07-13.jpg",
           "contentUrl": "https://www.lasertagbaza.pl/?article=club-networking-2026-07-13#aktualnosci",
           "webSelector": "[data-news-id='club-networking-2026-07-13']",
           "relatedArticleId": "open-tournament-2026-07-05"

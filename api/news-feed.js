@@ -107,6 +107,20 @@ const translatedArticleContent = (blocks, language, catalog) => blocks
   .filter(Boolean)
   .join("\n\n");
 
+const localizedFeedField = (item, field, catalog) => {
+  const explicit = item[`${field}ByLanguage`];
+  const catalogValues = catalog.copyById[item[`${field}CopyId`]] || {};
+  if ((!explicit || typeof explicit !== "object") && !Object.keys(catalogValues).length) return null;
+
+  const fallback = explicit?.pl || catalogValues.pl || item[field] || "";
+  return Object.fromEntries(
+    supportedLanguages.map((language) => [
+      language,
+      explicit?.[language] || catalogValues[language] || fallback,
+    ]),
+  );
+};
+
 const withFullArticles = (sections) => {
   let html = "";
   try {
@@ -119,11 +133,15 @@ const withFullArticles = (sections) => {
     ...section,
     items: section.items.map((item) => {
       const blocks = extractArticleBlocks(html, item.id);
+      const titleByLanguage = localizedFeedField(item, "title", catalog);
+      const summaryByLanguage = localizedFeedField(item, "summary", catalog);
       const contentByLanguage = Object.fromEntries(
         supportedLanguages.map((language) => [language, translatedArticleContent(blocks, language, catalog)]),
       );
       return {
         ...item,
+        ...(titleByLanguage ? { titleByLanguage } : {}),
+        ...(summaryByLanguage ? { summaryByLanguage } : {}),
         content: contentByLanguage.pl || "",
         contentByLanguage,
       };

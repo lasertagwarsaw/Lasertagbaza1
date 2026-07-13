@@ -1055,22 +1055,6 @@ Object.entries(additionalCopy).forEach(([language, values]) => Object.assign(cop
 const locales = { en: "en", pl: "pl", be: "be", uk: "uk", ru: "ru" };
 
 const newsCopy = {
-  "club-networking-2026-07-13": {
-    title: {
-      en: "The club is more than games. It is valuable networking too",
-      pl: "Klub to nie tylko gry. To także wartościowy networking",
-      be: "Клуб - гэта не толькі гульні, але і карысны нетворкінг",
-      uk: "Клуб - це не лише ігри, а й корисний нетворкінг",
-      ru: "Клуб - это не только игры, но и полезный нетворкинг",
-    },
-    body: {
-      en: "People from many different fields meet at BAZA, play together, get to know each other and enjoy time beyond the arena too.",
-      pl: "Na BAZIE spotykają się ludzie z różnych branż, grają razem, poznają się i dobrze spędzają czas także poza polem gry.",
-      be: "На BAZA збіраюцца людзі з розных сфер, гуляюць разам, знаёмяцца і выдатна праводзяць час не толькі на гульнявым полі.",
-      uk: "На BAZA збираються люди з різних сфер, грають разом, знайомляться та чудово проводять час не лише на ігровому полі.",
-      ru: "На BAZA собираются люди из совершенно разных сфер, играют вместе, знакомятся и отлично проводят время не только на игровом поле.",
-    },
-  },
   "noka-review-2026-07-10": {
     title: {
       en: "The 11th generation through the tournament winner's eyes",
@@ -1234,7 +1218,6 @@ const newsCopy = {
 };
 
 const newsImages = {
-  "club-networking-2026-07-13": "assets/update-club-networking-2026-07-13.jpg",
   "noka-review-2026-07-10": "assets/update-noka-review.webp",
   "agent-review-2026-07-10": "assets/update-agent-review.webp",
   "tort-review-2026-07-09": "assets/player-tort.webp",
@@ -2480,18 +2463,18 @@ function safeNewsUrl(item) {
 }
 
 function localizedNewsTitle(item) {
-  return localize(newsCopy[item.id]?.title || item.title);
+  return localize(item.titleByLanguage || newsCopy[item.id]?.title || item.title);
 }
 
 function localizedNewsBody(item) {
-  return localize(newsCopy[item.id]?.body || item.body);
+  return localize(item.summaryByLanguage || newsCopy[item.id]?.body || item.body);
 }
 
 function newsImage(item) {
   if (item.media?.type === "image" && /^data:image\/(?:jpeg|jpg|png|webp);base64,/i.test(item.media.data || "")) {
     return item.media.data;
   }
-  return newsImages[item.id] || item.image || "assets/card-news-trophy.jpg";
+  return item.image || newsImages[item.id] || "assets/card-news-trophy.jpg";
 }
 
 function safeNewsVideo(item) {
@@ -5093,7 +5076,9 @@ async function loadRemoteNewsFeed() {
     return items.map(({ item, section }, index) => ({
       id: item.id || `remote-news-${index}`,
       title: item.title || "BAZA update",
+      titleByLanguage: item.titleByLanguage || null,
       body: item.summary || "",
+      summaryByLanguage: item.summaryByLanguage || null,
       author: item.author || localize(section.labels) || "BAZA",
       createdAt: item.createdAt || (item.publishedAt ? `${item.publishedAt}T12:00:00+02:00` : feed.updatedAt || new Date().toISOString()),
       image: item.image || "",
